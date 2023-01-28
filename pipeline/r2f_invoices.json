@@ -15,18 +15,11 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"dataflow": {
-						"referenceName": "r2f_spotify_sub_users_invoice_creation",
-						"type": "DataFlowReference"
-					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
 					},
-					"traceLevel": "Coarse",
-					"continuationSettings": {
-						"customizedCheckpointKey": "096ef6dc-f66e-4bb7-8329-47b6e82f5ed8"
-					}
+					"traceLevel": "Coarse"
 				}
 			}
 		],
