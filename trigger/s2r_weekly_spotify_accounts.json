@@ -1,0 +1,32 @@
+{
+	"name": "s2r_weekly_spotify_accounts",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "s2r_spotify_accounts",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Week",
+				"interval": 1,
+				"startTime": "2023-01-20T01:45:00Z",
+				"timeZone": "UTC",
+				"schedule": {
+					"hours": [
+						2
+					],
+					"weekDays": [
+						"Friday"
+					]
+				}
+			}
+		}
+	}
+}

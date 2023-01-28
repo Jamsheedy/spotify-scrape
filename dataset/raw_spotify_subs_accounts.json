@@ -1,0 +1,42 @@
+{
+	"name": "raw_spotify_subs_accounts",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "raw/spotify_subs_accounts",
+				"fileSystem": "sys"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "active_ts",
+				"type": "INT96"
+			},
+			{
+				"name": "member_type",
+				"type": "UTF8"
+			},
+			{
+				"name": "sub_id",
+				"type": "INT64"
+			},
+			{
+				"name": "username",
+				"type": "UTF8"
+			},
+			{
+				"name": "inbound_file_name",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

@@ -1,0 +1,26 @@
+{
+	"name": "relationship-ezdafsywgg",
+	"properties": {
+		"Name": "relationship-ezdafsywgg",
+		"EntityType": "RELATIONSHIP",
+		"Namespace": {
+			"DatabaseName": "raw"
+		},
+		"Origin": {
+			"Type": "SPARK"
+		},
+		"FromTableName": "spotify_sub_accs",
+		"ToTableName": "user_accounts",
+		"ColumnRelationshipInformations": [
+			{
+				"FromColumnName": "id",
+				"ToColumnName": "sub_id"
+			}
+		],
+		"RelationshipType": 0,
+		"PublishStatus": "PUBLISHED",
+		"ObjectVersion": 1,
+		"ObjectId": "e21bb4d4-b082-42b4-869a-917bb73e4e1a"
+	},
+	"type": "RELATIONSHIP"
+}

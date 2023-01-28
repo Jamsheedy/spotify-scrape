@@ -1,0 +1,26 @@
+{
+	"name": "relationship-ukqjkwizmw",
+	"properties": {
+		"Name": "relationship-ukqjkwizmw",
+		"EntityType": "RELATIONSHIP",
+		"Namespace": {
+			"DatabaseName": "raw"
+		},
+		"Origin": {
+			"Type": "SPARK"
+		},
+		"FromTableName": "user_accounts",
+		"ToTableName": "user_payment_info",
+		"ColumnRelationshipInformations": [
+			{
+				"FromColumnName": "id",
+				"ToColumnName": "user_id"
+			}
+		],
+		"RelationshipType": 0,
+		"PublishStatus": "PUBLISHED",
+		"ObjectVersion": 1,
+		"ObjectId": "94ed837e-30dc-4605-be0d-3230d1c0b4fb"
+	},
+	"type": "RELATIONSHIP"
+}

@@ -1,0 +1,17 @@
+{
+	"name": "SubAccounts",
+	"properties": {
+		"content": {
+			"query": "SELECT [subs].[id] subID, [subs].[site] as subSite, [subs].[spotify_username] subSpotifyUsername, [accounts].[id] accountID, [accounts].[username] accountUsername, [accounts].[member_type] accountMemberType, [accounts].[created_timestamp] createTs\n FROM [foundation].[dbo].[spotify_user_accounts] [accounts]\n JOIN [raw].[dbo].[spotify_sub_accs] [subs]\n    ON accounts.sub_id = subs.id",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "foundation",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

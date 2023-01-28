@@ -1,0 +1,37 @@
+{
+	"name": "r2f_invoices",
+	"properties": {
+		"activities": [
+			{
+				"name": "r2f_invoice_creation",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "r2f_spotify_sub_users_invoice_creation",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Coarse",
+					"continuationSettings": {
+						"customizedCheckpointKey": "096ef6dc-f66e-4bb7-8329-47b6e82f5ed8"
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-01-17T03:43:06Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

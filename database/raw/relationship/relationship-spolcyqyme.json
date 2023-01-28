@@ -1,0 +1,26 @@
+{
+	"name": "relationship-spolcyqyme",
+	"properties": {
+		"Name": "relationship-spolcyqyme",
+		"EntityType": "RELATIONSHIP",
+		"Namespace": {
+			"DatabaseName": "raw"
+		},
+		"Origin": {
+			"Type": "SPARK"
+		},
+		"FromTableName": "user_accounts",
+		"ToTableName": "user_accounts_log",
+		"ColumnRelationshipInformations": [
+			{
+				"FromColumnName": "id",
+				"ToColumnName": "user_id"
+			}
+		],
+		"RelationshipType": 0,
+		"PublishStatus": "PUBLISHED",
+		"ObjectVersion": 1,
+		"ObjectId": "50e6a481-ad53-4d7a-9887-bf1e8c3b22c4"
+	},
+	"type": "RELATIONSHIP"
+}

@@ -1,0 +1,25 @@
+{
+	"name": "raw",
+	"properties": {
+		"Name": "raw",
+		"EntityType": "DATABASE",
+		"Origin": {
+			"Type": "SPARK"
+		},
+		"Properties": {
+			"IsSyMSCDMDatabase": true
+		},
+		"Source": {
+			"Provider": "ADLS",
+			"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/raw",
+			"Properties": {
+				"FormatType": "parquet",
+				"LinkedServiceName": "spotify-scrape-dev-WorkspaceDefaultStorage"
+			}
+		},
+		"PublishStatus": "PUBLISHED",
+		"ObjectVersion": 16,
+		"ObjectId": "ae3f836a-0b85-4e07-b8e8-fa84c708c8a5"
+	},
+	"type": "DATABASE"
+}

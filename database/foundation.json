@@ -1,0 +1,25 @@
+{
+	"name": "foundation",
+	"properties": {
+		"Name": "foundation",
+		"EntityType": "DATABASE",
+		"Origin": {
+			"Type": "SPARK"
+		},
+		"Properties": {
+			"IsSyMSCDMDatabase": true
+		},
+		"Source": {
+			"Provider": "ADLS",
+			"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/foundation",
+			"Properties": {
+				"FormatType": "parquet",
+				"LinkedServiceName": "spotify-scrape-dev-WorkspaceDefaultStorage"
+			}
+		},
+		"PublishStatus": "PUBLISHED",
+		"ObjectVersion": 3,
+		"ObjectId": "bc2ef57c-2107-4015-8260-523ee4ceec13"
+	},
+	"type": "DATABASE"
+}

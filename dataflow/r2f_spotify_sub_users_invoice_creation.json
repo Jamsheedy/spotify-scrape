@@ -1,0 +1,197 @@
+{
+	"name": "r2f_spotify_sub_users_invoice_creation",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "raw_spotify_subs_accounts",
+						"type": "DatasetReference"
+					},
+					"name": "SpotifyUsers"
+				},
+				{
+					"name": "InvoiceTarget"
+				},
+				{
+					"name": "TargetUserAccounts"
+				}
+			],
+			"sinks": [
+				{
+					"name": "Invoices"
+				},
+				{
+					"name": "SpotifyUserAccounts"
+				}
+			],
+			"transformations": [
+				{
+					"name": "CreateInvoices"
+				},
+				{
+					"name": "AddInvoiceDetails"
+				},
+				{
+					"name": "SelectInvoiceColumns"
+				},
+				{
+					"name": "checkInvoices"
+				},
+				{
+					"name": "GetUsers"
+				},
+				{
+					"name": "BaseKeyVals"
+				},
+				{
+					"name": "AddIDandColumns"
+				},
+				{
+					"name": "GetMaxID"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "MaxUserID"
+				},
+				{
+					"name": "UserCompositeKeys"
+				},
+				{
+					"name": "CheckUserComposite"
+				},
+				{
+					"name": "JoinMaxUserID"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          active_ts as timestamp,",
+				"          member_type as string,",
+				"          sub_id as long,",
+				"          username as string,",
+				"          inbound_file_name as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     enableCdc: true,",
+				"     mode: 'read',",
+				"     skipInitialLoad: false,",
+				"     format: 'parquet') ~> SpotifyUsers",
+				"source(output(",
+				"          year as integer,",
+				"          month as integer,",
+				"          sub_id as long,",
+				"          test as long,",
+				"          last_day_of_month as date,",
+				"          description as string,",
+				"          invoiced as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'foundation',",
+				"     tableName: 'invoices') ~> InvoiceTarget",
+				"source(output(",
+				"          id as long,",
+				"          sub_id as long,",
+				"          username as string,",
+				"          member_type as string,",
+				"          created_timestamp as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'foundation',",
+				"     tableName: 'spotify_user_accounts') ~> TargetUserAccounts",
+				"SpotifyUsers aggregate(groupBy(year = year(active_ts),",
+				"          month = month(active_ts),",
+				"          sub_id),",
+				"     test = approxDistinctCount(active_ts)) ~> CreateInvoices",
+				"checkInvoices derive(last_day_of_month = lastDayOfMonth((toDate(toString(year) + \"-\" + toString(month), \"yyyy-M\", 'en-US'))),",
+				"          description = 'Monthly spotify Invoice',",
+				"          invoiced = 'N') ~> AddInvoiceDetails",
+				"AddInvoiceDetails select(mapColumn(",
+				"          year,",
+				"          month,",
+				"          sub_id,",
+				"          last_day_of_month,",
+				"          description,",
+				"          invoiced",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectInvoiceColumns",
+				"CreateInvoices, InvoiceTarget exists(CreateInvoices@year == InvoiceTarget@year",
+				"     && CreateInvoices@month == InvoiceTarget@month",
+				"     && CreateInvoices@sub_id == InvoiceTarget@sub_id,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> checkInvoices",
+				"SpotifyUsers aggregate(groupBy(sub_id,",
+				"          username,",
+				"          member_type),",
+				"     count = count()) ~> GetUsers",
+				"CheckUserComposite keyGenerate(output(id as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> BaseKeyVals",
+				"JoinMaxUserID derive(id = id + maxID,",
+				"          created_at = currentTimestamp()) ~> AddIDandColumns",
+				"derivedColumn2 aggregate(groupBy(temp),",
+				"     maxID = max(id)) ~> GetMaxID",
+				"TargetUserAccounts derive(temp = 'temp') ~> derivedColumn2",
+				"GetMaxID select(mapColumn(",
+				"          maxID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> MaxUserID",
+				"TargetUserAccounts aggregate(groupBy(sub_id,",
+				"          username,",
+				"          member_type),",
+				"     count = count()) ~> UserCompositeKeys",
+				"GetUsers, UserCompositeKeys exists(GetUsers@sub_id == UserCompositeKeys@sub_id",
+				"     && GetUsers@username == UserCompositeKeys@username",
+				"     && GetUsers@member_type == UserCompositeKeys@member_type,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> CheckUserComposite",
+				"BaseKeyVals, MaxUserID join(true(),",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinMaxUserID",
+				"AddIDandColumns select(mapColumn(",
+				"          sub_id,",
+				"          username,",
+				"          member_type,",
+				"          id,",
+				"          created_at",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"SelectInvoiceColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'foundation',",
+				"     tableName: 'invoices') ~> Invoices",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'foundation',",
+				"     tableName: 'spotify_user_accounts') ~> SpotifyUserAccounts"
+			]
+		}
+	}
+}

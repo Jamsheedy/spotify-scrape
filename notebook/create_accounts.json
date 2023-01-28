@@ -1,0 +1,55 @@
+{
+	"name": "create_accounts",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"runAsWorkspaceSystemIdentity": false,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "08dc56c2-fb7c-45bf-a103-38b8ed0a3fe5"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "python"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"subs = [\r\n",
+					"    {\r\n",
+					"        'id': 0,\r\n",
+					"        'site': 'Spotify',\r\n",
+					"        'spotify_username': 'danjam',\r\n",
+					"        'active_flag' : 'Y'\r\n",
+					"    }\r\n",
+					"]\r\n",
+					"\r\n",
+					"df = spark.createDataFrame(subs)\r\n",
+					"\r\n",
+					"df.write.mode('overwrite').format('parquet').saveAsTable('raw.spotify_sub_accs')"
+				]
+			}
+		]
+	}
+}
