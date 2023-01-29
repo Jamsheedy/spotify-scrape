@@ -1,5 +1,5 @@
 {
-	"name": "s2r_spotify_accounts_cdc",
+	"name": "s2pr_spotify_accounts_cdc",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
