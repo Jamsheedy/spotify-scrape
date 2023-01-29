@@ -1,7 +1,7 @@
 {
-	"name": "relationship-ryhpytlcxq",
+	"name": "relationship-jeecbabjje",
 	"properties": {
-		"Name": "relationship-ryhpytlcxq",
+		"Name": "relationship-jeecbabjje",
 		"EntityType": "RELATIONSHIP",
 		"Namespace": {
 			"DatabaseName": "raw"
@@ -9,12 +9,12 @@
 		"Origin": {
 			"Type": "SPARK"
 		},
-		"FromTableName": "user_accounts_log",
-		"ToTableName": "invoice_stubs",
+		"FromTableName": "sub_accounts",
+		"ToTableName": "invoices",
 		"ColumnRelationshipInformations": [
 			{
-				"FromColumnName": "user_id",
-				"ToColumnName": "user_id"
+				"FromColumnName": "id",
+				"ToColumnName": "sub_id"
 			}
 		],
 		"RelationshipType": 0
