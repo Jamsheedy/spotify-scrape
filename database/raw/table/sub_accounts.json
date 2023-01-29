@@ -30,20 +30,6 @@
 					"DeltaFormatInvalidMessages": []
 				},
 				{
-					"Name": "site",
-					"Description": null,
-					"OriginDataTypeName": {
-						"TypeName": "string",
-						"IsComplexType": false,
-						"IsNullable": true,
-						"Length": 0,
-						"Properties": {
-							"HIVE_TYPE_STRING": "string"
-						}
-					},
-					"DeltaFormatInvalidMessages": []
-				},
-				{
 					"Name": "spotify_username",
 					"Description": null,
 					"OriginDataTypeName": {
@@ -58,12 +44,54 @@
 					"DeltaFormatInvalidMessages": []
 				},
 				{
+					"Name": "site",
+					"Description": null,
+					"OriginDataTypeName": {
+						"TypeName": "string",
+						"IsComplexType": false,
+						"IsNullable": true,
+						"Length": 0,
+						"Properties": {
+							"HIVE_TYPE_STRING": "string"
+						}
+					},
+					"DeltaFormatInvalidMessages": []
+				},
+				{
+					"Name": "type",
+					"Description": "",
+					"OriginDataTypeName": {
+						"TypeName": "string",
+						"IsNullable": false,
+						"IsComplexType": false,
+						"Length": 256,
+						"Properties": {
+							"HIVE_TYPE_STRING": "string"
+						}
+					},
+					"DeltaFormatInvalidMessages": []
+				},
+				{
+					"Name": "monthly_rate",
+					"Description": "",
+					"OriginDataTypeName": {
+						"TypeName": "string",
+						"IsNullable": false,
+						"IsComplexType": false,
+						"Length": 256,
+						"Properties": {
+							"HIVE_TYPE_STRING": "string"
+						}
+					},
+					"DeltaFormatInvalidMessages": []
+				},
+				{
 					"Name": "billing_months",
 					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "long",
-						"IsNullable": false,
 						"IsComplexType": false,
+						"IsNullable": false,
 						"Properties": {
 							"HIVE_TYPE_STRING": "long"
 						}

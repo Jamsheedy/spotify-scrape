@@ -1,0 +1,23 @@
+{
+	"name": "relationship-jebqwssiuf",
+	"properties": {
+		"Name": "relationship-jebqwssiuf",
+		"EntityType": "RELATIONSHIP",
+		"Namespace": {
+			"DatabaseName": "raw"
+		},
+		"Origin": {
+			"Type": "SPARK"
+		},
+		"FromTableName": "invoice_stubs",
+		"ToTableName": "payment_request",
+		"ColumnRelationshipInformations": [
+			{
+				"FromColumnName": "id",
+				"ToColumnName": "stub_id"
+			}
+		],
+		"RelationshipType": 0
+	},
+	"type": "RELATIONSHIP"
+}

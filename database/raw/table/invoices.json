@@ -39,20 +39,6 @@
 					"DeltaFormatInvalidMessages": []
 				},
 				{
-					"Name": "created_at",
-					"Description": "",
-					"OriginDataTypeName": {
-						"TypeName": "timestamp",
-						"IsComplexType": false,
-						"IsNullable": false,
-						"Properties": {
-							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
-							"HIVE_TYPE_STRING": "timestamp"
-						}
-					},
-					"DeltaFormatInvalidMessages": []
-				},
-				{
 					"Name": "start_date",
 					"Description": "",
 					"OriginDataTypeName": {
@@ -68,6 +54,48 @@
 				},
 				{
 					"Name": "end_date",
+					"Description": "",
+					"OriginDataTypeName": {
+						"TypeName": "timestamp",
+						"IsComplexType": false,
+						"IsNullable": false,
+						"Properties": {
+							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
+							"HIVE_TYPE_STRING": "timestamp"
+						}
+					},
+					"DeltaFormatInvalidMessages": []
+				},
+				{
+					"Name": "amount",
+					"Description": "",
+					"OriginDataTypeName": {
+						"TypeName": "string",
+						"IsNullable": false,
+						"IsComplexType": false,
+						"Length": 256,
+						"Properties": {
+							"HIVE_TYPE_STRING": "string"
+						}
+					},
+					"DeltaFormatInvalidMessages": []
+				},
+				{
+					"Name": "status",
+					"Description": "",
+					"OriginDataTypeName": {
+						"TypeName": "string",
+						"IsNullable": false,
+						"IsComplexType": false,
+						"Length": 256,
+						"Properties": {
+							"HIVE_TYPE_STRING": "string"
+						}
+					},
+					"DeltaFormatInvalidMessages": []
+				},
+				{
+					"Name": "created_at",
 					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "timestamp",
