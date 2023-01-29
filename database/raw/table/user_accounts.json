@@ -1,7 +1,7 @@
 {
-	"name": "sub_accounts",
+	"name": "user_accounts",
 	"properties": {
-		"Name": "sub_accounts",
+		"Name": "user_accounts",
 		"EntityType": "TABLE",
 		"TableType": "EXTERNAL",
 		"Namespace": {

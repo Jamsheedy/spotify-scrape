@@ -9,8 +9,8 @@
 		"Origin": {
 			"Type": "SPARK"
 		},
-		"FromTableName": "spotify_sub_accs",
-		"ToTableName": "sub_accounts",
+		"FromTableName": "sub_accounts",
+		"ToTableName": "user_accounts",
 		"ColumnRelationshipInformations": [
 			{
 				"FromColumnName": "id",

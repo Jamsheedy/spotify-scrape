@@ -9,7 +9,7 @@
 		"Origin": {
 			"Type": "SPARK"
 		},
-		"FromTableName": "sub_accounts",
+		"FromTableName": "user_accounts",
 		"ToTableName": "user_accounts_log",
 		"ColumnRelationshipInformations": [
 			{
