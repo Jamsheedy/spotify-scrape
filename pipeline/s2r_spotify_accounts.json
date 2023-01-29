@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "s2r_spotify_accounts",
+				"name": "s2pr_spotify_accounts",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "s2r_spotify_accounts_cdc",
+						"referenceName": "s2pr_spotify_accounts_cdc",
 						"type": "DataFlowReference"
 					},
 					"compute": {
@@ -34,7 +34,7 @@
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "s2r_spotify_accounts",
+						"activity": "s2pr_spotify_accounts",
 						"dependencyConditions": [
 							"Succeeded"
 						]

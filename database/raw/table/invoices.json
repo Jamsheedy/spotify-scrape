@@ -1,24 +1,20 @@
 {
-	"name": "user_accounts",
+	"name": "invoices",
 	"properties": {
-		"Name": "user_accounts",
+		"Name": "invoices",
 		"EntityType": "TABLE",
-		"TableType": "EXTERNAL",
 		"Namespace": {
-			"SchemaName": null,
-			"DatabaseName": "raw",
-			"DatabaseId": null
+			"DatabaseName": "raw"
 		},
-		"Partitioning": {
-			"PartitionFunctionType": null,
-			"Keys": null
+		"Description": "",
+		"TableType": "EXTERNAL",
+		"Origin": {
+			"Type": "SPARK"
 		},
 		"StorageDescriptor": {
-			"Distribution": null,
 			"Columns": [
 				{
 					"Name": "id",
-					"Description": null,
 					"OriginDataTypeName": {
 						"TypeName": "long",
 						"IsComplexType": false,
@@ -31,11 +27,11 @@
 				},
 				{
 					"Name": "sub_id",
-					"Description": null,
+					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "long",
 						"IsComplexType": false,
-						"IsNullable": true,
+						"IsNullable": false,
 						"Properties": {
 							"HIVE_TYPE_STRING": "long"
 						}
@@ -43,13 +39,41 @@
 					"DeltaFormatInvalidMessages": []
 				},
 				{
-					"Name": "username",
-					"Description": null,
+					"Name": "start_date",
+					"Description": "",
+					"OriginDataTypeName": {
+						"TypeName": "timestamp",
+						"IsComplexType": false,
+						"IsNullable": false,
+						"Properties": {
+							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
+							"HIVE_TYPE_STRING": "timestamp"
+						}
+					},
+					"DeltaFormatInvalidMessages": []
+				},
+				{
+					"Name": "end_date",
+					"Description": "",
+					"OriginDataTypeName": {
+						"TypeName": "timestamp",
+						"IsComplexType": false,
+						"IsNullable": false,
+						"Properties": {
+							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
+							"HIVE_TYPE_STRING": "timestamp"
+						}
+					},
+					"DeltaFormatInvalidMessages": []
+				},
+				{
+					"Name": "amount",
+					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "string",
+						"IsNullable": false,
 						"IsComplexType": false,
-						"IsNullable": true,
-						"Length": 0,
+						"Length": 256,
 						"Properties": {
 							"HIVE_TYPE_STRING": "string"
 						}
@@ -57,13 +81,13 @@
 					"DeltaFormatInvalidMessages": []
 				},
 				{
-					"Name": "member_type",
-					"Description": null,
+					"Name": "status",
+					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "string",
+						"IsNullable": false,
 						"IsComplexType": false,
-						"IsNullable": true,
-						"Length": 0,
+						"Length": 256,
 						"Properties": {
 							"HIVE_TYPE_STRING": "string"
 						}
@@ -72,35 +96,35 @@
 				},
 				{
 					"Name": "created_at",
-					"Description": null,
+					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "timestamp",
 						"IsComplexType": false,
-						"IsNullable": true,
+						"IsNullable": false,
 						"Properties": {
+							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
 							"HIVE_TYPE_STRING": "timestamp"
 						}
 					},
 					"DeltaFormatInvalidMessages": []
 				}
 			],
-			"ColumnSetEntityName": "d0bca2a1-8f65-40cb-acd7-02ada6e6561c",
 			"Format": {
 				"InputFormat": "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat",
 				"OutputFormat": "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat",
 				"FormatType": "parquet",
 				"SerializeLib": "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe",
 				"Properties": {
-					"path": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/user_accounts",
-					"FormatTypeSetToDatabaseDefault": false
+					"path": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/invoices",
+					"FormatTypeSetToDatabaseDefault": true
 				}
 			},
 			"Source": {
 				"Provider": "ADLS",
-				"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/user_accounts",
+				"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/invoices",
 				"Properties": {
-					"LinkedServiceName": "",
-					"LocationSetToDatabaseDefault": false
+					"LinkedServiceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"LocationSetToDatabaseDefault": true
 				}
 			},
 			"Properties": {
@@ -109,34 +133,17 @@
 				"derivedModelAttributeInfo": "{\"attributeReferences\":{}}"
 			},
 			"Compressed": false,
-			"SerDeInfo": null,
 			"IsStoredAsSubdirectories": false
 		},
-		"Owner": "trusted-service-user",
-		"CreateTime": 1674104699,
-		"LastAccessTime": 0,
-		"Retention": 0,
-		"Temporary": false,
-		"IsRewriteEnabled": false,
-		"ViewOriginalText": null,
-		"ViewExpandedText": null,
-		"Origin": {
-			"Type": "SPARK"
-		},
-		"OriginObjectId": null,
-		"IsSharedEntity": false,
-		"PublishStatus": "PUBLISHED",
 		"Properties": {
-			"Transient_lastDdlTime": "1674104699",
+			"Description": "",
 			"DisplayFolderInfo": "{\"name\":\"Others\",\"colorCode\":\"\"}",
 			"PrimaryKeys": "id",
-			"spark.sql.sources.schema.part.0": "{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":false,\"metadata\":{}},{\"name\":\"sub_id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}},{\"name\":\"username\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"member_type\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"created_at\",\"type\":\"timestamp\",\"nullable\":true,\"metadata\":{}}]}",
-			"spark.sql.sources.schema.numParts": "1",
-			"spark.sql.sources.provider": "parquet",
-			"spark.sql.create.version": "2.4.8.2.6.99.201-76361509"
+			"spark.sql.sources.provider": "parquet"
 		},
-		"ObjectVersion": 3,
-		"ObjectId": "74b9fa44-900e-43fd-8a42-ae6b99229526"
+		"Retention": 0,
+		"Temporary": false,
+		"IsRewriteEnabled": false
 	},
 	"type": "TABLE"
 }
