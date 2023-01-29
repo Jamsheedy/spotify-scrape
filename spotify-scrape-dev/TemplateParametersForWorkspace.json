@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "spotify-scrape-dev"
+		},
+		"Sheets_apiToken": {
+			"value": ""
+		},
+		"spotify-scrape-dev-WorkspaceDefaultSqlServer_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:spotify-scrape-dev.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"spotify-scrape-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://spotifyfam.dfs.core.windows.net"
+		},
+		"test_event_properties_typeProperties_scope": {
+			"value": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Storage/storageAccounts/spotifyfam"
+		}
+	}
+}
