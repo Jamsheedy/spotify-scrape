@@ -1,0 +1,49 @@
+{
+	"name": "user_account_log",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "raw/user_accounts_log",
+				"fileSystem": "sys"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "user_id",
+				"type": "INT64"
+			},
+			{
+				"name": "sub_id",
+				"type": "INT64"
+			},
+			{
+				"name": "username",
+				"type": "UTF8"
+			},
+			{
+				"name": "member_type",
+				"type": "UTF8"
+			},
+			{
+				"name": "active_ts",
+				"type": "INT96"
+			},
+			{
+				"name": "inbound_file_name",
+				"type": "UTF8"
+			},
+			{
+				"name": "id",
+				"type": "INT64"
+			}
+		]
+	}
+}

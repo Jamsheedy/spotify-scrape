@@ -1,0 +1,96 @@
+{
+	"name": "Dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "user_account_log",
+						"type": "DatasetReference"
+					},
+					"name": "userAccLog"
+				},
+				{
+					"name": "subCharges"
+				}
+			],
+			"sinks": [
+				{
+					"name": "monthlySubCharges"
+				}
+			],
+			"transformations": [
+				{
+					"name": "monthlySubs"
+				},
+				{
+					"name": "newSubCharges"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          user_id as long,",
+				"          sub_id as long,",
+				"          username as string,",
+				"          member_type as string,",
+				"          active_ts as timestamp,",
+				"          inbound_file_name as string,",
+				"          id as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     enableCdc: true,",
+				"     mode: 'read',",
+				"     skipInitialLoad: false,",
+				"     format: 'parquet') ~> userAccLog",
+				"source(output(",
+				"          id as long,",
+				"          sub_id as long,",
+				"          year as long,",
+				"          month as long,",
+				"          created_at as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'raw',",
+				"     tableName: 'sub_charges_monthly') ~> subCharges",
+				"userAccLog aggregate(groupBy(sub_id,",
+				"          year = year(active_ts),",
+				"          month = month(active_ts)),",
+				"     temp = count()) ~> monthlySubs",
+				"monthlySubs, subCharges exists(monthlySubs@sub_id == subCharges@sub_id",
+				"     && monthlySubs@year == subCharges@year",
+				"     && monthlySubs@month == subCharges@month,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> newSubCharges",
+				"newSubCharges derive(created_at = currentTimestamp()) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          sub_id,",
+				"          year,",
+				"          month,",
+				"          created_at",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'raw',",
+				"     tableName: 'sub_charges_monthly') ~> monthlySubCharges"
+			]
+		}
+	}
+}
