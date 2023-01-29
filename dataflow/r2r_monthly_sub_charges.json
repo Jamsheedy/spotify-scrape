@@ -1,5 +1,5 @@
 {
-	"name": "Dataflow1",
+	"name": "r2r_monthly_sub_charges",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -32,6 +32,18 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "DefaultIDs"
+				},
+				{
+					"name": "MaxID"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "GetMaxIDs"
 				}
 			],
 			"scriptLines": [
@@ -74,8 +86,10 @@
 				"     && monthlySubs@month == subCharges@month,",
 				"     negate:true,",
 				"     broadcast: 'auto')~> newSubCharges",
-				"newSubCharges derive(created_at = currentTimestamp()) ~> derivedColumn1",
+				"GetMaxIDs derive(created_at = currentTimestamp(),",
+				"          id = id + maxID) ~> derivedColumn1",
 				"derivedColumn1 select(mapColumn(",
+				"          id,",
 				"          sub_id,",
 				"          year,",
 				"          month,",
@@ -83,6 +97,17 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
+				"newSubCharges keyGenerate(output(id as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> DefaultIDs",
+				"derivedColumn2 aggregate(groupBy(temp),",
+				"     maxID = max(id)) ~> MaxID",
+				"subCharges derive(temp = 'temp') ~> derivedColumn2",
+				"DefaultIDs, MaxID join(true(),",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> GetMaxIDs",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     store: 'synapse',",
