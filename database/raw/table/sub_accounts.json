@@ -1,7 +1,7 @@
 {
-	"name": "user_accounts",
+	"name": "sub_accounts",
 	"properties": {
-		"Name": "user_accounts",
+		"Name": "sub_accounts",
 		"EntityType": "TABLE",
 		"TableType": "EXTERNAL",
 		"Namespace": {
@@ -23,13 +23,11 @@
 						"TypeName": "long",
 						"IsComplexType": false,
 						"IsNullable": false,
-						"Length": 0,
-						"Precision": 0,
-						"Scale": 0,
 						"Properties": {
 							"HIVE_TYPE_STRING": "long"
 						}
-					}
+					},
+					"DeltaFormatInvalidMessages": []
 				},
 				{
 					"Name": "sub_id",
@@ -38,13 +36,11 @@
 						"TypeName": "long",
 						"IsComplexType": false,
 						"IsNullable": true,
-						"Length": 0,
-						"Precision": 0,
-						"Scale": 0,
 						"Properties": {
 							"HIVE_TYPE_STRING": "long"
 						}
-					}
+					},
+					"DeltaFormatInvalidMessages": []
 				},
 				{
 					"Name": "username",
@@ -54,12 +50,11 @@
 						"IsComplexType": false,
 						"IsNullable": true,
 						"Length": 0,
-						"Precision": 0,
-						"Scale": 0,
 						"Properties": {
 							"HIVE_TYPE_STRING": "string"
 						}
-					}
+					},
+					"DeltaFormatInvalidMessages": []
 				},
 				{
 					"Name": "member_type",
@@ -69,12 +64,11 @@
 						"IsComplexType": false,
 						"IsNullable": true,
 						"Length": 0,
-						"Precision": 0,
-						"Scale": 0,
 						"Properties": {
 							"HIVE_TYPE_STRING": "string"
 						}
-					}
+					},
+					"DeltaFormatInvalidMessages": []
 				},
 				{
 					"Name": "created_at",
@@ -83,13 +77,11 @@
 						"TypeName": "timestamp",
 						"IsComplexType": false,
 						"IsNullable": true,
-						"Length": 0,
-						"Precision": 0,
-						"Scale": 0,
 						"Properties": {
 							"HIVE_TYPE_STRING": "timestamp"
 						}
-					}
+					},
+					"DeltaFormatInvalidMessages": []
 				}
 			],
 			"ColumnSetEntityName": "d0bca2a1-8f65-40cb-acd7-02ada6e6561c",

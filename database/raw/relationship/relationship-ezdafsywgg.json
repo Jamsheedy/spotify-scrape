@@ -10,7 +10,7 @@
 			"Type": "SPARK"
 		},
 		"FromTableName": "spotify_sub_accs",
-		"ToTableName": "user_accounts",
+		"ToTableName": "sub_accounts",
 		"ColumnRelationshipInformations": [
 			{
 				"FromColumnName": "id",
