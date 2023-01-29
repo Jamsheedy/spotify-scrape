@@ -1,0 +1,23 @@
+{
+	"name": "relationship-ilanmozcjo",
+	"properties": {
+		"Name": "relationship-ilanmozcjo",
+		"EntityType": "RELATIONSHIP",
+		"Namespace": {
+			"DatabaseName": "raw"
+		},
+		"Origin": {
+			"Type": "SPARK"
+		},
+		"FromTableName": "sub_accounts",
+		"ToTableName": "invoices",
+		"ColumnRelationshipInformations": [
+			{
+				"FromColumnName": "id",
+				"ToColumnName": "sub_id"
+			}
+		],
+		"RelationshipType": 0
+	},
+	"type": "RELATIONSHIP"
+}

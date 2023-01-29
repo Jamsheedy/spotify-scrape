@@ -58,6 +58,19 @@
 					"DeltaFormatInvalidMessages": []
 				},
 				{
+					"Name": "billing_months",
+					"Description": "",
+					"OriginDataTypeName": {
+						"TypeName": "long",
+						"IsNullable": false,
+						"IsComplexType": false,
+						"Properties": {
+							"HIVE_TYPE_STRING": "long"
+						}
+					},
+					"DeltaFormatInvalidMessages": []
+				},
+				{
 					"Name": "active_flag",
 					"Description": null,
 					"OriginDataTypeName": {

@@ -1,0 +1,23 @@
+{
+	"name": "relationship-zxqozyyuky",
+	"properties": {
+		"Name": "relationship-zxqozyyuky",
+		"EntityType": "RELATIONSHIP",
+		"Namespace": {
+			"DatabaseName": "raw"
+		},
+		"Origin": {
+			"Type": "SPARK"
+		},
+		"FromTableName": "invoices",
+		"ToTableName": "invoice_stubs",
+		"ColumnRelationshipInformations": [
+			{
+				"FromColumnName": "id",
+				"ToColumnName": "invoice_id"
+			}
+		],
+		"RelationshipType": 0
+	},
+	"type": "RELATIONSHIP"
+}

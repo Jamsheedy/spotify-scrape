@@ -1,0 +1,23 @@
+{
+	"name": "relationship-ryhpytlcxq",
+	"properties": {
+		"Name": "relationship-ryhpytlcxq",
+		"EntityType": "RELATIONSHIP",
+		"Namespace": {
+			"DatabaseName": "raw"
+		},
+		"Origin": {
+			"Type": "SPARK"
+		},
+		"FromTableName": "user_accounts",
+		"ToTableName": "invoice_stubs",
+		"ColumnRelationshipInformations": [
+			{
+				"FromColumnName": "id",
+				"ToColumnName": "user_id"
+			}
+		],
+		"RelationshipType": 0
+	},
+	"type": "RELATIONSHIP"
+}
