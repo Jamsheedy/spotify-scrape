@@ -1,7 +1,7 @@
 {
-	"name": "sub_accounts",
+	"name": "spotify_sub_accs",
 	"properties": {
-		"Name": "sub_accounts",
+		"Name": "spotify_sub_accs",
 		"EntityType": "TABLE",
 		"TableType": "EXTERNAL",
 		"Namespace": {
@@ -23,81 +23,74 @@
 						"TypeName": "long",
 						"IsComplexType": false,
 						"IsNullable": false,
+						"Length": 0,
+						"Precision": 0,
+						"Scale": 0,
 						"Properties": {
 							"HIVE_TYPE_STRING": "long"
 						}
-					},
-					"DeltaFormatInvalidMessages": []
+					}
 				},
 				{
-					"Name": "sub_id",
-					"Description": null,
-					"OriginDataTypeName": {
-						"TypeName": "long",
-						"IsComplexType": false,
-						"IsNullable": true,
-						"Properties": {
-							"HIVE_TYPE_STRING": "long"
-						}
-					},
-					"DeltaFormatInvalidMessages": []
-				},
-				{
-					"Name": "username",
+					"Name": "site",
 					"Description": null,
 					"OriginDataTypeName": {
 						"TypeName": "string",
 						"IsComplexType": false,
 						"IsNullable": true,
 						"Length": 0,
+						"Precision": 0,
+						"Scale": 0,
 						"Properties": {
 							"HIVE_TYPE_STRING": "string"
 						}
-					},
-					"DeltaFormatInvalidMessages": []
+					}
 				},
 				{
-					"Name": "member_type",
+					"Name": "spotify_username",
 					"Description": null,
 					"OriginDataTypeName": {
 						"TypeName": "string",
 						"IsComplexType": false,
 						"IsNullable": true,
 						"Length": 0,
+						"Precision": 0,
+						"Scale": 0,
 						"Properties": {
 							"HIVE_TYPE_STRING": "string"
 						}
-					},
-					"DeltaFormatInvalidMessages": []
+					}
 				},
 				{
-					"Name": "created_at",
+					"Name": "active_flag",
 					"Description": null,
 					"OriginDataTypeName": {
-						"TypeName": "timestamp",
+						"TypeName": "string",
 						"IsComplexType": false,
 						"IsNullable": true,
+						"Length": 0,
+						"Precision": 0,
+						"Scale": 0,
 						"Properties": {
-							"HIVE_TYPE_STRING": "timestamp"
+							"HIVE_TYPE_STRING": "string"
 						}
-					},
-					"DeltaFormatInvalidMessages": []
+					}
 				}
 			],
-			"ColumnSetEntityName": "d0bca2a1-8f65-40cb-acd7-02ada6e6561c",
+			"ColumnSetEntityName": "8cca49b5-9252-4683-8be4-9bfe448182d6",
 			"Format": {
 				"InputFormat": "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat",
 				"OutputFormat": "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat",
 				"FormatType": "parquet",
 				"SerializeLib": "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe",
 				"Properties": {
-					"path": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/user_accounts",
+					"path": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/spotify_sub_accs",
 					"FormatTypeSetToDatabaseDefault": false
 				}
 			},
 			"Source": {
 				"Provider": "ADLS",
-				"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/user_accounts",
+				"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/spotify_sub_accs",
 				"Properties": {
 					"LinkedServiceName": "",
 					"LocationSetToDatabaseDefault": false
@@ -113,7 +106,7 @@
 			"IsStoredAsSubdirectories": false
 		},
 		"Owner": "trusted-service-user",
-		"CreateTime": 1674104699,
+		"CreateTime": 1673844878,
 		"LastAccessTime": 0,
 		"Retention": 0,
 		"Temporary": false,
@@ -127,16 +120,18 @@
 		"IsSharedEntity": false,
 		"PublishStatus": "PUBLISHED",
 		"Properties": {
-			"Transient_lastDdlTime": "1674104699",
+			"Transient_lastDdlTime": "1673844878",
 			"DisplayFolderInfo": "{\"name\":\"Others\",\"colorCode\":\"\"}",
 			"PrimaryKeys": "id",
-			"spark.sql.sources.schema.part.0": "{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":false,\"metadata\":{}},{\"name\":\"sub_id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}},{\"name\":\"username\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"member_type\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"created_at\",\"type\":\"timestamp\",\"nullable\":true,\"metadata\":{}}]}",
-			"spark.sql.sources.schema.numParts": "1",
+			"spark.sql.sources.schema": "{\"type\":\"struct\",\"fields\":[{\"name\":\"active_flag\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}},{\"name\":\"site\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"spotify_username\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}}]}",
 			"spark.sql.sources.provider": "parquet",
-			"spark.sql.create.version": "2.4.8.2.6.99.201-76361509"
+			"spark.sql.create.version": "3.2.2.5.1-75622951",
+			"spark.sql.sources.schema.numParts": "1",
+			"spark.sql.sources.schema.part.0": "{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":false,\"metadata\":{}},{\"name\":\"site\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"spotify_username\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"active_flag\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}}]}",
+			"spark.sql.partitionProvider": "catalog"
 		},
 		"ObjectVersion": 3,
-		"ObjectId": "74b9fa44-900e-43fd-8a42-ae6b99229526"
+		"ObjectId": "3db4e52c-c901-431d-8d34-63972d448d7d"
 	},
 	"type": "TABLE"
 }
