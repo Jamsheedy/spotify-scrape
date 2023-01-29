@@ -1,0 +1,22 @@
+{
+	"name": "test_db",
+	"properties": {
+		"Name": "test_db",
+		"EntityType": "DATABASE",
+		"Origin": {
+			"Type": "SPARK"
+		},
+		"Properties": {
+			"IsSyMSCDMDatabase": true
+		},
+		"Source": {
+			"Provider": "ADLS",
+			"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/test_db",
+			"Properties": {
+				"FormatType": "parquet",
+				"LinkedServiceName": "spotify-scrape-dev-WorkspaceDefaultStorage"
+			}
+		}
+	},
+	"type": "DATABASE"
+}
