@@ -1,0 +1,241 @@
+{
+	"name": "r2r_new_invoices",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "userAccounts"
+				},
+				{
+					"dataset": {
+						"referenceName": "user_account_log",
+						"type": "DatasetReference"
+					},
+					"name": "userAccountsLog"
+				},
+				{
+					"name": "subAccounts"
+				},
+				{
+					"name": "Invoices"
+				}
+			],
+			"sinks": [
+				{
+					"name": "AddInvoices"
+				},
+				{
+					"name": "InvoiceUserlogLookup"
+				}
+			],
+			"transformations": [
+				{
+					"name": "JoinAccountsLog"
+				},
+				{
+					"name": "MinMaxTimes"
+				},
+				{
+					"name": "CreateActuatlEndDate"
+				},
+				{
+					"name": "JoinSubInfo"
+				},
+				{
+					"name": "DefaultInvoiceID"
+				},
+				{
+					"name": "SelectInvoiceDetails"
+				},
+				{
+					"name": "statusColumns"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "maxInvoiceID"
+				},
+				{
+					"name": "GetMaxID"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "split1"
+				},
+				{
+					"name": "LogIDtoInvoiceID"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as long,",
+				"          sub_id as long,",
+				"          username as string,",
+				"          member_type as string,",
+				"          created_at as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'raw',",
+				"     tableName: 'user_accounts') ~> userAccounts",
+				"source(output(",
+				"          user_id as long,",
+				"          sub_id as long,",
+				"          username as string,",
+				"          member_type as string,",
+				"          active_ts as timestamp,",
+				"          inbound_file_name as string,",
+				"          id as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     enableCdc: true,",
+				"     mode: 'read',",
+				"     skipInitialLoad: false,",
+				"     format: 'parquet') ~> userAccountsLog",
+				"source(output(",
+				"          active_flag as string,",
+				"          id as long,",
+				"          site as string,",
+				"          spotify_username as string,",
+				"          type as string,",
+				"          monthly_rate as double,",
+				"          billing_months as long,",
+				"          fee_rate as double",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'raw',",
+				"     tableName: 'sub_accounts') ~> subAccounts",
+				"source(output(",
+				"          id as long,",
+				"          sub_id as long,",
+				"          start_date as timestamp,",
+				"          end_date as timestamp,",
+				"          amount as string,",
+				"          status as string,",
+				"          created_at as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'raw',",
+				"     tableName: 'invoices') ~> Invoices",
+				"userAccounts, userAccountsLog join(userAccounts@id == user_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinAccountsLog",
+				"split1@NoLinkableInvoice aggregate(groupBy(sub_id),",
+				"     start_ts = min(active_ts),",
+				"          end_ts = max(active_ts)) ~> MinMaxTimes",
+				"JoinSubInfo derive(end_ts = iif(monthsBetween(end_ts, start_ts) < billing_months, lastDayOfMonth(addMonths(start_ts, billing_months)),  lastDayOfMonth(end_ts))) ~> CreateActuatlEndDate",
+				"MinMaxTimes, subAccounts join(sub_id == id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinSubInfo",
+				"CreateActuatlEndDate keyGenerate(output(id as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> DefaultInvoiceID",
+				"derivedColumn2 select(mapColumn(",
+				"          id,",
+				"          sub_id,",
+				"          start_date = start_ts,",
+				"          end_date = end_ts",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectInvoiceDetails",
+				"SelectInvoiceDetails derive(status = 'active',",
+				"          created_at = currentTimestamp()) ~> statusColumns",
+				"JoinAccountsLog, Invoices join(active_ts >= start_date",
+				"     && active_ts < end_date,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'right')~> join1",
+				"join1 select(mapColumn(",
+				"          user_id = userAccounts@id,",
+				"          sub_id = userAccounts@sub_id,",
+				"          username = userAccounts@username,",
+				"          member_type = userAccounts@member_type,",
+				"          created_at = userAccounts@created_at,",
+				"          user_id,",
+				"          sub_id = userAccountsLog@sub_id,",
+				"          username = userAccountsLog@username,",
+				"          member_type = userAccountsLog@member_type,",
+				"          active_ts,",
+				"          inbound_file_name,",
+				"          user_log_id = userAccountsLog@id,",
+				"          invoice_id = Invoices@id,",
+				"          sub_id = Invoices@sub_id,",
+				"          start_date,",
+				"          end_date,",
+				"          amount,",
+				"          status,",
+				"          created_at = Invoices@created_at",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"Invoices derive(temp = 'temp') ~> derivedColumn1",
+				"derivedColumn1 aggregate(groupBy(temp),",
+				"     maxID = max(id)) ~> aggregate1",
+				"aggregate1 select(mapColumn(",
+				"          maxID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> maxInvoiceID",
+				"DefaultInvoiceID, maxInvoiceID join(true(),",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> GetMaxID",
+				"GetMaxID derive(id = id + maxID) ~> derivedColumn2",
+				"select1 split(isNull(invoice_id),",
+				"     disjoint: false) ~> split1@(NoLinkableInvoice, LinkableInvoice)",
+				"split1@LinkableInvoice select(mapColumn(",
+				"          invoice_id,",
+				"          user_log_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> LogIDtoInvoiceID",
+				"statusColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'raw',",
+				"     tableName: 'invoices') ~> AddInvoices",
+				"LogIDtoInvoiceID sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'raw',",
+				"     tableName: 'invoice_to_userlog') ~> InvoiceUserlogLookup"
+			]
+		}
+	}
+}
