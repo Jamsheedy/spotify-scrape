@@ -19,10 +19,6 @@
 		"spotify-scrape-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://spotifyfam.dfs.core.windows.net"
-		},
-		"test_event_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Storage/storageAccounts/spotifyfam"
 		}
 	},
 	"variables": {
@@ -81,6 +77,111 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/dataflows/r2f_spotify_sub_users_invoice_creation')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/r2r_invoice_subCharges')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "monthly sub charges",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "r2r_monthly_sub_charges",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"userAccLog": {},
+									"subCharges": {},
+									"monthlySubCharges": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Coarse",
+							"continuationSettings": {
+								"customizedCheckpointKey": "79658ea1-c548-4394-898c-a0b8657e72d5"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/r2r_monthly_sub_charges')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/r2r_new_invoices')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "r2r_new_invoices",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "r2r_new_invoices",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"userAccounts": {},
+									"userAccountsLog": {},
+									"subAccounts": {},
+									"Invoices": {},
+									"AddInvoices": {},
+									"InvoiceUserlogLookup": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Coarse",
+							"continuationSettings": {
+								"customizedCheckpointKey": "a431e8e1-46f3-419c-b43d-d7ef9c3c1dcc"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/r2r_new_invoices')]"
 			]
 		},
 		{
@@ -272,6 +373,106 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/subscription_charges')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "raw/sub_charges_monthly",
+						"fileSystem": "sys"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "id",
+						"type": "INT64"
+					},
+					{
+						"name": "sub_id",
+						"type": "INT64"
+					},
+					{
+						"name": "year",
+						"type": "INT64"
+					},
+					{
+						"name": "month",
+						"type": "INT64"
+					},
+					{
+						"name": "created_at",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/user_account_log')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "raw/user_accounts_log",
+						"fileSystem": "sys"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "user_id",
+						"type": "INT64"
+					},
+					{
+						"name": "sub_id",
+						"type": "INT64"
+					},
+					{
+						"name": "username",
+						"type": "UTF8"
+					},
+					{
+						"name": "member_type",
+						"type": "UTF8"
+					},
+					{
+						"name": "active_ts",
+						"type": "INT96"
+					},
+					{
+						"name": "inbound_file_name",
+						"type": "UTF8"
+					},
+					{
+						"name": "id",
+						"type": "INT64"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/Sheets')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -337,25 +538,39 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/daily_spotify_accounts')]",
+			"name": "[concat(parameters('workspaceName'), '/r2r_invoice_creation')]",
 			"type": "Microsoft.Synapse/workspaces/triggers",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "r2r_new_invoices",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
 				"type": "ScheduleTrigger",
 				"typeProperties": {
 					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2023-01-14T04:59:00Z",
-						"endTime": "2023-01-20T00:59:00Z",
-						"timeZone": "UTC"
+						"frequency": "Week",
+						"interval": 2,
+						"startTime": "2023-02-05T00:08:00Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"weekDays": [
+								"Tuesday"
+							]
+						}
 					}
 				}
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/r2r_new_invoices')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/s2r_weekly_spotify_accounts')]",
@@ -363,7 +578,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -394,47 +609,6 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/pipelines/s2r_spotify_accounts')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/test_event')]",
-			"type": "Microsoft.Synapse/workspaces/triggers",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/spotifyfam/blobs/inbound/",
-					"blobPathEndsWith": ".json",
-					"ignoreEmptyBlobs": false,
-					"scope": "[parameters('test_event_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/trigger_cdc_spotify_accounts')]",
-			"type": "Microsoft.Synapse/workspaces/triggers",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Month",
-						"interval": 15,
-						"startTime": "2023-01-10T06:10:00Z",
-						"timeZone": "UTC"
-					}
-				}
-			},
-			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
@@ -908,6 +1082,378 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/r2r_monthly_sub_charges')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "user_account_log",
+								"type": "DatasetReference"
+							},
+							"name": "userAccLog"
+						},
+						{
+							"name": "subCharges"
+						}
+					],
+					"sinks": [
+						{
+							"name": "monthlySubCharges"
+						}
+					],
+					"transformations": [
+						{
+							"name": "monthlySubs"
+						},
+						{
+							"name": "newSubCharges"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "DefaultIDs"
+						},
+						{
+							"name": "MaxID"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "GetMaxIDs"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          user_id as long,",
+						"          sub_id as long,",
+						"          username as string,",
+						"          member_type as string,",
+						"          active_ts as timestamp,",
+						"          inbound_file_name as string,",
+						"          id as long",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     enableCdc: true,",
+						"     mode: 'read',",
+						"     skipInitialLoad: false,",
+						"     format: 'parquet') ~> userAccLog",
+						"source(output(",
+						"          id as long,",
+						"          sub_id as long,",
+						"          year as long,",
+						"          month as long,",
+						"          created_at as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'raw',",
+						"     tableName: 'sub_charges_monthly') ~> subCharges",
+						"userAccLog aggregate(groupBy(sub_id,",
+						"          year = year(active_ts),",
+						"          month = month(active_ts)),",
+						"     temp = count()) ~> monthlySubs",
+						"monthlySubs, subCharges exists(monthlySubs@sub_id == subCharges@sub_id",
+						"     && monthlySubs@year == subCharges@year",
+						"     && monthlySubs@month == subCharges@month,",
+						"     negate:true,",
+						"     broadcast: 'auto')~> newSubCharges",
+						"GetMaxIDs derive(created_at = currentTimestamp(),",
+						"          id = id + maxID) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          id,",
+						"          sub_id,",
+						"          year,",
+						"          month,",
+						"          created_at",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"newSubCharges keyGenerate(output(id as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> DefaultIDs",
+						"derivedColumn2 aggregate(groupBy(temp),",
+						"     maxID = max(id)) ~> MaxID",
+						"subCharges derive(temp = 'temp') ~> derivedColumn2",
+						"DefaultIDs, MaxID join(true(),",
+						"     joinType:'cross',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> GetMaxIDs",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'raw',",
+						"     tableName: 'sub_charges_monthly') ~> monthlySubCharges"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/user_account_log')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/r2r_new_invoices')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"name": "userAccounts"
+						},
+						{
+							"dataset": {
+								"referenceName": "user_account_log",
+								"type": "DatasetReference"
+							},
+							"name": "userAccountsLog"
+						},
+						{
+							"name": "subAccounts"
+						},
+						{
+							"name": "Invoices"
+						}
+					],
+					"sinks": [
+						{
+							"name": "AddInvoices"
+						},
+						{
+							"name": "InvoiceUserlogLookup"
+						}
+					],
+					"transformations": [
+						{
+							"name": "JoinAccountsLog"
+						},
+						{
+							"name": "MinMaxTimes"
+						},
+						{
+							"name": "CreateActuatlEndDate"
+						},
+						{
+							"name": "JoinSubInfo"
+						},
+						{
+							"name": "DefaultInvoiceID"
+						},
+						{
+							"name": "SelectInvoiceDetails"
+						},
+						{
+							"name": "statusColumns"
+						},
+						{
+							"name": "join1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "maxInvoiceID"
+						},
+						{
+							"name": "GetMaxID"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "split1"
+						},
+						{
+							"name": "LogIDtoInvoiceID"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id as long,",
+						"          sub_id as long,",
+						"          username as string,",
+						"          member_type as string,",
+						"          created_at as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'raw',",
+						"     tableName: 'user_accounts') ~> userAccounts",
+						"source(output(",
+						"          user_id as long,",
+						"          sub_id as long,",
+						"          username as string,",
+						"          member_type as string,",
+						"          active_ts as timestamp,",
+						"          inbound_file_name as string,",
+						"          id as long",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     enableCdc: true,",
+						"     mode: 'read',",
+						"     skipInitialLoad: false,",
+						"     format: 'parquet') ~> userAccountsLog",
+						"source(output(",
+						"          active_flag as string,",
+						"          id as long,",
+						"          site as string,",
+						"          spotify_username as string,",
+						"          type as string,",
+						"          monthly_rate as double,",
+						"          billing_months as long,",
+						"          fee_rate as double",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'raw',",
+						"     tableName: 'sub_accounts') ~> subAccounts",
+						"source(output(",
+						"          id as long,",
+						"          sub_id as long,",
+						"          start_date as timestamp,",
+						"          end_date as timestamp,",
+						"          amount as string,",
+						"          status as string,",
+						"          created_at as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'raw',",
+						"     tableName: 'invoices') ~> Invoices",
+						"userAccounts, userAccountsLog join(userAccounts@id == user_id,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinAccountsLog",
+						"split1@NoLinkableInvoice aggregate(groupBy(sub_id),",
+						"     start_ts = min(active_ts),",
+						"          end_ts = max(active_ts)) ~> MinMaxTimes",
+						"JoinSubInfo derive(end_ts = iif(monthsBetween(end_ts, start_ts) < billing_months, lastDayOfMonth(addMonths(start_ts, billing_months)),  lastDayOfMonth(end_ts))) ~> CreateActuatlEndDate",
+						"MinMaxTimes, subAccounts join(sub_id == id,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinSubInfo",
+						"CreateActuatlEndDate keyGenerate(output(id as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> DefaultInvoiceID",
+						"derivedColumn2 select(mapColumn(",
+						"          id,",
+						"          sub_id,",
+						"          start_date = start_ts,",
+						"          end_date = end_ts",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectInvoiceDetails",
+						"SelectInvoiceDetails derive(status = 'active',",
+						"          created_at = currentTimestamp()) ~> statusColumns",
+						"JoinAccountsLog, Invoices join(active_ts >= start_date",
+						"     && active_ts < end_date,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'right')~> join1",
+						"join1 select(mapColumn(",
+						"          user_id = userAccounts@id,",
+						"          sub_id = userAccounts@sub_id,",
+						"          username = userAccounts@username,",
+						"          member_type = userAccounts@member_type,",
+						"          created_at = userAccounts@created_at,",
+						"          user_id,",
+						"          sub_id = userAccountsLog@sub_id,",
+						"          username = userAccountsLog@username,",
+						"          member_type = userAccountsLog@member_type,",
+						"          active_ts,",
+						"          inbound_file_name,",
+						"          user_log_id = userAccountsLog@id,",
+						"          invoice_id = Invoices@id,",
+						"          sub_id = Invoices@sub_id,",
+						"          start_date,",
+						"          end_date,",
+						"          amount,",
+						"          status,",
+						"          created_at = Invoices@created_at",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"Invoices derive(temp = 'temp') ~> derivedColumn1",
+						"derivedColumn1 aggregate(groupBy(temp),",
+						"     maxID = max(id)) ~> aggregate1",
+						"aggregate1 select(mapColumn(",
+						"          maxID",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> maxInvoiceID",
+						"DefaultInvoiceID, maxInvoiceID join(true(),",
+						"     joinType:'cross',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> GetMaxID",
+						"GetMaxID derive(id = id + maxID) ~> derivedColumn2",
+						"select1 split(isNull(invoice_id),",
+						"     disjoint: false) ~> split1@(NoLinkableInvoice, LinkableInvoice)",
+						"split1@LinkableInvoice select(mapColumn(",
+						"          invoice_id,",
+						"          user_log_id",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> LogIDtoInvoiceID",
+						"statusColumns sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'raw',",
+						"     tableName: 'invoices') ~> AddInvoices",
+						"LogIDtoInvoiceID sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'raw',",
+						"     tableName: 'invoice_to_userlog') ~> InvoiceUserlogLookup"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/user_account_log')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/s2pr_spotify_accounts_cdc')]",
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
@@ -1140,93 +1686,27 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/Notebook 1')]",
-			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"name": "[concat(parameters('workspaceName'), '/sub_accounts_log')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"nbformat": 4,
-				"nbformat_minor": 2,
-				"bigDataPool": {
-					"referenceName": "medspark0",
-					"type": "BigDataPoolReference"
+				"content": {
+					"query": "SELECT *\n FROM [raw].[dbo].[sub_accounts] s\n JOIN raw.dbo.user_accounts ua\n    ON s.id = ua.sub_id\n JOIN raw.dbo.user_accounts_log ual\n    ON ua.id = ual.user_id\n ORDER BY user_id DESC, active_ts DESC",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
 				},
-				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
-					"numExecutors": 2,
-					"runAsWorkspaceSystemIdentity": false,
-					"conf": {
-						"spark.dynamicAllocation.enabled": "false",
-						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "9e369624-fa21-4803-a890-549e37ea8d9d"
-					}
-				},
-				"metadata": {
-					"saveOutput": true,
-					"synapse_widget": {
-						"version": "0.1"
-					},
-					"enableDebugMode": false,
-					"kernelspec": {
-						"name": "synapse_pyspark",
-						"display_name": "Synapse PySpark"
-					},
-					"language_info": {
-						"name": "python"
-					},
-					"a365ComputeOptions": {
-						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/medspark0",
-						"name": "medspark0",
-						"type": "Spark",
-						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/medspark0",
-						"auth": {
-							"type": "AAD",
-							"authResource": "https://dev.azuresynapse.net",
-							"authHeader": null
-						},
-						"sparkVersion": "3.3",
-						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28,
-						"extraHeader": null
-					},
-					"sessionKeepAliveTimeout": 30
-				},
-				"cells": [
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"microsoft": {
-								"language": "sparksql"
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%%sql\r\n",
-							"\r\n",
-							"CREATE TABLE raw.delta_test_spotify_users USING DELTA OPTIONS(path='abfss://sys@spotifyfam.dfs.core.windows.net/raw/delta_test_spotify_users/')"
-						],
-						"outputs": [],
-						"execution_count": 2
-					}
-				]
+				"type": "SqlQuery"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/Notebook 2')]",
+			"name": "[concat(parameters('workspaceName'), '/alter_accounts')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -1242,19 +1722,15 @@
 					"executorMemory": "28g",
 					"executorCores": 4,
 					"numExecutors": 2,
-					"runAsWorkspaceSystemIdentity": false,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "e079c44d-c30d-4198-b5c7-4ee9893326a4"
+						"spark.autotune.trackingId": "259320df-ef7f-49f5-8fdb-1301cc9ffb42"
 					}
 				},
 				"metadata": {
 					"saveOutput": true,
-					"synapse_widget": {
-						"version": "0.1"
-					},
 					"enableDebugMode": false,
 					"kernelspec": {
 						"name": "synapse_pyspark",
@@ -1270,47 +1746,16 @@
 						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark0",
 						"auth": {
 							"type": "AAD",
-							"authResource": "https://dev.azuresynapse.net",
-							"authHeader": null
+							"authResource": "https://dev.azuresynapse.net"
 						},
 						"sparkVersion": "3.2",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28,
-						"extraHeader": null
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
-					{
-						"cell_type": "code",
-						"source": [
-							"df = spark.createDataFrame([\r\n",
-							"    ['2022-12-1T23:23:58.0000000', 'test']\r\n",
-							"])"
-						],
-						"outputs": [],
-						"execution_count": 2
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"df.withColumn('test_ts',to).schema"
-						],
-						"outputs": [],
-						"execution_count": 3
-					},
 					{
 						"cell_type": "code",
 						"metadata": {
@@ -1331,7 +1776,7 @@
 						"source": [
 							"%%sql\r\n",
 							"\r\n",
-							"SELECT * FROM raw.spotify_subs_accounts"
+							"SELECT * FROM raw.sub_accounts"
 						],
 						"outputs": [],
 						"execution_count": 15
@@ -1347,147 +1792,114 @@
 								"transient": {
 									"deleting": false
 								}
-							},
-							"microsoft": {
-								"language": "sparksql"
-							},
-							"collapsed": false
+							}
 						},
 						"source": [
-							"%%sql\r\n",
-							"\r\n",
-							"INSERT INTO raw.spotify_subs_accounts VALUES (TIMESTAMP'2022-6-01T23:23:58.0000000', 'Plan manager', 0, 'danjam', NULL),\r\n",
-							"(TIMESTAMP'2022-6-01T23:23:58.0000000', 'Plan member', 0, 'Joshua Thurgood', NULL),\r\n",
-							"(TIMESTAMP'2022-6-01T23:23:58.0000000', 'Plan member', 0, 'rickys24', NULL),\r\n",
-							"(TIMESTAMP'2022-6-01T23:23:58.0000000', 'Plan member', 0, 'Smiley', NULL)"
+							"df = spark.sql('SELECT * FROM raw.sub_accounts')"
 						],
 						"outputs": [],
-						"execution_count": 14
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Notebook 3')]",
-			"type": "Microsoft.Synapse/workspaces/notebooks",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"nbformat": 4,
-				"nbformat_minor": 2,
-				"bigDataPool": {
-					"referenceName": "smallspark0",
-					"type": "BigDataPoolReference"
-				},
-				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
-					"numExecutors": 2,
-					"runAsWorkspaceSystemIdentity": false,
-					"conf": {
-						"spark.dynamicAllocation.enabled": "false",
-						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "e39a8f8b-d6ea-44e1-a856-4b50101f2b02"
-					}
-				},
-				"metadata": {
-					"saveOutput": true,
-					"synapse_widget": {
-						"version": "0.1"
+						"execution_count": 7
 					},
-					"enableDebugMode": false,
-					"kernelspec": {
-						"name": "synapse_pyspark",
-						"display_name": "Synapse PySpark"
-					},
-					"language_info": {
-						"name": "python"
-					},
-					"a365ComputeOptions": {
-						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark0",
-						"name": "smallspark0",
-						"type": "Spark",
-						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark0",
-						"auth": {
-							"type": "AAD",
-							"authResource": "https://dev.azuresynapse.net",
-							"authHeader": null
-						},
-						"sparkVersion": "3.2",
-						"nodeCount": 3,
-						"cores": 4,
-						"memory": 28,
-						"extraHeader": null
-					},
-					"sessionKeepAliveTimeout": 30
-				},
-				"cells": [
 					{
 						"cell_type": "code",
 						"metadata": {
-							"microsoft": {
-								"language": "sparksql"
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyspark.sql.functions import lit"
+						],
+						"outputs": [],
+						"execution_count": 27
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df = df.withColumn('type', lit('Family Plan')).withColumn('monthly_rate', lit(18.09)).withColumn('billing_months', lit(6)).withColumn('fee_rate', lit(.06))"
+						],
+						"outputs": [],
+						"execution_count": 31
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
 							},
 							"collapsed": false
 						},
 						"source": [
-							"%%sql\r\n",
-							"\r\n",
-							"DROP TABLE raw.spotify_subs_accounts_ids"
+							"display(df)"
 						],
 						"outputs": [],
-						"execution_count": 2
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Notebook 4')]",
-			"type": "Microsoft.Synapse/workspaces/notebooks",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"nbformat": 4,
-				"nbformat_minor": 2,
-				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
-					"numExecutors": 2,
-					"runAsWorkspaceSystemIdentity": false,
-					"conf": {
-						"spark.dynamicAllocation.enabled": "false",
-						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "e79230f7-9883-4764-8b43-cd75f56f96f2"
-					}
-				},
-				"metadata": {
-					"saveOutput": true,
-					"synapse_widget": {
-						"version": "0.1"
+						"execution_count": 38
 					},
-					"enableDebugMode": false,
-					"kernelspec": {
-						"name": "synapse_pyspark",
-						"display_name": "python"
-					},
-					"language_info": {
-						"name": "python"
-					},
-					"sessionKeepAliveTimeout": 30
-				},
-				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
 						"source": [
-							""
+							"#df.write.mode('overwrite').saveAsTable('raw.sub_accounts')\r\n",
+							"\r\n",
+							"temp = df.collect()\r\n",
+							"temp = spark.createDataFrame(temp)"
 						],
-						"outputs": []
+						"outputs": [],
+						"execution_count": 46
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"temp.write.mode('overwrite').saveAsTable('raw.sub_accounts')"
+						],
+						"outputs": [],
+						"execution_count": 47
 					}
 				]
 			},
@@ -1547,163 +1959,6 @@
 							"df.write.mode('overwrite').format('parquet').saveAsTable('raw.spotify_sub_accs')"
 						],
 						"outputs": []
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/read_inbound')]",
-			"type": "Microsoft.Synapse/workspaces/notebooks",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"nbformat": 4,
-				"nbformat_minor": 2,
-				"bigDataPool": {
-					"referenceName": "smallspark0",
-					"type": "BigDataPoolReference"
-				},
-				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
-					"numExecutors": 2,
-					"runAsWorkspaceSystemIdentity": false,
-					"conf": {
-						"spark.dynamicAllocation.enabled": "false",
-						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "ffb7d07d-a5c3-4853-a92a-8b7ca828c0dd"
-					}
-				},
-				"metadata": {
-					"saveOutput": true,
-					"synapse_widget": {
-						"version": "0.1"
-					},
-					"enableDebugMode": false,
-					"kernelspec": {
-						"name": "synapse_pyspark",
-						"display_name": "Synapse PySpark"
-					},
-					"language_info": {
-						"name": "python"
-					},
-					"a365ComputeOptions": {
-						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark0",
-						"name": "smallspark0",
-						"type": "Spark",
-						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark0",
-						"auth": {
-							"type": "AAD",
-							"authResource": "https://dev.azuresynapse.net",
-							"authHeader": null
-						},
-						"sparkVersion": "3.2",
-						"nodeCount": 3,
-						"cores": 4,
-						"memory": 28,
-						"extraHeader": null
-					},
-					"sessionKeepAliveTimeout": 30
-				},
-				"cells": [
-					{
-						"cell_type": "code",
-						"metadata": {
-							"tags": [
-								"parameters"
-							]
-						},
-						"source": [
-							"YEAR = '2023'\r\n",
-							"MONTH = '01'\r\n",
-							"DAY = '15'\r\n",
-							"OUT_TABLE_PATH = '/raw/spotify_sub_user_log/'\r\n",
-							"OUT_TABLE_NAME = 'raw.delta_test_spotify_users'"
-						],
-						"outputs": [],
-						"execution_count": 1
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"from pyspark.sql.functions import lit"
-						],
-						"outputs": [],
-						"execution_count": 42
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"FULL_FILE_PATH = f'abfss://spotifyfam@spotifyfam.dfs.core.windows.net/inbound/account_users_{YEAR}{MONTH}*.json' "
-						],
-						"outputs": [],
-						"execution_count": 52
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"df = spark.read.json(FULL_FILE_PATH)"
-						],
-						"outputs": [],
-						"execution_count": 53
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": true
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"if 'account_users' in FULL_FILE_PATH:\r\n",
-							"    df.write.option(\"mergeSchema\", \"true\").format('delta').mode('append').saveAsTable(OUT_TABLE_NAME)"
-						],
-						"outputs": [],
-						"execution_count": 12
 					}
 				]
 			},
@@ -2122,24 +2377,22 @@
 										"Name": "id",
 										"Description": "",
 										"OriginDataTypeName": {
-											"TypeName": "string",
+											"TypeName": "long",
 											"IsComplexType": false,
 											"IsNullable": false,
-											"Length": 256,
 											"Properties": {
-												"HIVE_TYPE_STRING": "string"
+												"HIVE_TYPE_STRING": "long"
 											}
 										}
 									},
 									{
 										"Name": "invoicde_id",
 										"OriginDataTypeName": {
-											"TypeName": "string",
+											"TypeName": "long",
 											"IsComplexType": false,
 											"IsNullable": true,
-											"Length": 256,
 											"Properties": {
-												"HIVE_TYPE_STRING": "string"
+												"HIVE_TYPE_STRING": "long"
 											}
 										}
 									},
@@ -2147,12 +2400,11 @@
 										"Name": "charge_id",
 										"Description": "",
 										"OriginDataTypeName": {
-											"TypeName": "string",
+											"TypeName": "long",
 											"IsComplexType": false,
 											"IsNullable": false,
-											"Length": 256,
 											"Properties": {
-												"HIVE_TYPE_STRING": "string"
+												"HIVE_TYPE_STRING": "long"
 											}
 										}
 									}
@@ -2237,7 +2489,7 @@
 										}
 									},
 									{
-										"Name": "start_date",
+										"Name": "start_ts",
 										"Description": "",
 										"OriginDataTypeName": {
 											"TypeName": "timestamp",
@@ -2253,25 +2505,12 @@
 										"Name": "end_date",
 										"Description": "",
 										"OriginDataTypeName": {
-											"TypeName": "timestamp",
+											"TypeName": "date",
 											"IsComplexType": false,
 											"IsNullable": false,
 											"Properties": {
-												"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
-												"HIVE_TYPE_STRING": "timestamp"
-											}
-										}
-									},
-									{
-										"Name": "amount",
-										"Description": "",
-										"OriginDataTypeName": {
-											"TypeName": "string",
-											"IsComplexType": false,
-											"IsNullable": false,
-											"Length": 256,
-											"Properties": {
-												"HIVE_TYPE_STRING": "string"
+												"HIVE_TYPE_STRING": "date",
+												"DateFormat": "YYYY-MM-DD"
 											}
 										}
 									},
@@ -2496,12 +2735,11 @@
 										"Name": "monthly_rate",
 										"Description": "",
 										"OriginDataTypeName": {
-											"TypeName": "string",
+											"TypeName": "double",
 											"IsComplexType": false,
 											"IsNullable": false,
-											"Length": 256,
 											"Properties": {
-												"HIVE_TYPE_STRING": "string"
+												"HIVE_TYPE_STRING": "double"
 											}
 										}
 									},
@@ -2634,11 +2872,11 @@
 										"Name": "year",
 										"Description": "",
 										"OriginDataTypeName": {
-											"TypeName": "long",
+											"TypeName": "integer",
 											"IsComplexType": false,
 											"IsNullable": false,
 											"Properties": {
-												"HIVE_TYPE_STRING": "long"
+												"HIVE_TYPE_STRING": "integer"
 											}
 										}
 									},
@@ -2646,11 +2884,11 @@
 										"Name": "month",
 										"Description": "",
 										"OriginDataTypeName": {
-											"TypeName": "long",
+											"TypeName": "integer",
 											"IsComplexType": false,
 											"IsNullable": false,
 											"Properties": {
-												"HIVE_TYPE_STRING": "long"
+												"HIVE_TYPE_STRING": "integer"
 											}
 										}
 									},
@@ -3272,6 +3510,60 @@
 			},
 			"dependsOn": [],
 			"location": "southcentralus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 6')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_date]\n,[end_date]\n,[amount]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 7')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[invoicde_id]\n,[charge_id]\n FROM [raw].[dbo].[invoice_charges]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 8')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[username]\n,[member_type]\n,[created_at]\n FROM [raw].[dbo].[user_accounts]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					}
+				}
+			},
+			"dependsOn": []
 		}
 	]
 }
