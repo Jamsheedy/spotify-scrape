@@ -1,9 +1,9 @@
 {
-	"name": "Pipeline 1",
+	"name": "r2r_new_invoices",
 	"properties": {
 		"activities": [
 			{
-				"name": "Data flow1",
+				"name": "r2r_new_invoices",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -23,7 +23,8 @@
 						"coreCount": 8,
 						"computeType": "General"
 					},
-					"traceLevel": "Fine",
+					"traceLevel": "Coarse",
+					"runConcurrently": false,
 					"continuationSettings": {
 						"customizedCheckpointKey": "a431e8e1-46f3-419c-b43d-d7ef9c3c1dcc"
 					}
