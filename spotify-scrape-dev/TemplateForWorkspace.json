@@ -1288,6 +1288,9 @@
 						},
 						{
 							"name": "LogIDtoInvoiceID"
+						},
+						{
+							"name": "cast1"
 						}
 					],
 					"scriptLines": [
@@ -1341,9 +1344,8 @@
 						"source(output(",
 						"          id as long,",
 						"          sub_id as long,",
-						"          start_date as timestamp,",
+						"          start_ts as timestamp,",
 						"          end_date as timestamp,",
-						"          amount as string,",
 						"          status as string,",
 						"          created_at as timestamp",
 						"     ),",
@@ -1368,7 +1370,7 @@
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> JoinSubInfo",
-						"CreateActuatlEndDate keyGenerate(output(id as long),",
+						"cast1 keyGenerate(output(id as long),",
 						"     startAt: 1L,",
 						"     stepValue: 1L) ~> DefaultInvoiceID",
 						"derivedColumn2 select(mapColumn(",
@@ -1381,8 +1383,8 @@
 						"     skipDuplicateMapOutputs: true) ~> SelectInvoiceDetails",
 						"SelectInvoiceDetails derive(status = 'active',",
 						"          created_at = currentTimestamp()) ~> statusColumns",
-						"JoinAccountsLog, Invoices join(active_ts >= start_date",
-						"     && active_ts < end_date,",
+						"JoinAccountsLog, Invoices join(active_ts >= start_ts",
+						"     && active_ts < start_ts,",
 						"     joinType:'left',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
@@ -1402,9 +1404,8 @@
 						"          user_log_id = userAccountsLog@id,",
 						"          invoice_id = Invoices@id,",
 						"          sub_id = Invoices@sub_id,",
-						"          start_date,",
+						"          start_ts,",
 						"          end_date,",
-						"          amount,",
 						"          status,",
 						"          created_at = Invoices@created_at",
 						"     ),",
@@ -1432,6 +1433,10 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> LogIDtoInvoiceID",
+						"CreateActuatlEndDate cast(output(",
+						"          end_ts as timestamp 'MM/dd/yyyy HH:mm:ss'",
+						"     ),",
+						"     errors: true) ~> cast1",
 						"statusColumns sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     store: 'synapse',",
@@ -1652,6 +1657,46 @@
 			"properties": {
 				"content": {
 					"query": "SELECT TOP (100) [user_id]\n,[sub_id]\n,[username]\n,[member_type]\n,[active_ts]\n,[inbound_file_name]\n,[id]\n FROM [raw].[dbo].[user_accounts_log]\n ORDER BY ID DESC",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 6')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[username]\n,[member_type]\n,[created_at]\n FROM [raw].[dbo].[user_accounts]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 7')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[user_id]\n,[active_ts]\n,[inbound_file_name]\n FROM [raw].[dbo].[user_accounts_log]\n WHERE user_id = 7",
 					"metadata": {
 						"language": "sql"
 					},
@@ -2505,12 +2550,12 @@
 										"Name": "end_date",
 										"Description": "",
 										"OriginDataTypeName": {
-											"TypeName": "date",
+											"TypeName": "timestamp",
 											"IsComplexType": false,
 											"IsNullable": false,
 											"Properties": {
-												"HIVE_TYPE_STRING": "date",
-												"DateFormat": "YYYY-MM-DD"
+												"HIVE_TYPE_STRING": "timestamp",
+												"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff"
 											}
 										}
 									},
@@ -3510,60 +3555,6 @@
 			},
 			"dependsOn": [],
 			"location": "southcentralus"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 6')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_date]\n,[end_date]\n,[amount]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 7')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[invoicde_id]\n,[charge_id]\n FROM [raw].[dbo].[invoice_charges]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 8')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[username]\n,[member_type]\n,[created_at]\n FROM [raw].[dbo].[user_accounts]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					}
-				}
-			},
-			"dependsOn": []
 		}
 	]
 }
