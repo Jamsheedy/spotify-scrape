@@ -43,8 +43,8 @@
 					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "timestamp",
-						"IsNullable": false,
 						"IsComplexType": false,
+						"IsNullable": false,
 						"Properties": {
 							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
 							"HIVE_TYPE_STRING": "timestamp"
@@ -56,12 +56,12 @@
 					"Name": "end_date",
 					"Description": "",
 					"OriginDataTypeName": {
-						"TypeName": "date",
+						"TypeName": "timestamp",
 						"IsComplexType": false,
 						"IsNullable": false,
 						"Properties": {
-							"HIVE_TYPE_STRING": "date",
-							"DateFormat": "YYYY-MM-DD"
+							"HIVE_TYPE_STRING": "timestamp",
+							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff"
 						}
 					},
 					"DeltaFormatInvalidMessages": []
