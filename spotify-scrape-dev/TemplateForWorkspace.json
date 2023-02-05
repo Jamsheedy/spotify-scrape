@@ -1651,6 +1651,26 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 10')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[spotify_username]\n,[site]\n,[type]\n,[monthly_rate]\n,[billing_months]\n,[active_flag]\n FROM [raw].[dbo].[sub_accounts]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/SQL script 5')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -1717,6 +1737,26 @@
 			"properties": {
 				"content": {
 					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_ts]\n,[end_date]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 9')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_ts]\n,[end_ts]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
 					"metadata": {
 						"language": "sql"
 					},
@@ -3458,6 +3498,24 @@
 			},
 			"dependsOn": [],
 			"location": "southcentralus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 11')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[spotify_username]\n,[site]\n,[type]\n,[monthly_rate]\n,[billing_months]\n,[active_flag]\n FROM [raw].[dbo].[sub_accounts]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					}
+				}
+			},
+			"dependsOn": []
 		}
 	]
 }
