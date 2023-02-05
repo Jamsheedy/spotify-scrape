@@ -119,15 +119,15 @@
 				"FormatType": "parquet",
 				"SerializeLib": "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe",
 				"Properties": {
-					"path": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/spotify_sub_accs",
+					"path": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/sub_accounts",
 					"FormatTypeSetToDatabaseDefault": false
 				}
 			},
 			"Source": {
 				"Provider": "ADLS",
-				"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/spotify_sub_accs",
+				"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/sub_accounts",
 				"Properties": {
-					"LinkedServiceName": "",
+					"LinkedServiceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
 					"LocationSetToDatabaseDefault": false
 				}
 			},
