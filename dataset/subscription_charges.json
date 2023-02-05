@@ -1,0 +1,41 @@
+{
+	"name": "subscription_charges",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "raw/sub_charges_monthly",
+				"fileSystem": "sys"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "id",
+				"type": "INT64"
+			},
+			{
+				"name": "sub_id",
+				"type": "INT64"
+			},
+			{
+				"name": "year",
+				"type": "INT64"
+			},
+			{
+				"name": "month",
+				"type": "INT64"
+			},
+			{
+				"name": "created_at",
+				"type": "UTF8"
+			}
+		]
+	}
+}

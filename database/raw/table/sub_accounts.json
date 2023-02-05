@@ -62,8 +62,8 @@
 					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "string",
-						"IsNullable": false,
 						"IsComplexType": false,
+						"IsNullable": false,
 						"Length": 256,
 						"Properties": {
 							"HIVE_TYPE_STRING": "string"
@@ -75,12 +75,11 @@
 					"Name": "monthly_rate",
 					"Description": "",
 					"OriginDataTypeName": {
-						"TypeName": "string",
-						"IsNullable": false,
+						"TypeName": "double",
 						"IsComplexType": false,
-						"Length": 256,
+						"IsNullable": false,
 						"Properties": {
-							"HIVE_TYPE_STRING": "string"
+							"HIVE_TYPE_STRING": "double"
 						}
 					},
 					"DeltaFormatInvalidMessages": []

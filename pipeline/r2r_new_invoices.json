@@ -1,0 +1,36 @@
+{
+	"name": "r2r_new_invoices",
+	"properties": {
+		"activities": [
+			{
+				"name": "r2r_new_invoices",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "r2r_new_invoices",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Coarse",
+					"runConcurrently": false,
+					"continuationSettings": {
+						"customizedCheckpointKey": "a431e8e1-46f3-419c-b43d-d7ef9c3c1dcc"
+					}
+				}
+			}
+		],
+		"annotations": []
+	}
+}
