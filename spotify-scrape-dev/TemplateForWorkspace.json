@@ -1328,11 +1328,7 @@
 						"          active_flag as string,",
 						"          id as long,",
 						"          site as string,",
-						"          spotify_username as string,",
-						"          type as string,",
-						"          monthly_rate as double,",
-						"          billing_months as long,",
-						"          fee_rate as double",
+						"          spotify_username as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -1364,9 +1360,9 @@
 						"split1@NoLinkableInvoice aggregate(groupBy(sub_id),",
 						"     start_ts = min(active_ts),",
 						"          end_ts = max(active_ts)) ~> MinMaxTimes",
-						"JoinSubInfo derive(end_ts = iif(monthsBetween(end_ts, start_ts) < billing_months, lastDayOfMonth(addMonths(start_ts, billing_months)),  lastDayOfMonth(end_ts))) ~> CreateActuatlEndDate",
+						"JoinSubInfo derive(end_ts = iif(monthsBetween(end_ts, start_ts) < 6, lastDayOfMonth(addMonths(start_ts, 6)),  lastDayOfMonth(end_ts))) ~> CreateActuatlEndDate",
 						"MinMaxTimes, subAccounts join(sub_id == id,",
-						"     joinType:'inner',",
+						"     joinType:'left',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> JoinSubInfo",
@@ -1652,6 +1648,26 @@
 		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/SQL script 10')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[spotify_username]\n,[site]\n,[type]\n,[monthly_rate]\n,[billing_months]\n,[active_flag]\n FROM [raw].[dbo].[sub_accounts]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 11')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -2488,7 +2504,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "invoicde_id",
@@ -2499,7 +2516,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "charge_id",
@@ -2511,7 +2529,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									}
 								],
 								"Format": {
@@ -2579,7 +2598,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "sub_id",
@@ -2591,7 +2611,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "start_ts",
@@ -2604,7 +2625,8 @@
 												"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
 												"HIVE_TYPE_STRING": "timestamp"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "end_ts",
@@ -2617,7 +2639,8 @@
 												"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
 												"HIVE_TYPE_STRING": "timestamp"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "status",
@@ -2630,7 +2653,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "created_at",
@@ -2643,7 +2667,8 @@
 												"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
 												"HIVE_TYPE_STRING": "timestamp"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									}
 								],
 								"Format": {
@@ -2711,7 +2736,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "stub_id",
@@ -2723,7 +2749,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									}
 								],
 								"Format": {
@@ -2795,7 +2822,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "spotify_username",
@@ -2808,7 +2836,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "site",
@@ -2821,7 +2850,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "type",
@@ -2834,7 +2864,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "monthly_rate",
@@ -2846,7 +2877,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "double"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "billing_months",
@@ -2858,7 +2890,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "active_flag",
@@ -2871,7 +2904,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									}
 								],
 								"ColumnSetEntityName": "8cca49b5-9252-4683-8be4-9bfe448182d6",
@@ -2881,15 +2915,15 @@
 									"FormatType": "parquet",
 									"SerializeLib": "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe",
 									"Properties": {
-										"path": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/spotify_sub_accs",
+										"path": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/sub_accounts",
 										"FormatTypeSetToDatabaseDefault": false
 									}
 								},
 								"Source": {
 									"Provider": "ADLS",
-									"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/spotify_sub_accs",
+									"Location": "abfss://sys@spotifyfam.dfs.core.windows.net/raw/sub_accounts",
 									"Properties": {
-										"LinkedServiceName": "",
+										"LinkedServiceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
 										"LocationSetToDatabaseDefault": false
 									}
 								},
@@ -2963,7 +2997,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "sub_id",
@@ -2975,7 +3010,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "username",
@@ -2988,7 +3024,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "member_type",
@@ -3001,7 +3038,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "created_at",
@@ -3013,7 +3051,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "timestamp"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									}
 								],
 								"ColumnSetEntityName": "d0bca2a1-8f65-40cb-acd7-02ada6e6561c",
@@ -3106,7 +3145,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "user_id",
@@ -3121,7 +3161,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "active_ts",
@@ -3136,7 +3177,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "timestamp"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "inbound_file_name",
@@ -3151,7 +3193,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									}
 								],
 								"ColumnSetEntityName": "7c6aa476-c8e0-4d1a-92c0-f2f2b382b4d4",
@@ -3244,7 +3287,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "user_id",
@@ -3259,7 +3303,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "site",
@@ -3274,7 +3319,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									},
 									{
 										"Name": "username",
@@ -3289,7 +3335,8 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										}
+										},
+										"DeltaFormatInvalidMessages": []
 									}
 								],
 								"ColumnSetEntityName": "d1cbe65f-3d31-412a-ac0c-d523b82fc5f8",
@@ -3498,24 +3545,6 @@
 			},
 			"dependsOn": [],
 			"location": "southcentralus"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 11')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[spotify_username]\n,[site]\n,[type]\n,[monthly_rate]\n,[billing_months]\n,[active_flag]\n FROM [raw].[dbo].[sub_accounts]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					}
-				}
-			},
-			"dependsOn": []
 		}
 	]
 }
