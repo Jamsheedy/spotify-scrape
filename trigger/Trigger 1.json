@@ -1,12 +1,12 @@
 {
-	"name": "s2r_weekly_spotify_accounts",
+	"name": "Trigger 1",
 	"properties": {
 		"annotations": [],
 		"runtimeState": "Started",
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "s2r_spotify_accounts",
+					"referenceName": "r2r_new_invoices",
 					"type": "PipelineReference"
 				}
 			}
@@ -15,15 +15,12 @@
 		"typeProperties": {
 			"recurrence": {
 				"frequency": "Week",
-				"interval": 1,
-				"startTime": "2023-01-20T01:45:00Z",
+				"interval": 2,
+				"startTime": "2023-02-05T00:05:00Z",
 				"timeZone": "UTC",
 				"schedule": {
-					"hours": [
-						2
-					],
 					"weekDays": [
-						"Friday"
+						"Tuesday"
 					]
 				}
 			}

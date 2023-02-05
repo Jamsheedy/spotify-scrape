@@ -1,0 +1,35 @@
+{
+	"name": "r2r_invoice_subCharges",
+	"properties": {
+		"activities": [
+			{
+				"name": "monthly sub charges",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "r2r_monthly_sub_charges",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Coarse",
+					"continuationSettings": {
+						"customizedCheckpointKey": "79658ea1-c548-4394-898c-a0b8657e72d5"
+					}
+				}
+			}
+		],
+		"annotations": []
+	}
+}

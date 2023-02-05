@@ -17,12 +17,11 @@
 					"Name": "id",
 					"Description": "",
 					"OriginDataTypeName": {
-						"TypeName": "string",
-						"IsNullable": false,
+						"TypeName": "long",
 						"IsComplexType": false,
-						"Length": 256,
+						"IsNullable": false,
 						"Properties": {
-							"HIVE_TYPE_STRING": "string"
+							"HIVE_TYPE_STRING": "long"
 						}
 					},
 					"DeltaFormatInvalidMessages": []
@@ -30,12 +29,11 @@
 				{
 					"Name": "invoicde_id",
 					"OriginDataTypeName": {
-						"TypeName": "string",
-						"IsNullable": true,
+						"TypeName": "long",
 						"IsComplexType": false,
-						"Length": 256,
+						"IsNullable": true,
 						"Properties": {
-							"HIVE_TYPE_STRING": "string"
+							"HIVE_TYPE_STRING": "long"
 						}
 					},
 					"DeltaFormatInvalidMessages": []
@@ -44,12 +42,11 @@
 					"Name": "charge_id",
 					"Description": "",
 					"OriginDataTypeName": {
-						"TypeName": "string",
-						"IsNullable": false,
+						"TypeName": "long",
 						"IsComplexType": false,
-						"Length": 256,
+						"IsNullable": false,
 						"Properties": {
-							"HIVE_TYPE_STRING": "string"
+							"HIVE_TYPE_STRING": "long"
 						}
 					},
 					"DeltaFormatInvalidMessages": []
@@ -85,8 +82,7 @@
 			"Description": "",
 			"DisplayFolderInfo": "{\"name\":\"Others\",\"colorCode\":\"\"}",
 			"PrimaryKeys": "",
-			"spark.sql.sources.provider": "parquet",
-			"sql:IsAppendOnly": false
+			"spark.sql.sources.provider": "parquet"
 		},
 		"Retention": 0,
 		"Temporary": false,

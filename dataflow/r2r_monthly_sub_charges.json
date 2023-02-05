@@ -1,0 +1,121 @@
+{
+	"name": "r2r_monthly_sub_charges",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "user_account_log",
+						"type": "DatasetReference"
+					},
+					"name": "userAccLog"
+				},
+				{
+					"name": "subCharges"
+				}
+			],
+			"sinks": [
+				{
+					"name": "monthlySubCharges"
+				}
+			],
+			"transformations": [
+				{
+					"name": "monthlySubs"
+				},
+				{
+					"name": "newSubCharges"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "DefaultIDs"
+				},
+				{
+					"name": "MaxID"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "GetMaxIDs"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          user_id as long,",
+				"          sub_id as long,",
+				"          username as string,",
+				"          member_type as string,",
+				"          active_ts as timestamp,",
+				"          inbound_file_name as string,",
+				"          id as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     enableCdc: true,",
+				"     mode: 'read',",
+				"     skipInitialLoad: false,",
+				"     format: 'parquet') ~> userAccLog",
+				"source(output(",
+				"          id as long,",
+				"          sub_id as long,",
+				"          year as long,",
+				"          month as long,",
+				"          created_at as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'raw',",
+				"     tableName: 'sub_charges_monthly') ~> subCharges",
+				"userAccLog aggregate(groupBy(sub_id,",
+				"          year = year(active_ts),",
+				"          month = month(active_ts)),",
+				"     temp = count()) ~> monthlySubs",
+				"monthlySubs, subCharges exists(monthlySubs@sub_id == subCharges@sub_id",
+				"     && monthlySubs@year == subCharges@year",
+				"     && monthlySubs@month == subCharges@month,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> newSubCharges",
+				"GetMaxIDs derive(created_at = currentTimestamp(),",
+				"          id = id + maxID) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          id,",
+				"          sub_id,",
+				"          year,",
+				"          month,",
+				"          created_at",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"newSubCharges keyGenerate(output(id as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> DefaultIDs",
+				"derivedColumn2 aggregate(groupBy(temp),",
+				"     maxID = max(id)) ~> MaxID",
+				"subCharges derive(temp = 'temp') ~> derivedColumn2",
+				"DefaultIDs, MaxID join(true(),",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> GetMaxIDs",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'raw',",
+				"     tableName: 'sub_charges_monthly') ~> monthlySubCharges"
+			]
+		}
+	}
+}

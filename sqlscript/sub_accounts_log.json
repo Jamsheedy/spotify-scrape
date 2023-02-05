@@ -1,0 +1,17 @@
+{
+	"name": "sub_accounts_log",
+	"properties": {
+		"content": {
+			"query": "SELECT *\n FROM [raw].[dbo].[sub_accounts] s\n JOIN raw.dbo.user_accounts ua\n    ON s.id = ua.sub_id\n JOIN raw.dbo.user_accounts_log ual\n    ON ua.id = ual.user_id\n ORDER BY user_id DESC, active_ts DESC",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "raw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
