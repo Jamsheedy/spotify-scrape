@@ -77,6 +77,9 @@
 				},
 				{
 					"name": "LogIDtoInvoiceID"
+				},
+				{
+					"name": "cast1"
 				}
 			],
 			"scriptLines": [
@@ -130,9 +133,8 @@
 				"source(output(",
 				"          id as long,",
 				"          sub_id as long,",
-				"          start_date as timestamp,",
+				"          start_ts as timestamp,",
 				"          end_date as timestamp,",
-				"          amount as string,",
 				"          status as string,",
 				"          created_at as timestamp",
 				"     ),",
@@ -157,7 +159,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinSubInfo",
-				"CreateActuatlEndDate keyGenerate(output(id as long),",
+				"cast1 keyGenerate(output(id as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> DefaultInvoiceID",
 				"derivedColumn2 select(mapColumn(",
@@ -170,8 +172,8 @@
 				"     skipDuplicateMapOutputs: true) ~> SelectInvoiceDetails",
 				"SelectInvoiceDetails derive(status = 'active',",
 				"          created_at = currentTimestamp()) ~> statusColumns",
-				"JoinAccountsLog, Invoices join(active_ts >= start_date",
-				"     && active_ts < end_date,",
+				"JoinAccountsLog, Invoices join(active_ts >= start_ts",
+				"     && active_ts < start_ts,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -191,9 +193,8 @@
 				"          user_log_id = userAccountsLog@id,",
 				"          invoice_id = Invoices@id,",
 				"          sub_id = Invoices@sub_id,",
-				"          start_date,",
+				"          start_ts,",
 				"          end_date,",
-				"          amount,",
 				"          status,",
 				"          created_at = Invoices@created_at",
 				"     ),",
@@ -221,6 +222,10 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> LogIDtoInvoiceID",
+				"CreateActuatlEndDate cast(output(",
+				"          end_ts as timestamp 'MM/dd/yyyy HH:mm:ss'",
+				"     ),",
+				"     errors: true) ~> cast1",
 				"statusColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     store: 'synapse',",
