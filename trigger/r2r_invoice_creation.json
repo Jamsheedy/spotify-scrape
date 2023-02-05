@@ -1,0 +1,29 @@
+{
+	"name": "r2r_invoice_creation",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "r2r_new_invoices",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Week",
+				"interval": 2,
+				"startTime": "2023-02-05T00:08:00Z",
+				"timeZone": "UTC",
+				"schedule": {
+					"weekDays": [
+						"Tuesday"
+					]
+				}
+			}
+		}
+	}
+}
