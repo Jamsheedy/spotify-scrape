@@ -17,8 +17,8 @@
 					"Name": "id",
 					"OriginDataTypeName": {
 						"TypeName": "long",
+						"IsNullable": true,
 						"IsComplexType": false,
-						"IsNullable": false,
 						"Properties": {
 							"HIVE_TYPE_STRING": "long"
 						}
@@ -30,8 +30,8 @@
 					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "long",
-						"IsComplexType": false,
 						"IsNullable": false,
+						"IsComplexType": false,
 						"Properties": {
 							"HIVE_TYPE_STRING": "long"
 						}
@@ -43,8 +43,8 @@
 					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "timestamp",
-						"IsComplexType": false,
 						"IsNullable": false,
+						"IsComplexType": false,
 						"Properties": {
 							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
 							"HIVE_TYPE_STRING": "timestamp"
@@ -53,15 +53,15 @@
 					"DeltaFormatInvalidMessages": []
 				},
 				{
-					"Name": "end_date",
+					"Name": "end_ts",
 					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "timestamp",
-						"IsComplexType": false,
 						"IsNullable": false,
+						"IsComplexType": false,
 						"Properties": {
-							"HIVE_TYPE_STRING": "timestamp",
-							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff"
+							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
+							"HIVE_TYPE_STRING": "timestamp"
 						}
 					},
 					"DeltaFormatInvalidMessages": []
@@ -71,8 +71,8 @@
 					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "string",
-						"IsComplexType": false,
 						"IsNullable": false,
+						"IsComplexType": false,
 						"Length": 256,
 						"Properties": {
 							"HIVE_TYPE_STRING": "string"
@@ -85,8 +85,8 @@
 					"Description": "",
 					"OriginDataTypeName": {
 						"TypeName": "timestamp",
-						"IsComplexType": false,
 						"IsNullable": false,
+						"IsComplexType": false,
 						"Properties": {
 							"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
 							"HIVE_TYPE_STRING": "timestamp"
@@ -124,8 +124,9 @@
 		"Properties": {
 			"Description": "",
 			"DisplayFolderInfo": "{\"name\":\"Others\",\"colorCode\":\"\"}",
-			"PrimaryKeys": "id",
-			"spark.sql.sources.provider": "parquet"
+			"PrimaryKeys": "",
+			"spark.sql.sources.provider": "parquet",
+			"sql:IsAppendOnly": false
 		},
 		"Retention": 0,
 		"Temporary": false,
