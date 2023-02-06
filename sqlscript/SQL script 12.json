@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 12",
+	"properties": {
+		"content": {
+			"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_ts]\n,[end_ts]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "raw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

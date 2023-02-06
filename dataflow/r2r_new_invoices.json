@@ -169,7 +169,7 @@
 				"SelectInvoiceDetails derive(status = 'active',",
 				"          created_at = currentTimestamp()) ~> statusColumns",
 				"JoinAccountsLog, Invoices join(active_ts >= start_ts",
-				"     && active_ts < start_ts,",
+				"     && active_ts < end_date,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
