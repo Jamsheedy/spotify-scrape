@@ -24,13 +24,15 @@
 						"computeType": "General"
 					},
 					"traceLevel": "Coarse",
-					"runConcurrently": false,
 					"continuationSettings": {
 						"customizedCheckpointKey": "a431e8e1-46f3-419c-b43d-d7ef9c3c1dcc"
 					}
 				}
 			}
 		],
+		"folder": {
+			"name": "clash"
+		},
 		"annotations": []
 	}
 }
