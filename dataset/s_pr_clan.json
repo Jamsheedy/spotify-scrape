@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "test_result/",
+				"fileName": "test_result",
 				"folderPath": "clan",
 				"fileSystem": "clash"
 			}
