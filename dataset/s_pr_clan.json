@@ -1,5 +1,5 @@
 {
-	"name": "s_pr_clanstage",
+	"name": "s_pr_clan",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
