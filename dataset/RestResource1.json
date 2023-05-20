@@ -6,7 +6,7 @@
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"URL": {
+			"URL_REL": {
 				"type": "string",
 				"defaultValue": "clans/%23P02CUUUU"
 			}
@@ -14,7 +14,10 @@
 		"annotations": [],
 		"type": "RestResource",
 		"typeProperties": {
-			"relativeUrl": "clans/%23P02CUUUU"
+			"relativeUrl": {
+				"value": "@dataset().URL_REL",
+				"type": "Expression"
+			}
 		},
 		"schema": []
 	}
