@@ -80,6 +80,9 @@
 				"defaultValue": "test_result.json"
 			}
 		},
+		"folder": {
+			"name": "clash"
+		},
 		"annotations": []
 	}
 }
