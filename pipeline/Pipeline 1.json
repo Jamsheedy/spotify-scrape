@@ -1,0 +1,30 @@
+{
+	"name": "Pipeline 1",
+	"properties": {
+		"activities": [
+			{
+				"name": "api_getClan",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_api",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"parameters": {
+			"CLAN_TAG": {
+				"type": "string",
+				"defaultValue": "#P02CUUUU"
+			}
+		},
+		"folder": {
+			"name": "clash"
+		},
+		"annotations": []
+	}
+}
