@@ -5,6 +5,12 @@
 			"referenceName": "ls_clash_restapi",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"URL": {
+				"type": "string",
+				"defaultValue": "clans/%23P02CUUUU"
+			}
+		},
 		"annotations": [],
 		"type": "RestResource",
 		"typeProperties": {
