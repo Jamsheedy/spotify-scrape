@@ -1,9 +1,9 @@
 {
-	"name": "test_api",
+	"name": "pl_api",
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
+				"name": "s_pr_api",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -24,16 +24,62 @@
 							"supportRFC5988": "true"
 						}
 					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings",
+							"filePattern": "setOfObjects"
+						}
+					},
 					"enableStaging": false
 				},
 				"inputs": [
 					{
 						"referenceName": "RestResource1",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"URL_REL": {
+								"value": "@pipeline().parameters.SRC_REL_URL",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "s_pr_clan",
+						"type": "DatasetReference",
+						"parameters": {
+							"TGT_DIR": {
+								"value": "@pipeline().parameters.TGT_DIR",
+								"type": "Expression"
+							},
+							"TGT_FILE_NM": {
+								"value": "@pipeline().parameters.TGT_FILE_NM",
+								"type": "Expression"
+							}
+						}
 					}
 				]
 			}
 		],
+		"parameters": {
+			"SRC_REL_URL": {
+				"type": "string",
+				"defaultValue": "clans/%23P02CUUUU"
+			},
+			"TGT_DIR": {
+				"type": "string",
+				"defaultValue": "clash/clan/"
+			},
+			"TGT_FILE_NM": {
+				"type": "string",
+				"defaultValue": "test_result.json"
+			}
+		},
 		"annotations": []
 	}
 }
