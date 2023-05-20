@@ -7,6 +7,9 @@
 		},
 		"annotations": [],
 		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": "clans/%23P02CUUUU"
+		},
 		"schema": []
 	}
 }
