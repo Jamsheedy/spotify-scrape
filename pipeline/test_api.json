@@ -34,11 +34,6 @@
 				]
 			}
 		],
-		"parameters": {
-			"base_url": {
-				"type": "string"
-			}
-		},
 		"annotations": []
 	}
 }
