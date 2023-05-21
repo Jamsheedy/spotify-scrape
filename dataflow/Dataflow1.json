@@ -19,20 +19,9 @@
 						"type": "LinkedServiceReference"
 					},
 					"name": "sink1"
-				},
-				{
-					"linkedService": {
-						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
-						"type": "LinkedServiceReference"
-					},
-					"name": "sink2"
 				}
 			],
-			"transformations": [
-				{
-					"name": "flatten1"
-				}
-			],
+			"transformations": [],
 			"scriptLines": [
 				"source(output(",
 				"          badgeUrls as (large as string, medium as string, small as string),",
@@ -76,46 +65,13 @@
 				"     fileSystem: 'clash',",
 				"     folderPath: 'clan',",
 				"     documentForm: 'documentPerLine') ~> source1",
-				"source1 foldDown(unroll(memberList),",
-				"     mapColumn(",
-				"          badgeUrls,",
-				"          capitalLeague,",
-				"          chatLanguage,",
-				"          clanBuilderBasePoints,",
-				"          clanCapital,",
-				"          clanCapitalPoints,",
-				"          clanLevel,",
-				"          clanPoints,",
-				"          clanVersusPoints,",
-				"          description,",
-				"          isFamilyFriendly,",
-				"          isWarLogPublic,",
-				"          labels,",
-				"          location,",
-				"          memberList,",
-				"          members,",
-				"          name,",
-				"          requiredBuilderBaseTrophies,",
-				"          requiredTownhallLevel,",
-				"          requiredTrophies,",
-				"          requiredVersusTrophies,",
-				"          tag,",
-				"          type,",
-				"          warFrequency,",
-				"          warLeague,",
-				"          warWinStreak,",
-				"          warWins,",
-				"          inbound_file_nm",
-				"     ),",
-				"     skipDuplicateMapInputs: false,",
-				"     skipDuplicateMapOutputs: false) ~> flatten1",
-				"flatten1 sink(allowSchemaDrift: true,",
+				"source1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
 				"     compressionType: 'snappy',",
 				"     compressionLevel: 'Fastest',",
 				"     fileSystem: 'clash',",
-				"     folderPath: 'test2',",
+				"     folderPath: 'test4',",
 				"     mergeSchema: false,",
 				"     autoCompact: true,",
 				"     optimizedWrite: true,",
@@ -128,25 +84,7 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1",
-				"source1 sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'delta',",
-				"     fileSystem: 'clash',",
-				"     folderPath: 'test3',",
-				"     mergeSchema: false,",
-				"     autoCompact: true,",
-				"     optimizedWrite: true,",
-				"     vacuum: 0,",
-				"     deletable:false,",
-				"     insertable:true,",
-				"     updateable:false,",
-				"     upsertable:false,",
-				"     umask: 0022,",
-				"     preCommands: [],",
-				"     postCommands: [],",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink2"
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
