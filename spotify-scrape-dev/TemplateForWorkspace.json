@@ -16,15 +16,382 @@
 			"metadata": "Secure string for 'connectionString' of 'spotify-scrape-dev-WorkspaceDefaultSqlServer'",
 			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:spotify-scrape-dev.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
 		},
+		"ls_clash_restapi_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api.clashofclans.com/v1/"
+		},
+		"ls_kv_appcreds_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://app-creds.vault.azure.net/"
+		},
 		"spotify-scrape-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://spotifyfam.dfs.core.windows.net"
+		},
+		"Trigger 1_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Storage/storageAccounts/spotifyfam"
 		}
 	},
 	"variables": {
 		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/Pipeline 1')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine",
+							"continuationSettings": {
+								"customizedCheckpointKey": "a65cf4f4-f4b3-4ffa-8478-e8f6eadab849"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "clash"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/Dataflow1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pl_api')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "s_pr_api",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"supportRFC5988": "true"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings",
+									"filePattern": "setOfObjects"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "RestResource1",
+								"type": "DatasetReference",
+								"parameters": {
+									"URL_REL": {
+										"value": "@replace(pipeline().parameters.SRC_REL_URL, '#', '%23')",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "s_pr_clan",
+								"type": "DatasetReference",
+								"parameters": {
+									"TGT_DIR": {
+										"value": "@pipeline().parameters.TGT_DIR",
+										"type": "Expression"
+									},
+									"TGT_FILE_NM": {
+										"value": "@pipeline().parameters.TGT_FILE_NM",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"SRC_REL_URL": {
+						"type": "string",
+						"defaultValue": "clans/%23P02CUUUU"
+					},
+					"TGT_DIR": {
+						"type": "string",
+						"defaultValue": "clash/clan/"
+					},
+					"TGT_FILE_NM": {
+						"type": "string",
+						"defaultValue": "test_result.json"
+					}
+				},
+				"folder": {
+					"name": "clash/api"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/RestResource1')]",
+				"[concat(variables('workspaceId'), '/datasets/s_pr_clan')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pullClan')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pullClan",
+						"description": "call clash api /clans for given CLAN_TAG param",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_api",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"SRC_REL_URL": {
+									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG\n)",
+									"type": "Expression"
+								},
+								"TGT_DIR": "clash/clan/",
+								"TGT_FILE_NM": {
+									"value": "@concat(\n    'clandata_',\n    utcnow(),\n    '.json'\n)",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"CLAN_TAG": {
+						"type": "string",
+						"defaultValue": "#P02CUUUU"
+					}
+				},
+				"folder": {
+					"name": "clash/pull"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pullCurrentCWL')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pullCurrentCWL",
+						"description": "call clash api /clans for given CLAN_TAG param",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_api",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"SRC_REL_URL": {
+									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar/leaguegroup'\n)",
+									"type": "Expression"
+								},
+								"TGT_DIR": "clash/cwl/",
+								"TGT_FILE_NM": {
+									"value": "@concat(\n    'cwldata_',\n    utcnow(),\n    '.json'\n)",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"CLAN_TAG": {
+						"type": "string",
+						"defaultValue": "#P02CUUUU"
+					}
+				},
+				"folder": {
+					"name": "clash/pull"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pullCurrentWar')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pullCurrentWar",
+						"description": "call clash api /clans for given CLAN_TAG param",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_api",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"SRC_REL_URL": {
+									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar'\n)",
+									"type": "Expression"
+								},
+								"TGT_DIR": "clash/wars/",
+								"TGT_FILE_NM": {
+									"value": "@concat(\n    'wardata_',\n    utcnow(),\n    '.json'\n)",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"CLAN_TAG": {
+						"type": "string",
+						"defaultValue": "#P02CUUUU"
+					}
+				},
+				"folder": {
+					"name": "clash/pull"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pullMembers')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pullPlayers",
+						"description": "call clash api /clans for given CLAN_TAG param",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_api",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"SRC_REL_URL": {
+									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/members/'\n)",
+									"type": "Expression"
+								},
+								"TGT_DIR": "clash/players/",
+								"TGT_FILE_NM": {
+									"value": "@concat(\n    'membersdata_',\n    utcnow(),\n    '.json'\n)",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"CLAN_TAG": {
+						"type": "string",
+						"defaultValue": "#P02CUUUU"
+					}
+				},
+				"folder": {
+					"name": "clash/pull"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
+			]
+		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/r2f_invoices')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
@@ -71,6 +438,9 @@
 				"policy": {
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "spotify"
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-17T03:43:06Z"
@@ -123,6 +493,9 @@
 				"policy": {
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "spotify"
 				},
 				"annotations": []
 			},
@@ -177,6 +550,9 @@
 				"policy": {
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "spotify"
 				},
 				"annotations": []
 			},
@@ -269,12 +645,44 @@
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
+				"folder": {
+					"name": "spotify"
+				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-22T19:21:59Z"
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/dataflows/s2pr_spotify_accounts_cdc')]",
 				"[concat(variables('workspaceId'), '/dataflows/pr2r_spotify_accounts')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/RestResource1')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_clash_restapi",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"URL_REL": {
+						"type": "string",
+						"defaultValue": "clans/%23P02CUUUU"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@dataset().URL_REL",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/ls_clash_restapi')]"
 			]
 		},
 		{
@@ -318,6 +726,46 @@
 						"type": "UTF8"
 					}
 				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/s_pr_clan')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"TGT_DIR": {
+						"type": "string",
+						"defaultValue": "clash/clan/"
+					},
+					"TGT_FILE_NM": {
+						"type": "string",
+						"defaultValue": "test_result.json"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().TGT_FILE_NM",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().TGT_DIR",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {}
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
@@ -495,6 +943,51 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/ls_clash_restapi')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"description": "ls connection using self hosted ir\nbearer token from ClashDB project secret script",
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('ls_clash_restapi_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous",
+					"authHeaders": {
+						"Accept": {
+							"type": "SecureString",
+							"value": "**********"
+						},
+						"authorization": {
+							"type": "SecureString",
+							"value": "**********"
+						}
+					}
+				},
+				"connectVia": {
+					"referenceName": "clash-SHIR-laptop",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/clash-SHIR-laptop')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ls_kv_appcreds')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('ls_kv_appcreds_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/spotify-scrape-dev-WorkspaceDefaultSqlServer')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -535,6 +1028,36 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Trigger 1')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "Pipeline 1",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/clash/blobs/clan/",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('Trigger 1_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/Pipeline 1')]"
 			]
 		},
 		{
@@ -628,6 +1151,112 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/clash-SHIR-laptop')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Dataflow1')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          badgeUrls as (large as string, medium as string, small as string),",
+						"          capitalLeague as (id as integer, name as string),",
+						"          chatLanguage as (id as integer, languageCode as string, name as string),",
+						"          clanBuilderBasePoints as integer,",
+						"          clanCapital as (capitalHallLevel as short, districts as (districtHallLevel as short, id as integer, name as string)[]),",
+						"          clanCapitalPoints as short,",
+						"          clanLevel as short,",
+						"          clanPoints as short,",
+						"          clanVersusPoints as integer,",
+						"          description as string,",
+						"          isFamilyFriendly as boolean,",
+						"          isWarLogPublic as boolean,",
+						"          labels as (iconUrls as (medium as string, small as string), id as integer, name as string)[],",
+						"          location as (countryCode as string, id as integer, isCountry as boolean, name as string),",
+						"          memberList as (builderBaseLeague as (id as integer, name as string), builderBaseTrophies as short, clanRank as short, donations as short, donationsReceived as short, expLevel as short, league as (iconUrls as (medium as string, small as string, tiny as string), id as integer, name as string), name as string, playerHouse as (elements as (id as integer, type as string)[]), previousClanRank as short, role as string, tag as string, trophies as short, versusTrophies as short)[],",
+						"          members as short,",
+						"          name as string,",
+						"          requiredBuilderBaseTrophies as boolean,",
+						"          requiredTownhallLevel as short,",
+						"          requiredTrophies as short,",
+						"          requiredVersusTrophies as boolean,",
+						"          tag as string,",
+						"          type as string,",
+						"          warFrequency as string,",
+						"          warLeague as (id as integer, name as string),",
+						"          warWinStreak as boolean,",
+						"          warWins as short",
+						"     ),",
+						"     useSchema: false,",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     inferDriftedColumnTypes: true,",
+						"     ignoreNoFilesFound: false,",
+						"     enableCdc: true,",
+						"     mode: 'read',",
+						"     skipInitialLoad: false,",
+						"     rowUrlColumn: 'inbound_file_nm',",
+						"     format: 'json',",
+						"     fileSystem: 'clash',",
+						"     folderPath: 'clan',",
+						"     documentForm: 'documentPerLine') ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delta',",
+						"     compressionType: 'snappy',",
+						"     compressionLevel: 'Fastest',",
+						"     fileSystem: 'clash',",
+						"     folderPath: 'test4',",
+						"     mergeSchema: false,",
+						"     autoCompact: true,",
+						"     optimizedWrite: true,",
+						"     vacuum: 0,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/pr2r_spotify_accounts')]",
@@ -1380,7 +2009,7 @@
 						"SelectInvoiceDetails derive(status = 'active',",
 						"          created_at = currentTimestamp()) ~> statusColumns",
 						"JoinAccountsLog, Invoices join(active_ts >= start_ts",
-						"     && active_ts < start_ts,",
+						"     && active_ts < end_date,",
 						"     joinType:'left',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
@@ -1687,6 +2316,46 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 12')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_ts]\n,[end_ts]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 13')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_ts]\n,[end_ts]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "raw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/SQL script 5')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -1823,6 +2492,101 @@
 					"resultLimit": 5000
 				},
 				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Notebook 1')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "smallspark0",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "89e4d10c-1897-4741-949d-49bf161373ef"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark0",
+						"name": "smallspark0",
+						"type": "Spark",
+						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark0",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"microsoft": {
+								"language": "python"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%pyspark\r\n",
+							"df = spark.read.load('abfss://clash@spotifyfam.dfs.core.windows.net/clan/test_result.json', format='json')\r\n",
+							"display(df)"
+						],
+						"outputs": [],
+						"execution_count": 4
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							}
+						},
+						"source": [
+							"%%sql\r\n",
+							"\r\n",
+							"SELECT * FROM test_db.test_json"
+						],
+						"outputs": [],
+						"execution_count": null
+					}
+				]
 			},
 			"dependsOn": []
 		},
@@ -2504,8 +3268,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "invoicde_id",
@@ -2516,8 +3279,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "charge_id",
@@ -2529,8 +3291,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									}
 								],
 								"Format": {
@@ -2598,8 +3359,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "sub_id",
@@ -2611,8 +3371,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "start_ts",
@@ -2625,8 +3384,7 @@
 												"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
 												"HIVE_TYPE_STRING": "timestamp"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "end_ts",
@@ -2639,8 +3397,7 @@
 												"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
 												"HIVE_TYPE_STRING": "timestamp"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "status",
@@ -2653,8 +3410,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "created_at",
@@ -2667,8 +3423,7 @@
 												"TimestampFormat": "YYYY-MM-DD HH:MM:SS.fffffffff",
 												"HIVE_TYPE_STRING": "timestamp"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									}
 								],
 								"Format": {
@@ -2736,8 +3491,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "stub_id",
@@ -2749,8 +3503,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									}
 								],
 								"Format": {
@@ -2822,8 +3575,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "spotify_username",
@@ -2836,8 +3588,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "site",
@@ -2850,8 +3601,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "type",
@@ -2864,8 +3614,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "monthly_rate",
@@ -2877,8 +3626,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "double"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "billing_months",
@@ -2890,8 +3638,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "active_flag",
@@ -2904,8 +3651,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									}
 								],
 								"ColumnSetEntityName": "8cca49b5-9252-4683-8be4-9bfe448182d6",
@@ -2997,8 +3743,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "sub_id",
@@ -3010,8 +3755,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "username",
@@ -3024,8 +3768,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "member_type",
@@ -3038,8 +3781,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "created_at",
@@ -3051,8 +3793,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "timestamp"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									}
 								],
 								"ColumnSetEntityName": "d0bca2a1-8f65-40cb-acd7-02ada6e6561c",
@@ -3145,8 +3886,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "user_id",
@@ -3161,8 +3901,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "active_ts",
@@ -3177,8 +3916,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "timestamp"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "inbound_file_name",
@@ -3193,8 +3931,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									}
 								],
 								"ColumnSetEntityName": "7c6aa476-c8e0-4d1a-92c0-f2f2b382b4d4",
@@ -3287,8 +4024,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "user_id",
@@ -3303,8 +4039,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "long"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "site",
@@ -3319,8 +4054,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									},
 									{
 										"Name": "username",
@@ -3335,8 +4069,7 @@
 											"Properties": {
 												"HIVE_TYPE_STRING": "string"
 											}
-										},
-										"DeltaFormatInvalidMessages": []
+										}
 									}
 								],
 								"ColumnSetEntityName": "d1cbe65f-3d31-412a-ac0c-d523b82fc5f8",
