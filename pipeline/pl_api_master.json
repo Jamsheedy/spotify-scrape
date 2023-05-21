@@ -1,9 +1,10 @@
 {
-	"name": "pl__caller",
+	"name": "pl_api_master",
 	"properties": {
 		"activities": [
 			{
-				"name": "api_getClan",
+				"name": "call_api",
+				"description": "call api with pl parameters",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"userProperties": [],
@@ -14,7 +15,18 @@
 					},
 					"waitOnCompletion": true,
 					"parameters": {
-						"TGT_DIR": "clash/clan/"
+						"SRC_REL_URL": {
+							"value": "@concat(\n    pipeline().parameters.SRC_REL_PTH_START,\n    replace(pipeline().parameters.SRC_REL_PTH_MID, '#', '%23'),\n    pipeline().parameters.SRC_REL_PTH_END\n)",
+							"type": "Expression"
+						},
+						"TGT_DIR": {
+							"value": "@pipeline().parameters.TGT_DIR",
+							"type": "Expression"
+						},
+						"TGT_FILE_NM": {
+							"value": "@concat(\n    pipeline().parameters.TGT_FILE_NM,\n    '_',\n    utcnow(),\n    '.json'\n)",
+							"type": "Expression"
+						}
 					}
 				}
 			}
@@ -23,6 +35,26 @@
 			"CLAN_TAG": {
 				"type": "string",
 				"defaultValue": "#P02CUUUU"
+			},
+			"SRC_REL_PTH_START": {
+				"type": "string",
+				"defaultValue": "clans/"
+			},
+			"SRC_REL_PTH_MID": {
+				"type": "string",
+				"defaultValue": "#P02CUUUU"
+			},
+			"SRC_REL_PTH_END": {
+				"type": "string",
+				"defaultValue": "''"
+			},
+			"TGT_FILE_NM": {
+				"type": "string",
+				"defaultValue": "clandata"
+			},
+			"TGT_DIR": {
+				"type": "string",
+				"defaultValue": "clash/clan/"
 			}
 		},
 		"folder": {
