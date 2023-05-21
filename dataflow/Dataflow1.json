@@ -65,6 +65,7 @@
 				"     skipInitialLoad: false,",
 				"     rowUrlColumn: 'inbound_file_nm',",
 				"     format: 'json',",
+				"     fileSystem: ($SRC_DIR),",
 				"     documentForm: 'documentPerLine') ~> source1",
 				"source1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
