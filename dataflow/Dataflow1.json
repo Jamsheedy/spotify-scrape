@@ -108,7 +108,7 @@
 				"     compressionType: 'snappy',",
 				"     compressionLevel: 'Fastest',",
 				"     fileSystem: 'clash',",
-				"     folderPath: 'test',",
+				"     folderPath: 'test2',",
 				"     mergeSchema: false,",
 				"     autoCompact: true,",
 				"     optimizedWrite: true,",
