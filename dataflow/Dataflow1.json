@@ -19,6 +19,13 @@
 						"type": "LinkedServiceReference"
 					},
 					"name": "sink1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink2"
 				}
 			],
 			"transformations": [
@@ -121,7 +128,25 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> sink1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'clash',",
+				"     folderPath: 'test3',",
+				"     mergeSchema: false,",
+				"     autoCompact: true,",
+				"     optimizedWrite: true,",
+				"     vacuum: 0,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink2"
 			]
 		}
 	}
