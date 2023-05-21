@@ -1,0 +1,128 @@
+{
+	"name": "Dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "flatten1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          badgeUrls as (large as string, medium as string, small as string),",
+				"          capitalLeague as (id as integer, name as string),",
+				"          chatLanguage as (id as integer, languageCode as string, name as string),",
+				"          clanBuilderBasePoints as integer,",
+				"          clanCapital as (capitalHallLevel as short, districts as (districtHallLevel as short, id as integer, name as string)[]),",
+				"          clanCapitalPoints as short,",
+				"          clanLevel as short,",
+				"          clanPoints as short,",
+				"          clanVersusPoints as integer,",
+				"          description as string,",
+				"          isFamilyFriendly as boolean,",
+				"          isWarLogPublic as boolean,",
+				"          labels as (iconUrls as (medium as string, small as string), id as integer, name as string)[],",
+				"          location as (countryCode as string, id as integer, isCountry as boolean, name as string),",
+				"          memberList as (builderBaseLeague as (id as integer, name as string), builderBaseTrophies as short, clanRank as short, donations as short, donationsReceived as short, expLevel as short, league as (iconUrls as (medium as string, small as string, tiny as string), id as integer, name as string), name as string, playerHouse as (elements as (id as integer, type as string)[]), previousClanRank as short, role as string, tag as string, trophies as short, versusTrophies as short)[],",
+				"          members as short,",
+				"          name as string,",
+				"          requiredBuilderBaseTrophies as boolean,",
+				"          requiredTownhallLevel as short,",
+				"          requiredTrophies as short,",
+				"          requiredVersusTrophies as boolean,",
+				"          tag as string,",
+				"          type as string,",
+				"          warFrequency as string,",
+				"          warLeague as (id as integer, name as string),",
+				"          warWinStreak as boolean,",
+				"          warWins as short",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false,",
+				"     enableCdc: true,",
+				"     mode: 'read',",
+				"     skipInitialLoad: false,",
+				"     rowUrlColumn: 'inbound_file_nm',",
+				"     format: 'json',",
+				"     fileSystem: 'clash',",
+				"     folderPath: 'clan',",
+				"     documentForm: 'documentPerLine') ~> source1",
+				"source1 foldDown(unroll(memberList),",
+				"     mapColumn(",
+				"          badgeUrls,",
+				"          capitalLeague,",
+				"          chatLanguage,",
+				"          clanBuilderBasePoints,",
+				"          clanCapital,",
+				"          clanCapitalPoints,",
+				"          clanLevel,",
+				"          clanPoints,",
+				"          clanVersusPoints,",
+				"          description,",
+				"          isFamilyFriendly,",
+				"          isWarLogPublic,",
+				"          labels,",
+				"          location,",
+				"          memberList,",
+				"          members,",
+				"          name,",
+				"          requiredBuilderBaseTrophies,",
+				"          requiredTownhallLevel,",
+				"          requiredTrophies,",
+				"          requiredVersusTrophies,",
+				"          tag,",
+				"          type,",
+				"          warFrequency,",
+				"          warLeague,",
+				"          warWinStreak,",
+				"          warWins,",
+				"          inbound_file_nm",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten1",
+				"flatten1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     compressionType: 'snappy',",
+				"     compressionLevel: 'Fastest',",
+				"     fileSystem: 'clash',",
+				"     folderPath: 'test',",
+				"     mergeSchema: false,",
+				"     autoCompact: true,",
+				"     optimizedWrite: true,",
+				"     vacuum: 0,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}
