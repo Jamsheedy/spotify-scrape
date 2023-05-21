@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "getCurrentWar",
+				"name": "pullCurrentWar",
 				"description": "call clash api /clans for given CLAN_TAG param",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
@@ -16,7 +16,7 @@
 					"waitOnCompletion": true,
 					"parameters": {
 						"SRC_REL_URL": {
-							"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar/'\n)",
+							"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar'\n)",
 							"type": "Expression"
 						},
 						"TGT_DIR": "clash/wars/",

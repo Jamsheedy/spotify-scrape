@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "getClan",
+				"name": "pullClan",
 				"description": "call clash api /clans for given CLAN_TAG param",
 				"type": "ExecutePipeline",
 				"dependsOn": [],

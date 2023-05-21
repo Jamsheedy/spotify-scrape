@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "getCurrentCWL",
+				"name": "pullCurrentCWL",
 				"description": "call clash api /clans for given CLAN_TAG param",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
@@ -16,12 +16,12 @@
 					"waitOnCompletion": true,
 					"parameters": {
 						"SRC_REL_URL": {
-							"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar/leaguegroup/'\n)",
+							"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar/leaguegroup'\n)",
 							"type": "Expression"
 						},
 						"TGT_DIR": "clash/cwl/",
 						"TGT_FILE_NM": {
-							"value": "@concat(\n    'wardata_',\n    utcnow(),\n    '.json'\n)",
+							"value": "@concat(\n    'cwldata_',\n    utcnow(),\n    '.json'\n)",
 							"type": "Expression"
 						}
 					}
