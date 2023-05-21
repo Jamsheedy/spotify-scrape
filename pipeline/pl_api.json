@@ -42,7 +42,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"URL_REL": {
-								"value": "@pipeline().parameters.SRC_REL_URL",
+								"value": "@replace(pipeline().parameters.SRC_REL_URL, '#', '%23')",
 								"type": "Expression"
 							}
 						}
@@ -81,7 +81,7 @@
 			}
 		},
 		"folder": {
-			"name": "clash"
+			"name": "clash/api"
 		},
 		"annotations": []
 	}
