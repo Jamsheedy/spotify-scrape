@@ -1,0 +1,10 @@
+{
+	"name": "ls_kv_appcreds",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://app-creds.vault.azure.net/"
+		}
+	}
+}

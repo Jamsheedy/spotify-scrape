@@ -1,0 +1,28 @@
+{
+	"name": "ls_clash_restapi",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"description": "ls connection using self hosted ir\nbearer token from ClashDB project secret script",
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://api.clashofclans.com/v1/",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous",
+			"authHeaders": {
+				"Accept": {
+					"type": "SecureString",
+					"value": "**********"
+				},
+				"authorization": {
+					"type": "SecureString",
+					"value": "**********"
+				}
+			}
+		},
+		"connectVia": {
+			"referenceName": "clash-SHIR-laptop",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

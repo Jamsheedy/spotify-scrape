@@ -30,6 +30,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "spotify"
+		},
 		"annotations": [],
 		"lastPublishTime": "2023-01-17T03:43:06Z"
 	},

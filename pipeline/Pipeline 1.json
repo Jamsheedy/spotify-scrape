@@ -1,9 +1,9 @@
 {
-	"name": "r2r_new_invoices",
+	"name": "Pipeline 1",
 	"properties": {
 		"activities": [
 			{
-				"name": "r2r_new_invoices",
+				"name": "Data flow1",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -16,22 +16,22 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "r2r_new_invoices",
+						"referenceName": "Dataflow1",
 						"type": "DataFlowReference"
 					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
 					},
-					"traceLevel": "Coarse",
+					"traceLevel": "Fine",
 					"continuationSettings": {
-						"customizedCheckpointKey": "a431e8e1-46f3-419c-b43d-d7ef9c3c1dcc"
+						"customizedCheckpointKey": "a65cf4f4-f4b3-4ffa-8478-e8f6eadab849"
 					}
 				}
 			}
 		],
 		"folder": {
-			"name": "spotify"
+			"name": "clash"
 		},
 		"annotations": []
 	}

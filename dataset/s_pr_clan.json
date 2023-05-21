@@ -1,0 +1,35 @@
+{
+	"name": "s_pr_clan",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"TGT_DIR": {
+				"type": "string",
+				"defaultValue": "clash/clan/"
+			},
+			"TGT_FILE_NM": {
+				"type": "string",
+				"defaultValue": "test_result.json"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().TGT_FILE_NM",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().TGT_DIR",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	}
+}

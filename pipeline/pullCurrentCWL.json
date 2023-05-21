@@ -1,0 +1,42 @@
+{
+	"name": "pullCurrentCWL",
+	"properties": {
+		"activities": [
+			{
+				"name": "pullCurrentCWL",
+				"description": "call clash api /clans for given CLAN_TAG param",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_api",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"SRC_REL_URL": {
+							"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar/leaguegroup'\n)",
+							"type": "Expression"
+						},
+						"TGT_DIR": "clash/cwl/",
+						"TGT_FILE_NM": {
+							"value": "@concat(\n    'cwldata_',\n    utcnow(),\n    '.json'\n)",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"CLAN_TAG": {
+				"type": "string",
+				"defaultValue": "#P02CUUUU"
+			}
+		},
+		"folder": {
+			"name": "clash/pull"
+		},
+		"annotations": []
+	}
+}
