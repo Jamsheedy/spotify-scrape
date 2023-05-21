@@ -12,7 +12,10 @@
 						"referenceName": "pl_api",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"TGT_DIR": "clash/clan/"
+					}
 				}
 			}
 		],
