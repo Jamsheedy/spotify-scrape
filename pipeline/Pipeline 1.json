@@ -25,11 +25,20 @@
 					},
 					"traceLevel": "Fine",
 					"continuationSettings": {
-						"customizedCheckpointKey": "a65cf4f4-f4b3-4ffa-8478-e8f6eadab849"
+						"customizedCheckpointKey": "b0051a18-2d30-4a3e-88ff-adad7816955a"
 					}
 				}
 			}
 		],
+		"parameters": {
+			"SRC_DIR": {
+				"type": "string",
+				"defaultValue": "c;lash/cllan"
+			},
+			"SRC_FILE_NAME": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "clash"
 		},

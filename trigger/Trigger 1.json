@@ -8,6 +8,10 @@
 				"pipelineReference": {
 					"referenceName": "Pipeline 1",
 					"type": "PipelineReference"
+				},
+				"parameters": {
+					"SRC_DIR": "@triggerBody().folderPath",
+					"SRC_FILE_NAME": "@triggerBody().fileName"
 				}
 			}
 		],
