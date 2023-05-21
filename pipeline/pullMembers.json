@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "getClan",
+				"name": "pullPlayers",
 				"description": "call clash api /clans for given CLAN_TAG param",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
@@ -19,7 +19,7 @@
 							"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/members/'\n)",
 							"type": "Expression"
 						},
-						"TGT_DIR": "clash/clan_members/",
+						"TGT_DIR": "clash/players/",
 						"TGT_FILE_NM": {
 							"value": "@concat(\n    'membersdata_',\n    utcnow(),\n    '.json'\n)",
 							"type": "Expression"
