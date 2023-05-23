@@ -1,0 +1,27 @@
+{
+	"name": "clash_s_r_pullClan",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pullClanData",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"CLAN_TAG": "#P02CUUUU"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Hour",
+				"interval": 12,
+				"startTime": "2023-05-23T00:00:00Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}
