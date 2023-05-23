@@ -20,8 +20,8 @@
 		"spotify-scrape-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://spotifyfam.dfs.core.windows.net"
 		},
-		"Trigger 1_properties_typeProperties_scope": {
-			"value": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Storage/storageAccounts/spotifyfam"
+		"clash_s_r_pullClan_properties_pullClanData_parameters_CLAN_TAG": {
+			"value": "#P02CUUUU"
 		}
 	}
 }

@@ -28,9 +28,9 @@
 			"type": "string",
 			"defaultValue": "https://spotifyfam.dfs.core.windows.net"
 		},
-		"Trigger 1_properties_typeProperties_scope": {
+		"clash_s_r_pullClan_properties_pullClanData_parameters_CLAN_TAG": {
 			"type": "string",
-			"defaultValue": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Storage/storageAccounts/spotifyfam"
+			"defaultValue": "#P02CUUUU"
 		}
 	},
 	"variables": {
@@ -59,7 +59,9 @@
 							"dataflow": {
 								"referenceName": "Dataflow1",
 								"type": "DataFlowReference",
-								"parameters": {},
+								"parameters": {
+									"SRC_DIR": "\"clash/clan\""
+								},
 								"datasetParameters": {
 									"source1": {},
 									"sink1": {}
@@ -72,7 +74,7 @@
 							},
 							"traceLevel": "Fine",
 							"continuationSettings": {
-								"customizedCheckpointKey": "a65cf4f4-f4b3-4ffa-8478-e8f6eadab849"
+								"customizedCheckpointKey": "b0051a18-2d30-4a3e-88ff-adad7816955a"
 							}
 						}
 					}
@@ -81,13 +83,23 @@
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
+				"parameters": {
+					"SRC_DIR": {
+						"type": "string",
+						"defaultValue": "c;lash/cllan"
+					},
+					"SRC_FILE_NAME": {
+						"type": "string"
+					}
+				},
 				"folder": {
 					"name": "clash"
 				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/Dataflow1')]"
+				"[concat(variables('workspaceId'), '/dataflows/Dataflow1')]",
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
@@ -231,12 +243,97 @@
 					}
 				},
 				"folder": {
-					"name": "clash/pull"
+					"name": "clash/pull/endpoints"
 				},
 				"annotations": []
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pullClanData')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pullClan",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pullClan",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"CLAN_TAG": {
+									"value": "@pipeline().parameters.CLAN_TAG",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "pullCurrentCWL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pullCurrentCWL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"CLAN_TAG": {
+									"value": "@pipeline().parameters.CLAN_TAG",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "pullCurrentWar",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pullCurrentWar",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"CLAN_TAG": {
+									"value": "@pipeline().parameters.CLAN_TAG",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"CLAN_TAG": {
+						"type": "string",
+						"defaultValue": "#P02CUUUU"
+					}
+				},
+				"folder": {
+					"name": "clash/pull"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pullClan')]",
+				"[concat(variables('workspaceId'), '/pipelines/pullCurrentCWL')]",
+				"[concat(variables('workspaceId'), '/pipelines/pullCurrentWar')]"
 			]
 		},
 		{
@@ -282,7 +379,7 @@
 					}
 				},
 				"folder": {
-					"name": "clash/pull"
+					"name": "clash/pull/endpoints"
 				},
 				"annotations": []
 			},
@@ -333,7 +430,7 @@
 					}
 				},
 				"folder": {
-					"name": "clash/pull"
+					"name": "clash/pull/endpoints"
 				},
 				"annotations": []
 			},
@@ -384,7 +481,7 @@
 					}
 				},
 				"folder": {
-					"name": "clash/pull"
+					"name": "clash/pull/endpoints"
 				},
 				"annotations": []
 			},
@@ -1031,7 +1128,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/Trigger 1')]",
+			"name": "[concat(parameters('workspaceName'), '/clash_s_r_pullClan')]",
 			"type": "Microsoft.Synapse/workspaces/triggers",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -1040,24 +1137,26 @@
 				"pipelines": [
 					{
 						"pipelineReference": {
-							"referenceName": "Pipeline 1",
+							"referenceName": "pullClanData",
 							"type": "PipelineReference"
 						},
-						"parameters": {}
+						"parameters": {
+							"CLAN_TAG": "[parameters('clash_s_r_pullClan_properties_pullClanData_parameters_CLAN_TAG')]"
+						}
 					}
 				],
-				"type": "BlobEventsTrigger",
+				"type": "ScheduleTrigger",
 				"typeProperties": {
-					"blobPathBeginsWith": "/clash/blobs/clan/",
-					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('Trigger 1_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
+					"recurrence": {
+						"frequency": "Hour",
+						"interval": 12,
+						"startTime": "2023-05-23T00:00:00Z",
+						"timeZone": "UTC"
+					}
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/pipelines/Pipeline 1')]"
+				"[concat(variables('workspaceId'), '/pipelines/pullClanData')]"
 			]
 		},
 		{
@@ -1189,6 +1288,9 @@
 					],
 					"transformations": [],
 					"scriptLines": [
+						"parameters{",
+						"     SRC_DIR as string (\"clash/clan\")",
+						"}",
 						"source(output(",
 						"          badgeUrls as (large as string, medium as string, small as string),",
 						"          capitalLeague as (id as integer, name as string),",
@@ -1228,8 +1330,7 @@
 						"     skipInitialLoad: false,",
 						"     rowUrlColumn: 'inbound_file_nm',",
 						"     format: 'json',",
-						"     fileSystem: 'clash',",
-						"     folderPath: 'clan',",
+						"     fileSystem: ($SRC_DIR),",
 						"     documentForm: 'documentPerLine') ~> source1",
 						"source1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -2267,186 +2368,6 @@
 					},
 					"currentConnection": {
 						"databaseName": "foundation",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 10')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[spotify_username]\n,[site]\n,[type]\n,[monthly_rate]\n,[billing_months]\n,[active_flag]\n FROM [raw].[dbo].[sub_accounts]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 11')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[spotify_username]\n,[site]\n,[type]\n,[monthly_rate]\n,[billing_months]\n,[active_flag]\n FROM [raw].[dbo].[sub_accounts]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 12')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_ts]\n,[end_ts]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 13')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_ts]\n,[end_ts]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 5')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [user_id]\n,[sub_id]\n,[username]\n,[member_type]\n,[active_ts]\n,[inbound_file_name]\n,[id]\n FROM [raw].[dbo].[user_accounts_log]\n ORDER BY ID DESC",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 6')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[username]\n,[member_type]\n,[created_at]\n FROM [raw].[dbo].[user_accounts]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 7')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[user_id]\n,[active_ts]\n,[inbound_file_name]\n FROM [raw].[dbo].[user_accounts_log]\n WHERE user_id = 7",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 8')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_ts]\n,[end_date]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 9')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [id]\n,[sub_id]\n,[start_ts]\n,[end_ts]\n,[status]\n,[created_at]\n FROM [raw].[dbo].[invoices]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "raw",
 						"poolName": "Built-in"
 					},
 					"resultLimit": 5000
