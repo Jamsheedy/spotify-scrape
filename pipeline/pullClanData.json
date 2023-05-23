@@ -1,0 +1,74 @@
+{
+	"name": "pullClanData",
+	"properties": {
+		"activities": [
+			{
+				"name": "pullClan",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pullClan",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"CLAN_TAG": {
+							"value": "@pipeline().parameters.CLAN_TAG",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "pullCurrentCWL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pullCurrentCWL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"CLAN_TAG": {
+							"value": "@pipeline().parameters.CLAN_TAG",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "pullCurrentWar",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pullCurrentWar",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"CLAN_TAG": {
+							"value": "@pipeline().parameters.CLAN_TAG",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"CLAN_TAG": {
+				"type": "string",
+				"defaultValue": "#P02CUUUU"
+			}
+		},
+		"folder": {
+			"name": "clash/pull"
+		},
+		"annotations": []
+	}
+}
