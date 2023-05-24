@@ -1,6 +1,9 @@
 {
 	"name": "create_accounts",
 	"properties": {
+		"folder": {
+			"name": "spotify"
+		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"sessionProperties": {
