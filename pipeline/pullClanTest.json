@@ -93,7 +93,7 @@
 				}
 			},
 			{
-				"name": "ForEach Member",
+				"name": "ForEach ClanMember",
 				"type": "ForEach",
 				"dependsOn": [
 					{
@@ -148,7 +148,7 @@
 				"typeProperties": {
 					"variableName": "CLAN_MEMBERS",
 					"value": {
-						"value": "@json(string(activity('LookupClanMembers').output.value[0])).memberList",
+						"value": "@activity('LookupClanMembers').output.value[0].memberList",
 						"type": "Expression"
 					}
 				}
