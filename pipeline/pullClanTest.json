@@ -8,7 +8,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "createOutFileName",
+						"activity": "set OutFileNM",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -80,7 +80,7 @@
 				}
 			},
 			{
-				"name": "createOutFileName",
+				"name": "set OutFileNM",
 				"type": "SetVariable",
 				"dependsOn": [],
 				"userProperties": [],
@@ -97,7 +97,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "LookupClanMembers",
+						"activity": "set ClanMembers",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -106,7 +106,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "activity('LookupClanMembers').output.value[0].memberList",
+						"value": "@variables('CLAN_MEMBERS')",
 						"type": "Expression"
 					},
 					"isSequential": false,
@@ -131,6 +131,26 @@
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "set ClanMembers",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "LookupClanMembers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "CLAN_MEMBERS",
+					"value": {
+						"value": "@json(string(activity('LookupClanMembers').output.value[0])).memberList",
+						"type": "Expression"
+					}
 				}
 			}
 		],
