@@ -1,0 +1,157 @@
+{
+	"name": "pullClanTest",
+	"properties": {
+		"activities": [
+			{
+				"name": "pullClan",
+				"description": "call clash api /clans for given CLAN_TAG param",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "createOutFileName",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_api",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"SRC_REL_URL": {
+							"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG\n)",
+							"type": "Expression"
+						},
+						"TGT_DIR": "clash/clan/",
+						"TGT_FILE_NM": {
+							"value": "@variables('OUT_FILE_NAME')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "LookupClanMembers",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "pullClan",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "clan_json",
+						"type": "DatasetReference",
+						"parameters": {
+							"TGT_DIR": "clash/clan/",
+							"TGT_FILE_NM": {
+								"value": "@variables('OUT_FILE_NAME')",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "createOutFileName",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "OUT_FILE_NAME",
+					"value": {
+						"value": "@concat(\n    'clandata_',\n    utcnow(),\n    '.json'\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach Member",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "LookupClanMembers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "activity('LookupClanMembers').output.value[0].memberList",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "pullPlayer",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pullPlayer",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": false,
+								"parameters": {
+									"PLAYER_TAG": {
+										"value": "@item().tag",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"CLAN_TAG": {
+				"type": "string",
+				"defaultValue": "#P02CUUUU"
+			}
+		},
+		"variables": {
+			"OUT_FILE_NAME": {
+				"type": "String",
+				"defaultValue": "clandata_2023-05-21T05:28:18.1963747Z.json"
+			},
+			"CLAN_MEMBERS": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "clash/pull/endpoints"
+		},
+		"annotations": []
+	}
+}
