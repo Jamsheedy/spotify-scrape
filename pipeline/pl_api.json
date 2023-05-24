@@ -50,7 +50,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "s_pr_clan",
+						"referenceName": "clan_json",
 						"type": "DatasetReference",
 						"parameters": {
 							"TGT_DIR": {
