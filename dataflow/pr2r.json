@@ -1,5 +1,5 @@
 {
-	"name": "Dataflow2",
+	"name": "pr2r",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -29,12 +29,13 @@
 			"scriptLines": [
 				"parameters{",
 				"     SRC_DIR as string (\"clash\"),",
-				"     TGT_DIR as string (\"clash/deltalake/raw/clan/\"),",
-				"     SRC_FN as string (\"clan\")",
+				"     SRC_FN as string (\"clan\"),",
+				"     TGT_DIR as string (\"deltalake/raw/clan/\")",
 				"}",
 				"source(useSchema: false,",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
 				"     ignoreNoFilesFound: false,",
 				"     enableCdc: true,",
 				"     mode: 'read',",
@@ -47,7 +48,8 @@
 				"addCurrentTS sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
-				"     folderPath: '$TGT_DIR',",
+				"     fileSystem: 'clash',",
+				"     folderPath: ($TGT_DIR),",
 				"     mergeSchema: true,",
 				"     autoCompact: true,",
 				"     optimizedWrite: true,",
