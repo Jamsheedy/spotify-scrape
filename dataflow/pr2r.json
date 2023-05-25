@@ -1,6 +1,9 @@
 {
 	"name": "pr2r",
 	"properties": {
+		"folder": {
+			"name": "clash"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

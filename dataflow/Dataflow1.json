@@ -1,6 +1,9 @@
 {
 	"name": "Dataflow1",
 	"properties": {
+		"folder": {
+			"name": "clash"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

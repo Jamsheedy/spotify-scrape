@@ -1,6 +1,9 @@
 {
 	"name": "Notebook 2",
 	"properties": {
+		"folder": {
+			"name": "clash"
+		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
@@ -17,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "f10dc46d-aefe-4ea9-b95c-bd40f47f81cf"
+				"spark.autotune.trackingId": "3a609f5c-7eaa-4bdb-9894-7e57af7781a9"
 			}
 		},
 		"metadata": {

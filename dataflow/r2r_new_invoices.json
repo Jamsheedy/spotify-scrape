@@ -1,6 +1,9 @@
 {
 	"name": "r2r_new_invoices",
 	"properties": {
+		"folder": {
+			"name": "spotify"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

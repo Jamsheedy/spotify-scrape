@@ -1,6 +1,9 @@
 {
 	"name": "Due Invoices",
 	"properties": {
+		"folder": {
+			"name": "Spotify"
+		},
 		"content": {
 			"query": "SELECT TOP (100) [year]\n,[month]\n,[sub_id]\n,[last_day_of_month]\n,[description]\n,[invoiced]\n FROM [foundation].[dbo].[invoices]\n WHERE [last_day_of_month] < CURRENT_TIMESTAMP AND [invoiced] = 'N'\n ORDER BY [last_day_of_month] ASC\n",
 			"metadata": {
