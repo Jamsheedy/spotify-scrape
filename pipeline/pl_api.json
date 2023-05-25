@@ -59,7 +59,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "clan_json",
+						"referenceName": "clan_ds_json",
 						"type": "DatasetReference",
 						"parameters": {
 							"TGT_DIR": {
