@@ -1,6 +1,9 @@
 {
 	"name": "r2f_invoice_key_lookup",
 	"properties": {
+		"folder": {
+			"name": "spotify"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

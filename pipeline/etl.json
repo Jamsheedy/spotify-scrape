@@ -1,9 +1,9 @@
 {
-	"name": "Pipeline 1",
+	"name": "etl",
 	"properties": {
 		"activities": [
 			{
-				"name": "Data flow1",
+				"name": "pr2r",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -16,8 +16,13 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "Dataflow1",
-						"type": "DataFlowReference"
+						"referenceName": "pr2r",
+						"type": "DataFlowReference",
+						"parameters": {
+							"SRC_DIR": "\"clash\"",
+							"SRC_FN": "\"clan\"",
+							"TGT_DIR": "\"deltalake/raw/clan/\""
+						}
 					},
 					"compute": {
 						"coreCount": 8,
@@ -25,7 +30,7 @@
 					},
 					"traceLevel": "Fine",
 					"continuationSettings": {
-						"customizedCheckpointKey": "b0051a18-2d30-4a3e-88ff-adad7816955a"
+						"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
 					}
 				}
 			}
@@ -33,10 +38,15 @@
 		"parameters": {
 			"SRC_DIR": {
 				"type": "string",
-				"defaultValue": "c;lash/cllan"
+				"defaultValue": "clash"
 			},
-			"SRC_FILE_NAME": {
-				"type": "string"
+			"SRC_FN": {
+				"type": "string",
+				"defaultValue": "clan"
+			},
+			"TGT_DIR": {
+				"type": "string",
+				"defaultValue": "deltalake/raw/clan/"
 			}
 		},
 		"folder": {

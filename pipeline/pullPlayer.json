@@ -1,0 +1,42 @@
+{
+	"name": "pullPlayer",
+	"properties": {
+		"activities": [
+			{
+				"name": "pullPlayer",
+				"description": "call clash api /clans for given CLAN_TAG param",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_api",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"SRC_REL_URL": {
+							"value": "@concat(\n    'players/',\n    pipeline().parameters.PLAYER_TAG\n)",
+							"type": "Expression"
+						},
+						"TGT_DIR": "clash/player/",
+						"TGT_FILE_NM": {
+							"value": "@concat(\n    'player_',\n    utcnow(),\n    '.json'\n)",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"PLAYER_TAG": {
+				"type": "string",
+				"defaultValue": "#YJV2882JL"
+			}
+		},
+		"folder": {
+			"name": "clash/pull/endpoints"
+		},
+		"annotations": []
+	}
+}

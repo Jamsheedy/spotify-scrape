@@ -1,6 +1,9 @@
 {
 	"name": "s2pr_spotify_accounts_cdc",
 	"properties": {
+		"folder": {
+			"name": "spotify"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

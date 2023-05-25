@@ -1,6 +1,9 @@
 {
-	"name": "Notebook 1",
+	"name": "Notebook 2",
 	"properties": {
+		"folder": {
+			"name": "clash"
+		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
@@ -17,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "89e4d10c-1897-4741-949d-49bf161373ef"
+				"spark.autotune.trackingId": "3a609f5c-7eaa-4bdb-9894-7e57af7781a9"
 			}
 		},
 		"metadata": {
@@ -50,18 +53,10 @@
 		"cells": [
 			{
 				"cell_type": "code",
-				"metadata": {
-					"microsoft": {
-						"language": "python"
-					},
-					"collapsed": false
-				},
 				"source": [
-					"%%pyspark\r\n",
-					"df = spark.read.load('abfss://clash@spotifyfam.dfs.core.windows.net/clan/test_result.json', format='json')\r\n",
-					"display(df)"
+					"df = spark.read.load('abfss://clash@spotifyfam.dfs.core.windows.net/deltalake/raw/clan/', format='delta')"
 				],
-				"execution_count": 4
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -75,16 +70,12 @@
 							"deleting": false
 						}
 					},
-					"microsoft": {
-						"language": "sparksql"
-					}
+					"collapsed": false
 				},
 				"source": [
-					"%%sql\r\n",
-					"\r\n",
-					"SELECT * FROM test_db.test_json"
+					"display(df)"
 				],
-				"execution_count": null
+				"execution_count": 4
 			}
 		]
 	}

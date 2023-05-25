@@ -1,0 +1,72 @@
+{
+	"name": "pr2r",
+	"properties": {
+		"folder": {
+			"name": "clash"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "addCurrentTS"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     SRC_DIR as string (\"clash\"),",
+				"     SRC_FN as string (\"clan\"),",
+				"     TGT_DIR as string (\"deltalake/raw/clan/\")",
+				"}",
+				"source(useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false,",
+				"     enableCdc: true,",
+				"     mode: 'read',",
+				"     skipInitialLoad: false,",
+				"     format: 'json',",
+				"     fileSystem: ($SRC_DIR),",
+				"     folderPath: ($SRC_FN),",
+				"     documentForm: 'documentPerLine') ~> source1",
+				"source1 derive(load_ts = currentTimestamp()) ~> addCurrentTS",
+				"addCurrentTS sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'clash',",
+				"     folderPath: ($TGT_DIR),",
+				"     mergeSchema: true,",
+				"     autoCompact: true,",
+				"     optimizedWrite: true,",
+				"     vacuum: 0,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

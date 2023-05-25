@@ -1,6 +1,9 @@
 {
 	"name": "r2f_spotify_sub_users_invoice_creation",
 	"properties": {
+		"folder": {
+			"name": "spotify"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

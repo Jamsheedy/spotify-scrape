@@ -1,6 +1,9 @@
 {
 	"name": "pr2r_spotify_accounts",
 	"properties": {
+		"folder": {
+			"name": "spotify"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

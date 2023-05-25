@@ -66,6 +66,11 @@
 				"defaultValue": "#P02CUUUU"
 			}
 		},
+		"variables": {
+			"CLAN_MEMBERS": {
+				"type": "Array"
+			}
+		},
 		"folder": {
 			"name": "clash/pull"
 		},
