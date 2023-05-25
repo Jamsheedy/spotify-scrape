@@ -19,9 +19,18 @@
 						"referenceName": "pr2r",
 						"type": "DataFlowReference",
 						"parameters": {
-							"SRC_DIR": "\"clash\"",
-							"SRC_FN": "\"clan\"",
-							"TGT_DIR": "\"deltalake/raw/clan/\""
+							"SRC_DIR": {
+								"value": "'@{pipeline().parameters.SRC_DIR}'",
+								"type": "Expression"
+							},
+							"SRC_FN": {
+								"value": "'@{pipeline().parameters.SRC_FN}'",
+								"type": "Expression"
+							},
+							"TGT_DIR": {
+								"value": "'@{pipeline().parameters.TGT_DIR}'",
+								"type": "Expression"
+							}
 						}
 					},
 					"compute": {
@@ -42,11 +51,11 @@
 			},
 			"SRC_FN": {
 				"type": "string",
-				"defaultValue": "clan"
+				"defaultValue": "wars"
 			},
 			"TGT_DIR": {
 				"type": "string",
-				"defaultValue": "deltalake/raw/clan/"
+				"defaultValue": "deltalake/raw/wars/"
 			}
 		},
 		"folder": {
