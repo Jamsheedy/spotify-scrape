@@ -38,13 +38,13 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('workspaceName'), '/Pipeline 1')]",
+			"name": "[concat(parameters('workspaceName'), '/etl')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"activities": [
 					{
-						"name": "Data flow1",
+						"name": "pr2r",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -57,10 +57,12 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "Dataflow1",
+								"referenceName": "pr2r",
 								"type": "DataFlowReference",
 								"parameters": {
-									"SRC_DIR": "\"clash/clan\""
+									"SRC_DIR": "\"clash\"",
+									"SRC_FN": "\"clan\"",
+									"TGT_DIR": "\"deltalake/raw/clan/\""
 								},
 								"datasetParameters": {
 									"source1": {},
@@ -74,7 +76,7 @@
 							},
 							"traceLevel": "Fine",
 							"continuationSettings": {
-								"customizedCheckpointKey": "b0051a18-2d30-4a3e-88ff-adad7816955a"
+								"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
 							}
 						}
 					}
@@ -86,10 +88,15 @@
 				"parameters": {
 					"SRC_DIR": {
 						"type": "string",
-						"defaultValue": "c;lash/cllan"
+						"defaultValue": "clash"
 					},
-					"SRC_FILE_NAME": {
-						"type": "string"
+					"SRC_FN": {
+						"type": "string",
+						"defaultValue": "clan"
+					},
+					"TGT_DIR": {
+						"type": "string",
+						"defaultValue": "deltalake/raw/clan/"
 					}
 				},
 				"folder": {
@@ -98,8 +105,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/Dataflow1')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+				"[concat(variables('workspaceId'), '/dataflows/pr2r')]"
 			]
 		},
 		{
@@ -123,6 +129,15 @@
 						"typeProperties": {
 							"source": {
 								"type": "RestSource",
+								"additionalColumns": [
+									{
+										"name": "api_call_ts",
+										"value": {
+											"value": "@utcNow()",
+											"type": "Expression"
+										}
+									}
+								],
 								"httpRequestTimeout": "00:01:40",
 								"requestInterval": "00.00:00:00.010",
 								"requestMethod": "GET",
@@ -156,7 +171,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "s_pr_clan",
+								"referenceName": "clan_ds_json",
 								"type": "DatasetReference",
 								"parameters": {
 									"TGT_DIR": {
@@ -197,7 +212,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/datasets/RestResource1')]",
-				"[concat(variables('workspaceId'), '/datasets/s_pr_clan')]"
+				"[concat(variables('workspaceId'), '/datasets/clan_ds_json')]"
 			]
 		},
 		{
@@ -325,6 +340,11 @@
 						"defaultValue": "#P02CUUUU"
 					}
 				},
+				"variables": {
+					"CLAN_MEMBERS": {
+						"type": "Array"
+					}
+				},
 				"folder": {
 					"name": "clash/pull"
 				},
@@ -334,6 +354,194 @@
 				"[concat(variables('workspaceId'), '/pipelines/pullClan')]",
 				"[concat(variables('workspaceId'), '/pipelines/pullCurrentCWL')]",
 				"[concat(variables('workspaceId'), '/pipelines/pullCurrentWar')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pullClanTest')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pullClan",
+						"description": "call clash api /clans for given CLAN_TAG param",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "set OutFileNM",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_api",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"SRC_REL_URL": {
+									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG\n)",
+									"type": "Expression"
+								},
+								"TGT_DIR": "clash/clan/",
+								"TGT_FILE_NM": {
+									"value": "@variables('OUT_FILE_NAME')",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "LookupClanMembers",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "pullClan",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "clan_ds_json",
+								"type": "DatasetReference",
+								"parameters": {
+									"TGT_DIR": "clash/clan/",
+									"TGT_FILE_NM": {
+										"value": "@variables('OUT_FILE_NAME')",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "set OutFileNM",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "OUT_FILE_NAME",
+							"value": {
+								"value": "@concat(\n    'clandata_',\n    utcnow(),\n    '.json'\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "ForEach ClanMember",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "set ClanMembers",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('CLAN_MEMBERS')",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "pullPlayer",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pullPlayer",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": false,
+										"parameters": {
+											"PLAYER_TAG": {
+												"value": "@item().tag",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "set ClanMembers",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "LookupClanMembers",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "CLAN_MEMBERS",
+							"value": {
+								"value": "@activity('LookupClanMembers').output.value[0].memberList",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"CLAN_TAG": {
+						"type": "string",
+						"defaultValue": "#P02CUUUU"
+					}
+				},
+				"variables": {
+					"OUT_FILE_NAME": {
+						"type": "String",
+						"defaultValue": "clandata_2023-05-21T05:28:18.1963747Z.json"
+					},
+					"CLAN_MEMBERS": {
+						"type": "Array"
+					}
+				},
+				"folder": {
+					"name": "clash/pull/endpoints"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_api')]",
+				"[concat(variables('workspaceId'), '/datasets/clan_ds_json')]",
+				"[concat(variables('workspaceId'), '/pipelines/pullPlayer')]"
 			]
 		},
 		{
@@ -478,6 +686,57 @@
 					"CLAN_TAG": {
 						"type": "string",
 						"defaultValue": "#P02CUUUU"
+					}
+				},
+				"folder": {
+					"name": "clash/pull/endpoints"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pullPlayer')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pullPlayer",
+						"description": "call clash api /clans for given CLAN_TAG param",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_api",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"SRC_REL_URL": {
+									"value": "@concat(\n    'players/',\n    pipeline().parameters.PLAYER_TAG\n)",
+									"type": "Expression"
+								},
+								"TGT_DIR": "clash/player/",
+								"TGT_FILE_NM": {
+									"value": "@concat(\n    'player_',\n    utcnow(),\n    '.json'\n)",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"PLAYER_TAG": {
+						"type": "string",
+						"defaultValue": "#YJV2882JL"
 					}
 				},
 				"folder": {
@@ -783,6 +1042,46 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/clan_ds_json')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"TGT_DIR": {
+						"type": "string",
+						"defaultValue": "clash/clan/"
+					},
+					"TGT_FILE_NM": {
+						"type": "string",
+						"defaultValue": "test_result.json"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().TGT_FILE_NM",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().TGT_DIR",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/raw_spotify_subs_accounts')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -823,46 +1122,6 @@
 						"type": "UTF8"
 					}
 				]
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/s_pr_clan')]",
-			"type": "Microsoft.Synapse/workspaces/datasets",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"TGT_DIR": {
-						"type": "string",
-						"defaultValue": "clash/clan/"
-					},
-					"TGT_FILE_NM": {
-						"type": "string",
-						"defaultValue": "test_result.json"
-					}
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().TGT_FILE_NM",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().TGT_DIR",
-							"type": "Expression"
-						}
-					}
-				},
-				"schema": {}
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
@@ -1266,6 +1525,9 @@
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "clash"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -1360,10 +1622,90 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/pr2r')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "clash"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "addCurrentTS"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     SRC_DIR as string (\"clash\"),",
+						"     SRC_FN as string (\"clan\"),",
+						"     TGT_DIR as string (\"deltalake/raw/clan/\")",
+						"}",
+						"source(useSchema: false,",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     inferDriftedColumnTypes: true,",
+						"     ignoreNoFilesFound: false,",
+						"     enableCdc: true,",
+						"     mode: 'read',",
+						"     skipInitialLoad: false,",
+						"     format: 'json',",
+						"     fileSystem: ($SRC_DIR),",
+						"     folderPath: ($SRC_FN),",
+						"     documentForm: 'documentPerLine') ~> source1",
+						"source1 derive(load_ts = currentTimestamp()) ~> addCurrentTS",
+						"addCurrentTS sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delta',",
+						"     fileSystem: 'clash',",
+						"     folderPath: ($TGT_DIR),",
+						"     mergeSchema: true,",
+						"     autoCompact: true,",
+						"     optimizedWrite: true,",
+						"     vacuum: 0,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/pr2r_spotify_accounts')]",
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "spotify"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -1534,6 +1876,9 @@
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "spotify"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -1614,6 +1959,9 @@
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "spotify"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -1816,6 +2164,9 @@
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "spotify"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -1942,6 +2293,9 @@
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "spotify"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -2189,6 +2543,9 @@
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "spotify"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -2361,6 +2718,9 @@
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "Spotify"
+				},
 				"content": {
 					"query": "SELECT TOP (100) [year]\n,[month]\n,[sub_id]\n,[last_day_of_month]\n,[description]\n,[invoiced]\n FROM [foundation].[dbo].[invoices]\n WHERE [last_day_of_month] < CURRENT_TIMESTAMP AND [invoiced] = 'N'\n ORDER BY [last_day_of_month] ASC\n",
 					"metadata": {
@@ -2381,6 +2741,9 @@
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "Spotify"
+				},
 				"content": {
 					"query": "SELECT [subs].[id] subID, [subs].[site] as subSite, [subs].[spotify_username] subSpotifyUsername, [accounts].[id] accountID, [accounts].[username] accountUsername, [accounts].[member_type] accountMemberType, [accounts].[created_timestamp] createTs\n FROM [foundation].[dbo].[spotify_user_accounts] [accounts]\n JOIN [raw].[dbo].[spotify_sub_accs] [subs]\n    ON accounts.sub_id = subs.id",
 					"metadata": {
@@ -2401,6 +2764,9 @@
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "Spotify"
+				},
 				"content": {
 					"query": "SELECT *\n FROM [raw].[dbo].[sub_accounts] s\n JOIN raw.dbo.user_accounts ua\n    ON s.id = ua.sub_id\n JOIN raw.dbo.user_accounts_log ual\n    ON ua.id = ual.user_id\n ORDER BY user_id DESC, active_ts DESC",
 					"metadata": {
@@ -2417,105 +2783,13 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/Notebook 1')]",
-			"type": "Microsoft.Synapse/workspaces/notebooks",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"nbformat": 4,
-				"nbformat_minor": 2,
-				"bigDataPool": {
-					"referenceName": "smallspark0",
-					"type": "BigDataPoolReference"
-				},
-				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
-					"numExecutors": 2,
-					"conf": {
-						"spark.dynamicAllocation.enabled": "false",
-						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "89e4d10c-1897-4741-949d-49bf161373ef"
-					}
-				},
-				"metadata": {
-					"saveOutput": true,
-					"enableDebugMode": false,
-					"kernelspec": {
-						"name": "synapse_pyspark",
-						"display_name": "Synapse PySpark"
-					},
-					"language_info": {
-						"name": "python"
-					},
-					"a365ComputeOptions": {
-						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark0",
-						"name": "smallspark0",
-						"type": "Spark",
-						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark0",
-						"auth": {
-							"type": "AAD",
-							"authResource": "https://dev.azuresynapse.net"
-						},
-						"sparkVersion": "3.2",
-						"nodeCount": 3,
-						"cores": 4,
-						"memory": 28
-					},
-					"sessionKeepAliveTimeout": 30
-				},
-				"cells": [
-					{
-						"cell_type": "code",
-						"metadata": {
-							"microsoft": {
-								"language": "python"
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%%pyspark\r\n",
-							"df = spark.read.load('abfss://clash@spotifyfam.dfs.core.windows.net/clan/test_result.json', format='json')\r\n",
-							"display(df)"
-						],
-						"outputs": [],
-						"execution_count": 4
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"microsoft": {
-								"language": "sparksql"
-							}
-						},
-						"source": [
-							"%%sql\r\n",
-							"\r\n",
-							"SELECT * FROM test_db.test_json"
-						],
-						"outputs": [],
-						"execution_count": null
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/alter_accounts')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "spotify"
+				},
 				"nbformat": 4,
 				"nbformat_minor": 2,
 				"bigDataPool": {
@@ -2716,6 +2990,9 @@
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "spotify"
+				},
 				"nbformat": 4,
 				"nbformat_minor": 2,
 				"sessionProperties": {
@@ -2765,6 +3042,92 @@
 							"df.write.mode('overwrite').format('parquet').saveAsTable('raw.spotify_sub_accs')"
 						],
 						"outputs": []
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/read raw')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "clash"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "smallspark0",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "3cd650fb-c99e-48e5-a0ba-929559d9f6b5"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark0",
+						"name": "smallspark0",
+						"type": "Spark",
+						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark0",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"df = spark.read.load('abfss://clash@spotifyfam.dfs.core.windows.net/deltalake/raw/clan/', format='delta')"
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"display(df)"
+						],
+						"outputs": [],
+						"execution_count": 4
 					}
 				]
 			},
