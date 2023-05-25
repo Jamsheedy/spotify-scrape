@@ -1,0 +1,57 @@
+{
+	"name": "etl",
+	"properties": {
+		"activities": [
+			{
+				"name": "pr2r",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "pr2r",
+						"type": "DataFlowReference",
+						"parameters": {
+							"SRC_DIR": "\"clash\"",
+							"SRC_FN": "\"clan\"",
+							"TGT_DIR": "\"deltalake/raw/clan/\""
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine",
+					"continuationSettings": {
+						"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"SRC_DIR": {
+				"type": "string",
+				"defaultValue": "clash"
+			},
+			"SRC_FN": {
+				"type": "string",
+				"defaultValue": "clan"
+			},
+			"TGT_DIR": {
+				"type": "string",
+				"defaultValue": "deltalake/raw/clan/"
+			}
+		},
+		"folder": {
+			"name": "clash"
+		},
+		"annotations": []
+	}
+}
