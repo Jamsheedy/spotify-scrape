@@ -1,5 +1,5 @@
 {
-	"name": "clan_json",
+	"name": "clan_ds_json",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
