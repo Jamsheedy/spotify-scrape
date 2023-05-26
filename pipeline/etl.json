@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "pr2r",
+				"name": "JsonToDelta",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -19,25 +19,16 @@
 						"referenceName": "pr2r",
 						"type": "DataFlowReference",
 						"parameters": {
-							"SRC_DIR": {
-								"value": "'@{pipeline().parameters.SRC_DIR}'",
-								"type": "Expression"
-							},
-							"SRC_FN": {
-								"value": "'@{pipeline().parameters.SRC_FN}'",
-								"type": "Expression"
-							},
-							"TGT_DIR": {
-								"value": "'@{pipeline().parameters.TGT_DIR}'",
-								"type": "Expression"
-							}
+							"SRC_DIR": "'clash'",
+							"SRC_FN": "'clan'",
+							"TGT_DIR": "'deltalake/raw/clans/'"
 						}
 					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
 					},
-					"traceLevel": "Fine",
+					"traceLevel": "Coarse",
 					"continuationSettings": {
 						"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
 					}
@@ -59,7 +50,7 @@
 			}
 		},
 		"folder": {
-			"name": "clash"
+			"name": "clash/etl/raw"
 		},
 		"annotations": []
 	}
