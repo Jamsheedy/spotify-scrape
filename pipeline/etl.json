@@ -20,7 +20,7 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"SRC_DIR": "'clash'",
-							"SRC_FN": "'clan'",
+							"SRC_FN": "'stg/clan'",
 							"TGT_DIR": "'deltalake/raw/clans/'"
 						}
 					},
@@ -52,7 +52,7 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"SRC_DIR": "'clash'",
-							"SRC_FN": "'player'",
+							"SRC_FN": "'stg/player'",
 							"TGT_DIR": "'deltalake/raw/player/'"
 						}
 					},
@@ -84,7 +84,7 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"SRC_DIR": "'clash'",
-							"SRC_FN": "'wars'",
+							"SRC_FN": "'stg/wars'",
 							"TGT_DIR": "'deltalake/raw/wars/'"
 						}
 					},
@@ -131,20 +131,6 @@
 				}
 			}
 		],
-		"parameters": {
-			"SRC_DIR": {
-				"type": "string",
-				"defaultValue": "clash"
-			},
-			"SRC_FN": {
-				"type": "string",
-				"defaultValue": "wars"
-			},
-			"TGT_DIR": {
-				"type": "string",
-				"defaultValue": "deltalake/raw/wars/"
-			}
-		},
 		"folder": {
 			"name": "clash/etl/raw"
 		},

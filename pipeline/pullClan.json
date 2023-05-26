@@ -19,7 +19,7 @@
 							"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG\n)",
 							"type": "Expression"
 						},
-						"TGT_DIR": "clash/clan/",
+						"TGT_DIR": "clash/stg/clan/",
 						"TGT_FILE_NM": {
 							"value": "@concat(\n    'clandata_',\n    utcnow(),\n    '.json'\n)",
 							"type": "Expression"
