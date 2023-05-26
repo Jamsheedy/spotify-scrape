@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "JsonToDelta",
+				"name": "clan Delta",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -22,6 +22,102 @@
 							"SRC_DIR": "'clash'",
 							"SRC_FN": "'clan'",
 							"TGT_DIR": "'deltalake/raw/clans/'"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Coarse",
+					"continuationSettings": {
+						"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
+					}
+				}
+			},
+			{
+				"name": "player Delta",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "pr2r",
+						"type": "DataFlowReference",
+						"parameters": {
+							"SRC_DIR": "'clash'",
+							"SRC_FN": "'player'",
+							"TGT_DIR": "'deltalake/raw/player/'"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Coarse",
+					"continuationSettings": {
+						"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
+					}
+				}
+			},
+			{
+				"name": "wars Delta",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "pr2r",
+						"type": "DataFlowReference",
+						"parameters": {
+							"SRC_DIR": "'clash'",
+							"SRC_FN": "'wars'",
+							"TGT_DIR": "'deltalake/raw/wars/'"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Coarse",
+					"continuationSettings": {
+						"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
+					}
+				}
+			},
+			{
+				"name": "cwl Delta",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "pr2r",
+						"type": "DataFlowReference",
+						"parameters": {
+							"SRC_DIR": "'clash'",
+							"SRC_FN": "'cwl'",
+							"TGT_DIR": "'deltalake/raw/cwl/'"
 						}
 					},
 					"compute": {
