@@ -24,11 +24,7 @@
 					"name": "sink1"
 				}
 			],
-			"transformations": [
-				{
-					"name": "addCurrentTS"
-				}
-			],
+			"transformations": [],
 			"scriptLines": [
 				"parameters{",
 				"     SRC_DIR as string (\"clash\"),",
@@ -43,12 +39,12 @@
 				"     enableCdc: true,",
 				"     mode: 'read',",
 				"     skipInitialLoad: false,",
+				"     rowUrlColumn: 'stg_file_nm',",
 				"     format: 'json',",
 				"     fileSystem: ($SRC_DIR),",
 				"     folderPath: ($SRC_FN),",
 				"     documentForm: 'documentPerLine') ~> source1",
-				"source1 derive(load_ts = currentTimestamp()) ~> addCurrentTS",
-				"addCurrentTS sink(allowSchemaDrift: true,",
+				"source1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delta',",
 				"     fileSystem: 'clash',",

@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "3cd650fb-c99e-48e5-a0ba-929559d9f6b5"
+				"spark.autotune.trackingId": "953e2548-952d-49e6-8f10-f5df5175761d"
 			}
 		},
 		"metadata": {
@@ -54,7 +54,7 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"df = spark.read.load('abfss://clash@spotifyfam.dfs.core.windows.net/deltalake/raw/clan/', format='delta')"
+					"df = spark.read.load('abfss://clash@spotifyfam.dfs.core.windows.net/deltalake/raw/player/', format='delta')"
 				],
 				"execution_count": 3
 			},
