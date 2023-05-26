@@ -39,6 +39,7 @@
 				"     enableCdc: true,",
 				"     mode: 'read',",
 				"     skipInitialLoad: false,",
+				"     rowUrlColumn: 'stg_file_nm',",
 				"     format: 'json',",
 				"     fileSystem: ($SRC_DIR),",
 				"     folderPath: ($SRC_FN),",
