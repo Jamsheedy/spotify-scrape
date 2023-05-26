@@ -44,7 +44,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "pr2r",
+						"name": "clan Delta",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -60,9 +60,9 @@
 								"referenceName": "pr2r",
 								"type": "DataFlowReference",
 								"parameters": {
-									"SRC_DIR": "\"clash\"",
-									"SRC_FN": "\"clan\"",
-									"TGT_DIR": "\"deltalake/raw/clan/\""
+									"SRC_DIR": "'clash'",
+									"SRC_FN": "'stg/clan'",
+									"TGT_DIR": "'deltalake/raw/clans/'"
 								},
 								"datasetParameters": {
 									"source1": {},
@@ -74,7 +74,118 @@
 								"coreCount": 8,
 								"computeType": "General"
 							},
-							"traceLevel": "Fine",
+							"traceLevel": "Coarse",
+							"continuationSettings": {
+								"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
+							}
+						}
+					},
+					{
+						"name": "player Delta",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "pr2r",
+								"type": "DataFlowReference",
+								"parameters": {
+									"SRC_DIR": "'clash'",
+									"SRC_FN": "'stg/player'",
+									"TGT_DIR": "'deltalake/raw/player/'"
+								},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Coarse",
+							"continuationSettings": {
+								"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
+							}
+						}
+					},
+					{
+						"name": "wars Delta",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "pr2r",
+								"type": "DataFlowReference",
+								"parameters": {
+									"SRC_DIR": "'clash'",
+									"SRC_FN": "'stg/wars'",
+									"TGT_DIR": "'deltalake/raw/wars/'"
+								},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Coarse",
+							"continuationSettings": {
+								"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
+							}
+						}
+					},
+					{
+						"name": "cwl Delta",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "pr2r",
+								"type": "DataFlowReference",
+								"parameters": {
+									"SRC_DIR": "'clash'",
+									"SRC_FN": "'cwl'",
+									"TGT_DIR": "'deltalake/raw/cwl/'"
+								},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Coarse",
 							"continuationSettings": {
 								"customizedCheckpointKey": "f4b0e374-6a9f-49c2-a355-45ff1787c316"
 							}
@@ -85,22 +196,8 @@
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
-				"parameters": {
-					"SRC_DIR": {
-						"type": "string",
-						"defaultValue": "clash"
-					},
-					"SRC_FN": {
-						"type": "string",
-						"defaultValue": "clan"
-					},
-					"TGT_DIR": {
-						"type": "string",
-						"defaultValue": "deltalake/raw/clan/"
-					}
-				},
 				"folder": {
-					"name": "clash"
+					"name": "clash/etl/raw"
 				},
 				"annotations": []
 			},
@@ -238,7 +335,7 @@
 									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG\n)",
 									"type": "Expression"
 								},
-								"TGT_DIR": "clash/clan/",
+								"TGT_DIR": "clash/stg/clan/",
 								"TGT_FILE_NM": {
 									"value": "@concat(\n    'clandata_',\n    utcnow(),\n    '.json'\n)",
 									"type": "Expression"
@@ -567,7 +664,7 @@
 									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar/leaguegroup'\n)",
 									"type": "Expression"
 								},
-								"TGT_DIR": "clash/cwl/",
+								"TGT_DIR": "clash/stg/cwl/",
 								"TGT_FILE_NM": {
 									"value": "@concat(\n    'cwldata_',\n    utcnow(),\n    '.json'\n)",
 									"type": "Expression"
@@ -618,7 +715,7 @@
 									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar'\n)",
 									"type": "Expression"
 								},
-								"TGT_DIR": "clash/wars/",
+								"TGT_DIR": "clash/stg/wars/",
 								"TGT_FILE_NM": {
 									"value": "@concat(\n    'wardata_',\n    utcnow(),\n    '.json'\n)",
 									"type": "Expression"
@@ -669,7 +766,7 @@
 									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/members/'\n)",
 									"type": "Expression"
 								},
-								"TGT_DIR": "clash/players/",
+								"TGT_DIR": "clash/stg/players/",
 								"TGT_FILE_NM": {
 									"value": "@concat(\n    'membersdata_',\n    utcnow(),\n    '.json'\n)",
 									"type": "Expression"
@@ -720,7 +817,7 @@
 									"value": "@concat(\n    'players/',\n    pipeline().parameters.PLAYER_TAG\n)",
 									"type": "Expression"
 								},
-								"TGT_DIR": "clash/player/",
+								"TGT_DIR": "clash/stg/player/",
 								"TGT_FILE_NM": {
 									"value": "@concat(\n    'player_',\n    utcnow(),\n    '.json'\n)",
 									"type": "Expression"
@@ -1521,7 +1618,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/Dataflow1')]",
+			"name": "[concat(parameters('workspaceName'), '/pr2r')]",
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -1551,111 +1648,6 @@
 					"transformations": [],
 					"scriptLines": [
 						"parameters{",
-						"     SRC_DIR as string (\"clash/clan\")",
-						"}",
-						"source(output(",
-						"          badgeUrls as (large as string, medium as string, small as string),",
-						"          capitalLeague as (id as integer, name as string),",
-						"          chatLanguage as (id as integer, languageCode as string, name as string),",
-						"          clanBuilderBasePoints as integer,",
-						"          clanCapital as (capitalHallLevel as short, districts as (districtHallLevel as short, id as integer, name as string)[]),",
-						"          clanCapitalPoints as short,",
-						"          clanLevel as short,",
-						"          clanPoints as short,",
-						"          clanVersusPoints as integer,",
-						"          description as string,",
-						"          isFamilyFriendly as boolean,",
-						"          isWarLogPublic as boolean,",
-						"          labels as (iconUrls as (medium as string, small as string), id as integer, name as string)[],",
-						"          location as (countryCode as string, id as integer, isCountry as boolean, name as string),",
-						"          memberList as (builderBaseLeague as (id as integer, name as string), builderBaseTrophies as short, clanRank as short, donations as short, donationsReceived as short, expLevel as short, league as (iconUrls as (medium as string, small as string, tiny as string), id as integer, name as string), name as string, playerHouse as (elements as (id as integer, type as string)[]), previousClanRank as short, role as string, tag as string, trophies as short, versusTrophies as short)[],",
-						"          members as short,",
-						"          name as string,",
-						"          requiredBuilderBaseTrophies as boolean,",
-						"          requiredTownhallLevel as short,",
-						"          requiredTrophies as short,",
-						"          requiredVersusTrophies as boolean,",
-						"          tag as string,",
-						"          type as string,",
-						"          warFrequency as string,",
-						"          warLeague as (id as integer, name as string),",
-						"          warWinStreak as boolean,",
-						"          warWins as short",
-						"     ),",
-						"     useSchema: false,",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     inferDriftedColumnTypes: true,",
-						"     ignoreNoFilesFound: false,",
-						"     enableCdc: true,",
-						"     mode: 'read',",
-						"     skipInitialLoad: false,",
-						"     rowUrlColumn: 'inbound_file_nm',",
-						"     format: 'json',",
-						"     fileSystem: ($SRC_DIR),",
-						"     documentForm: 'documentPerLine') ~> source1",
-						"source1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'delta',",
-						"     compressionType: 'snappy',",
-						"     compressionLevel: 'Fastest',",
-						"     fileSystem: 'clash',",
-						"     folderPath: 'test4',",
-						"     mergeSchema: false,",
-						"     autoCompact: true,",
-						"     optimizedWrite: true,",
-						"     vacuum: 0,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     umask: 0022,",
-						"     preCommands: [],",
-						"     postCommands: [],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/pr2r')]",
-			"type": "Microsoft.Synapse/workspaces/dataflows",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "clash"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "addCurrentTS"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
 						"     SRC_DIR as string (\"clash\"),",
 						"     SRC_FN as string (\"clan\"),",
 						"     TGT_DIR as string (\"deltalake/raw/clan/\")",
@@ -1668,12 +1660,12 @@
 						"     enableCdc: true,",
 						"     mode: 'read',",
 						"     skipInitialLoad: false,",
+						"     rowUrlColumn: 'stg_file_nm',",
 						"     format: 'json',",
 						"     fileSystem: ($SRC_DIR),",
 						"     folderPath: ($SRC_FN),",
 						"     documentForm: 'documentPerLine') ~> source1",
-						"source1 derive(load_ts = currentTimestamp()) ~> addCurrentTS",
-						"addCurrentTS sink(allowSchemaDrift: true,",
+						"source1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'delta',",
 						"     fileSystem: 'clash',",
@@ -3071,7 +3063,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "3cd650fb-c99e-48e5-a0ba-929559d9f6b5"
+						"spark.autotune.trackingId": "953e2548-952d-49e6-8f10-f5df5175761d"
 					}
 				},
 				"metadata": {
@@ -3104,7 +3096,7 @@
 					{
 						"cell_type": "code",
 						"source": [
-							"df = spark.read.load('abfss://clash@spotifyfam.dfs.core.windows.net/deltalake/raw/clan/', format='delta')"
+							"df = spark.read.load('abfss://clash@spotifyfam.dfs.core.windows.net/deltalake/raw/player/', format='delta')"
 						],
 						"outputs": [],
 						"execution_count": 3
