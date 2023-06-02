@@ -1,0 +1,69 @@
+{
+	"name": "Pipeline 1",
+	"properties": {
+		"activities": [
+			{
+				"name": "s2r_cdc",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 60,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "s2r_cdc",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"SRC_DIR": {
+							"value": {
+								"value": "@pipeline().parameters.SRC_DIR",
+								"type": "Expression"
+							},
+							"type": "string"
+						},
+						"SRC_FILE_NM": {
+							"value": {
+								"value": "@pipeline().parameters.SRC_FILE_NM",
+								"type": "Expression"
+							},
+							"type": "string"
+						}
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "smallspark33",
+						"type": "BigDataPoolReference"
+					},
+					"executorSize": "Small",
+					"conf": {
+						"spark.dynamicAllocation.enabled": false,
+						"spark.dynamicAllocation.minExecutors": 1,
+						"spark.dynamicAllocation.maxExecutors": 1
+					},
+					"driverSize": "Small",
+					"numExecutors": 1
+				}
+			}
+		],
+		"parameters": {
+			"SRC_DIR": {
+				"type": "string",
+				"defaultValue": "clash/stg/clan"
+			},
+			"SRC_FILE_NM": {
+				"type": "string",
+				"defaultValue": "clandata_2023-05-27T12:00:26.4776262Z.json"
+			}
+		},
+		"folder": {
+			"name": "clash/etl/raw/s2r"
+		},
+		"annotations": []
+	}
+}
