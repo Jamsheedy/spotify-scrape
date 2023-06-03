@@ -1,0 +1,228 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"metadata": "Workspace name",
+			"defaultValue": "spotify-scrape-dev"
+		},
+		"ls_clash_restapi": {
+			"type": "string"
+		},
+		"spotify-scrape-dev-WorkspaceDefaultStorage": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/pullClan')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pullClan",
+						"description": "call clash api /clans for given CLAN_TAG param",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_api",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"SRC_REL_URL": {
+									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG\n)",
+									"type": "Expression"
+								},
+								"TGT_DIR": "clash/clan/",
+								"TGT_FILE_NM": {
+									"value": "@concat(\n    'clandata_',\n    utcnow(),\n    '.json'\n)",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"parameters": {
+					"CLAN_TAG": {
+						"type": "string",
+						"defaultValue": "#P02CUUUU"
+					}
+				},
+				"folder": {
+					"name": "clash/pull/endpoints"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pl_api')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "s_pr_api",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"supportRFC5988": "true"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings",
+									"filePattern": "setOfObjects"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "RestResource1",
+								"type": "DatasetReference",
+								"parameters": {
+									"URL_REL": {
+										"value": "@replace(pipeline().parameters.SRC_REL_URL, '#', '%23')",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "s_pr_clan",
+								"type": "DatasetReference",
+								"parameters": {
+									"TGT_DIR": {
+										"value": "@pipeline().parameters.TGT_DIR",
+										"type": "Expression"
+									},
+									"TGT_FILE_NM": {
+										"value": "@pipeline().parameters.TGT_FILE_NM",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"parameters": {
+					"SRC_REL_URL": {
+						"type": "string",
+						"defaultValue": "clans/%23P02CUUUU"
+					},
+					"TGT_DIR": {
+						"type": "string",
+						"defaultValue": "clash/clan/"
+					},
+					"TGT_FILE_NM": {
+						"type": "string",
+						"defaultValue": "test_result.json"
+					}
+				},
+				"folder": {
+					"name": "clash/api"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/RestResource1')]",
+				"[concat(variables('workspaceId'), '/datasets/s_pr_clan')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/RestResource1')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('ls_clash_restapi')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"URL_REL": {
+						"type": "string",
+						"defaultValue": "clans/%23P02CUUUU"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@dataset().URL_REL",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/s_pr_clan')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('spotify-scrape-dev-WorkspaceDefaultStorage')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"TGT_DIR": {
+						"type": "string",
+						"defaultValue": "clash/clan/"
+					},
+					"TGT_FILE_NM": {
+						"type": "string",
+						"defaultValue": "test_result.json"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().TGT_FILE_NM",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().TGT_DIR",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		}
+	]
+}
