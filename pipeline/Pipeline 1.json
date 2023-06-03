@@ -62,7 +62,7 @@
 			}
 		},
 		"folder": {
-			"name": "clash/etl/raw/s2r"
+			"name": "clash/etl/s2r"
 		},
 		"annotations": []
 	}
