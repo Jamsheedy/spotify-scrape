@@ -58,6 +58,16 @@
 						}
 					}
 				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "JOB_START_TIME",
+					"value": ""
+				}
 			}
 		],
 		"parameters": {
@@ -67,8 +77,8 @@
 			}
 		},
 		"variables": {
-			"CLAN_MEMBERS": {
-				"type": "Array"
+			"JOB_START_TIME": {
+				"type": "String"
 			}
 		},
 		"folder": {
