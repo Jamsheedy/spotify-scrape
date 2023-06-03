@@ -7,7 +7,7 @@
 				"type": "SynapseNotebook",
 				"dependsOn": [
 					{
-						"activity": "Set variable1",
+						"activity": "set TGT_TBL_NM",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -64,7 +64,8 @@
 				}
 			},
 			{
-				"name": "Set variable1",
+				"name": "set TGT_TBL_NM",
+				"description": "parse for the directory of inbound file",
 				"type": "SetVariable",
 				"dependsOn": [],
 				"userProperties": [],
