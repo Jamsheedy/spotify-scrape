@@ -1,0 +1,193 @@
+{
+	"name": "s2r_cdc",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "smallspark33",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "2a3d5b9e-1eba-4d03-9002-c819427a3e49"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark33",
+				"name": "smallspark33",
+				"type": "Spark",
+				"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark33",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"SRC_DIR = 'clash/stg/clan'\r\n",
+					"SRC_FILE_NM = 'clandata_2023-05-27T12:00:26.4776262Z.json'\r\n",
+					"TGT_TBL_NM = 'clans_cdc test'"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# break up SRC DIR to generate ABFSS path\r\n",
+					"SRC_CONTAINER_INDEX = SRC_DIR.find('/')\r\n",
+					"\r\n",
+					"# get container \r\n",
+					"SRC_CONTAINER = SRC_DIR[:SRC_CONTAINER_INDEX]\r\n",
+					"# get path after container\r\n",
+					"SRC_PATH = SRC_DIR[SRC_CONTAINER_INDEX:]"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import col"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"file_path = f'abfss://{SRC_CONTAINER}@spotifyfam.dfs.core.windows.net{SRC_PATH}/{SRC_FILE_NM}'"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df = (\r\n",
+					"    spark\r\n",
+					"    .read\r\n",
+					"    .load(file_path, format='json')\r\n",
+					"    .withColumn('api_call_ts', col('api_call_ts').cast('TIMESTAMP'))\r\n",
+					")"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"tgt_tbl_path = f'abfss://clash@spotifyfam.dfs.core.windows.net/deltalake/raw/{TGT_TBL_NM}/'"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"(\r\n",
+					"    df\r\n",
+					"    .write\r\n",
+					"    .mode('append')\r\n",
+					"    .format('delta')\r\n",
+					"    .option(\"delta.enableChangeDataFeed\", \"true\")\r\n",
+					"    .save(tgt_tbl_path)\r\n",
+					")"
+				],
+				"execution_count": 26
+			}
+		]
+	}
+}
