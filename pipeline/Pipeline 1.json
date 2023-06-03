@@ -5,7 +5,14 @@
 			{
 				"name": "s2r_cdc",
 				"type": "SynapseNotebook",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Set variable1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 3,
@@ -49,16 +56,34 @@
 					"driverSize": "Small",
 					"numExecutors": 1
 				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "TGT_TBL_NM",
+					"value": {
+						"value": "@substring(\n    pipeline().parameters.SRC_DIR,\n    add(lastindexof(pipeline().parameters.SRC_DIR, '/'), 1),\n    sub(\n        sub(\n            length(pipeline().parameters.SRC_DIR),\n            1),\n    lastindexof(pipeline().parameters.SRC_DIR, '/')\n    )\n)",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
 			"SRC_DIR": {
 				"type": "string",
-				"defaultValue": "clash/stg/clan"
+				"defaultValue": "clash/stg/cwl"
 			},
 			"SRC_FILE_NM": {
 				"type": "string",
 				"defaultValue": "clandata_2023-05-27T12:00:26.4776262Z.json"
+			}
+		},
+		"variables": {
+			"TGT_TBL_NM": {
+				"type": "String"
 			}
 		},
 		"folder": {
