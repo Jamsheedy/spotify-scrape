@@ -45,7 +45,8 @@
 							"value": {
 								"value": "@variables('TGT_TBL_NM')",
 								"type": "Expression"
-							}
+							},
+							"type": "string"
 						}
 					},
 					"snapshot": true,
