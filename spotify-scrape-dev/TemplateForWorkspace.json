@@ -11,10 +11,22 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'apiToken' of 'Sheets'"
 		},
+		"gcs_secretAccessKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'secretAccessKey' of 'gcs'"
+		},
 		"spotify-scrape-dev-WorkspaceDefaultSqlServer_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'spotify-scrape-dev-WorkspaceDefaultSqlServer'",
 			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:spotify-scrape-dev.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"adls_bqtest_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://testbq.dfs.core.windows.net/"
+		},
+		"gcs_properties_typeProperties_accessKeyId": {
+			"type": "string",
+			"defaultValue": "GOOGK2PC5N3RW5PMZMTKMAM7"
 		},
 		"ls_clash_restapi_properties_typeProperties_url": {
 			"type": "string",
@@ -28,6 +40,18 @@
 			"type": "string",
 			"defaultValue": "https://spotifyfam.dfs.core.windows.net"
 		},
+		"clash_s2r_cdc_properties_clash_s2r_cdc_parameters_SRC_DIR": {
+			"type": "string",
+			"defaultValue": "@triggerBody().folderPath"
+		},
+		"clash_s2r_cdc_properties_clash_s2r_cdc_parameters_SRC_FILE_NM": {
+			"type": "string",
+			"defaultValue": "@triggerBody().fileName"
+		},
+		"clash_s2r_cdc_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Storage/storageAccounts/spotifyfam"
+		},
 		"clash_s_r_pullClan_properties_pullClanData_parameters_CLAN_TAG": {
 			"type": "string",
 			"defaultValue": "#P02CUUUU"
@@ -37,6 +61,118 @@
 		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/clash_s2r_cdc')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "s2r_cdc",
+						"type": "SynapseNotebook",
+						"dependsOn": [
+							{
+								"activity": "set TGT_TBL_NM",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 60,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "s2r_cdc",
+								"type": "NotebookReference"
+							},
+							"parameters": {
+								"SRC_DIR": {
+									"value": {
+										"value": "@pipeline().parameters.SRC_DIR",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"SRC_FILE_NM": {
+									"value": {
+										"value": "@pipeline().parameters.SRC_FILE_NM",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"TGT_TBL_NM": {
+									"value": {
+										"value": "@variables('TGT_TBL_NM')",
+										"type": "Expression"
+									},
+									"type": "string"
+								}
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "smallspark33",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": false,
+								"spark.dynamicAllocation.minExecutors": 1,
+								"spark.dynamicAllocation.maxExecutors": 1
+							},
+							"driverSize": "Small",
+							"numExecutors": 1
+						}
+					},
+					{
+						"name": "set TGT_TBL_NM",
+						"description": "parse for the directory of inbound file",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "TGT_TBL_NM",
+							"value": {
+								"value": "@substring(\n    pipeline().parameters.SRC_DIR,\n    add(lastindexof(pipeline().parameters.SRC_DIR, '/'), 1),\n    sub(\n        sub(\n            length(pipeline().parameters.SRC_DIR),\n            1),\n    lastindexof(pipeline().parameters.SRC_DIR, '/')\n    )\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"SRC_DIR": {
+						"type": "string",
+						"defaultValue": "clash/stg/cwl"
+					},
+					"SRC_FILE_NM": {
+						"type": "string",
+						"defaultValue": "clandata_2023-05-27T12:00:26.4776262Z.json"
+					}
+				},
+				"variables": {
+					"TGT_TBL_NM": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "clash/etl/s2r"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/s2r_cdc')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/smallspark33')]"
+			]
+		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/etl')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
@@ -1396,6 +1532,49 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/adls_bqtest')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('adls_bqtest_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/gcs')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "GoogleCloudStorage",
+				"typeProperties": {
+					"serviceUrl": "https://storage.googleapis.com",
+					"accessKeyId": "[parameters('gcs_properties_typeProperties_accessKeyId')]",
+					"secretAccessKey": {
+						"type": "SecureString",
+						"value": "[parameters('gcs_secretAccessKey')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ls_clash_restapi')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -1484,12 +1663,46 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/clash_s_r_pullClan')]",
+			"name": "[concat(parameters('workspaceName'), '/clash_s2r_cdc')]",
 			"type": "Microsoft.Synapse/workspaces/triggers",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
 				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "clash_s2r_cdc",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"SRC_DIR": "[parameters('clash_s2r_cdc_properties_clash_s2r_cdc_parameters_SRC_DIR')]",
+							"SRC_FILE_NM": "[parameters('clash_s2r_cdc_properties_clash_s2r_cdc_parameters_SRC_FILE_NM')]"
+						}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/clash/blobs/stg/",
+					"blobPathEndsWith": ".json",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('clash_s2r_cdc_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/clash_s2r_cdc')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/clash_s_r_pullClan')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -3050,7 +3263,7 @@
 				"nbformat": 4,
 				"nbformat_minor": 2,
 				"bigDataPool": {
-					"referenceName": "smallspark0",
+					"referenceName": "smallspark33",
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
@@ -3063,7 +3276,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "953e2548-952d-49e6-8f10-f5df5175761d"
+						"spark.autotune.trackingId": "add43dcf-5bfa-46a6-b7e1-6c326aa7a963"
 					}
 				},
 				"metadata": {
@@ -3077,16 +3290,16 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark0",
-						"name": "smallspark0",
+						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark33",
+						"name": "smallspark33",
 						"type": "Spark",
-						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark0",
+						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark33",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
-						"nodeCount": 3,
+						"sparkVersion": "3.3",
+						"nodeCount": 10,
 						"cores": 4,
 						"memory": 28
 					},
@@ -3096,10 +3309,10 @@
 					{
 						"cell_type": "code",
 						"source": [
-							"df = spark.read.load('abfss://clash@spotifyfam.dfs.core.windows.net/deltalake/raw/player/', format='delta')"
+							"df = spark.read.table('clash_raw.clans')"
 						],
 						"outputs": [],
-						"execution_count": 3
+						"execution_count": 1
 					},
 					{
 						"cell_type": "code",
@@ -3119,7 +3332,485 @@
 							"display(df)"
 						],
 						"outputs": [],
+						"execution_count": 2
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"temp_data_cdc = spark.read.load(\r\n",
+							"    path = 'abfss://clash@spotifyfam.dfs.core.windows.net/stg/wars/',\r\n",
+							"    format='json'\r\n",
+							")"
+						],
+						"outputs": [],
+						"execution_count": 14
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"display(temp_data_cdc.select('clan.name'))"
+						],
+						"outputs": [],
+						"execution_count": 18
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"\r\n",
+							"CREATE SCHEMA clash_test_cdc"
+						],
+						"outputs": [],
+						"execution_count": 19
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"temp_data_cdc.write.format('delta').option(\"delta.enableChangeDataFeed\", \"true\").saveAsTable('clash_test_cdc.clan')"
+						],
+						"outputs": [],
+						"execution_count": 24
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"temp_data_cdc.write.saveAsTable()"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"\r\n",
+							"SHOW TBLPROPERTIES clash_raw.wars"
+						],
+						"outputs": [],
+						"execution_count": 5
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"\r\n",
+							"DESCRIBE HISTORY clash_test_cdc.clan"
+						],
+						"outputs": [],
+						"execution_count": 23
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "python"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%pyspark\r\n",
+							" \r\n",
+							"df = spark.read.format(\"delta\") \\\r\n",
+							"  .option(\"readChangeFeed\", \"true\") \\\r\n",
+							"  .option(\"startingTimestamp\", '2023-05-26T04:36:51Z') \\\r\n",
+							"  .table(\"clash_test_cdc.clan\")\r\n",
+							" \r\n",
+							"display(df)"
+						],
+						"outputs": [],
+						"execution_count": 21
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"out = df.select(\r\n",
+							"    'api_call_ts', 'tag', 'name', 'clanLevel', 'clanBuilderBasePoints', 'badgeUrls.large'\r\n",
+							")\r\n",
+							"\r\n",
+							"display(out)"
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"out.write.parquet('abfss://reports@testbq.dfs.core.windows.net/test/')"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"for table in mssparkutils.fs.ls('abfss://clash@spotifyfam.dfs.core.windows.net/deltalake/raw/'):\r\n",
+							"    spark.sql(\r\n",
+							"        f'CREATE EXTERNAL TABLE IF NOT EXISTS clash_raw.{table.name} USING DELTA OPTIONS (path=\"{table.path}\")'\r\n",
+							"    )"
+						],
+						"outputs": [],
 						"execution_count": 4
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"\r\n",
+							"ALTER TABLE clash_raw.wars\r\n",
+							"  SET TBLPROPERTIES (delta.enableChangeDataFeed = false);"
+						],
+						"outputs": [],
+						"execution_count": 11
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/s2r_cdc')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "smallspark33",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "2a3d5b9e-1eba-4d03-9002-c819427a3e49"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark33",
+						"name": "smallspark33",
+						"type": "Spark",
+						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark33",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.3",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"tags": [
+								"parameters"
+							]
+						},
+						"source": [
+							"SRC_DIR = 'clash/stg/clan'\r\n",
+							"SRC_FILE_NM = 'clandata_2023-05-27T12:00:26.4776262Z.json'\r\n",
+							"TGT_TBL_NM = 'clans_cdc test'"
+						],
+						"outputs": [],
+						"execution_count": 18
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# break up SRC DIR to generate ABFSS path\r\n",
+							"SRC_CONTAINER_INDEX = SRC_DIR.find('/')\r\n",
+							"\r\n",
+							"# get container \r\n",
+							"SRC_CONTAINER = SRC_DIR[:SRC_CONTAINER_INDEX]\r\n",
+							"# get path after container\r\n",
+							"SRC_PATH = SRC_DIR[SRC_CONTAINER_INDEX:]"
+						],
+						"outputs": [],
+						"execution_count": 20
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyspark.sql.functions import col"
+						],
+						"outputs": [],
+						"execution_count": 21
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"file_path = f'abfss://{SRC_CONTAINER}@spotifyfam.dfs.core.windows.net{SRC_PATH}/{SRC_FILE_NM}'"
+						],
+						"outputs": [],
+						"execution_count": 22
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df = (\r\n",
+							"    spark\r\n",
+							"    .read\r\n",
+							"    .load(file_path, format='json')\r\n",
+							"    .withColumn('api_call_ts', col('api_call_ts').cast('TIMESTAMP'))\r\n",
+							")"
+						],
+						"outputs": [],
+						"execution_count": 23
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"tgt_tbl_path = f'abfss://clash@spotifyfam.dfs.core.windows.net/deltalake/raw/{TGT_TBL_NM}/'"
+						],
+						"outputs": [],
+						"execution_count": 28
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"(\r\n",
+							"    df\r\n",
+							"    .write\r\n",
+							"    .mode('append')\r\n",
+							"    .format('delta')\r\n",
+							"    .option(\"delta.enableChangeDataFeed\", \"true\")\r\n",
+							"    .save(tgt_tbl_path)\r\n",
+							")"
+						],
+						"outputs": [],
+						"execution_count": 26
 					}
 				]
 			},
@@ -4550,6 +5241,31 @@
 				"sparkVersion": "3.3",
 				"isComputeIsolationEnabled": false,
 				"sessionLevelPackagesEnabled": false,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "southcentralus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/smallspark33')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 10
+				},
+				"autoScale": {
+					"enabled": true,
+					"maxNodeCount": 10,
+					"minNodeCount": 3
+				},
+				"nodeCount": 10,
+				"nodeSize": "Small",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.3",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": true,
 				"annotations": []
 			},
 			"dependsOn": [],

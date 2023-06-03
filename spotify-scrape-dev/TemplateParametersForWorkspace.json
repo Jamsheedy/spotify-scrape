@@ -8,8 +8,17 @@
 		"Sheets_apiToken": {
 			"value": ""
 		},
+		"gcs_secretAccessKey": {
+			"value": ""
+		},
 		"spotify-scrape-dev-WorkspaceDefaultSqlServer_connectionString": {
 			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:spotify-scrape-dev.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"adls_bqtest_properties_typeProperties_url": {
+			"value": "https://testbq.dfs.core.windows.net/"
+		},
+		"gcs_properties_typeProperties_accessKeyId": {
+			"value": "GOOGK2PC5N3RW5PMZMTKMAM7"
 		},
 		"ls_clash_restapi_properties_typeProperties_url": {
 			"value": "https://api.clashofclans.com/v1/"
@@ -19,6 +28,15 @@
 		},
 		"spotify-scrape-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://spotifyfam.dfs.core.windows.net"
+		},
+		"clash_s2r_cdc_properties_clash_s2r_cdc_parameters_SRC_DIR": {
+			"value": "@triggerBody().folderPath"
+		},
+		"clash_s2r_cdc_properties_clash_s2r_cdc_parameters_SRC_FILE_NM": {
+			"value": "@triggerBody().fileName"
+		},
+		"clash_s2r_cdc_properties_typeProperties_scope": {
+			"value": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Storage/storageAccounts/spotifyfam"
 		},
 		"clash_s_r_pullClan_properties_pullClanData_parameters_CLAN_TAG": {
 			"value": "#P02CUUUU"
