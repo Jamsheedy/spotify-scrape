@@ -40,6 +40,12 @@
 								"type": "Expression"
 							},
 							"type": "string"
+						},
+						"TGT_TBL_NM": {
+							"value": {
+								"value": "@variables('TGT_TBL_NM')",
+								"type": "Expression"
+							}
 						}
 					},
 					"snapshot": true,
