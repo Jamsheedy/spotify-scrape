@@ -1,5 +1,5 @@
 {
-	"name": "Pipeline 1",
+	"name": "clash_s2r_cdc",
 	"properties": {
 		"activities": [
 			{
