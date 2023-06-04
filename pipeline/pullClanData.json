@@ -5,7 +5,14 @@
 			{
 				"name": "pullClan",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "set JobStart",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
@@ -17,6 +24,10 @@
 						"CLAN_TAG": {
 							"value": "@pipeline().parameters.CLAN_TAG",
 							"type": "Expression"
+						},
+						"JOB_TIME": {
+							"value": "@variables('JOB_START_TIME')",
+							"type": "Expression"
 						}
 					}
 				}
@@ -24,7 +35,14 @@
 			{
 				"name": "pullCurrentCWL",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "set JobStart",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
@@ -34,7 +52,7 @@
 					"waitOnCompletion": true,
 					"parameters": {
 						"CLAN_TAG": {
-							"value": "@pipeline().parameters.CLAN_TAG",
+							"value": "@variables('JOB_START_TIME')",
 							"type": "Expression"
 						}
 					}
@@ -43,7 +61,14 @@
 			{
 				"name": "pullCurrentWar",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "set JobStart",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
@@ -53,20 +78,23 @@
 					"waitOnCompletion": true,
 					"parameters": {
 						"CLAN_TAG": {
-							"value": "@pipeline().parameters.CLAN_TAG",
+							"value": "@variables('JOB_START_TIME')pipeline().parameters.CLAN_TAG",
 							"type": "Expression"
 						}
 					}
 				}
 			},
 			{
-				"name": "Set variable1",
+				"name": "set JobStart",
 				"type": "SetVariable",
 				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "JOB_START_TIME",
-					"value": ""
+					"value": {
+						"value": "utcNow()",
+						"type": "Expression"
+					}
 				}
 			}
 		],

@@ -32,6 +32,14 @@
 			"CLAN_TAG": {
 				"type": "string",
 				"defaultValue": "#P02CUUUU"
+			},
+			"JOB_TIME": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"JOB_START_TIME": {
+				"type": "String"
 			}
 		},
 		"folder": {
