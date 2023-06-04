@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "9f429dd2-5314-4979-bff0-930a37daa645"
+				"spark.autotune.trackingId": "8abcda2a-11af-49bb-8a0b-a453f909fb90"
 			}
 		},
 		"metadata": {
@@ -188,67 +188,6 @@
 					"temp.write.mode('overwrite').saveAsTable('raw.sub_accounts')"
 				],
 				"execution_count": 47
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "sparksql"
-					},
-					"collapsed": false
-				},
-				"source": [
-					"%%sql\r\n",
-					"\r\n",
-					"DROP SCHEMA clash_raw CASCADE"
-				],
-				"execution_count": 1
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"df = spark.read.json('abfss://clash@spotifyfam.dfs.core.windows.net/stg/cwl/cwldata_2023-06-03T12:00:21.0432121Z.json')"
-				],
-				"execution_count": 4
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"display(df)"
-				],
-				"execution_count": 5
 			}
 		]
 	}
