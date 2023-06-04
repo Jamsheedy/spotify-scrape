@@ -1,5 +1,5 @@
 {
-	"name": "pullCurrentWar",
+	"name": "pullWar",
 	"properties": {
 		"activities": [
 			{

@@ -46,7 +46,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pullCurrentCWL",
+						"referenceName": "pullCWL",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
@@ -76,7 +76,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pullCurrentWar",
+						"referenceName": "pullWar",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
