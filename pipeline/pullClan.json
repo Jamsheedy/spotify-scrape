@@ -23,6 +23,10 @@
 						"TGT_FILE_NM": {
 							"value": "@concat(\n    'clandata_',\n    utcnow(),\n    '.json'\n)",
 							"type": "Expression"
+						},
+						"JOB_TIME": {
+							"value": "@pipeline().parameters.JOB_TIME",
+							"type": "Expression"
 						}
 					}
 				}
@@ -32,6 +36,14 @@
 			"CLAN_TAG": {
 				"type": "string",
 				"defaultValue": "#P02CUUUU"
+			},
+			"JOB_TIME": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"JOB_START_TIME": {
+				"type": "String"
 			}
 		},
 		"folder": {

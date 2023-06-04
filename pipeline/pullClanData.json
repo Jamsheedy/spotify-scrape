@@ -5,7 +5,14 @@
 			{
 				"name": "pullClan",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "set JobStart",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
@@ -17,6 +24,10 @@
 						"CLAN_TAG": {
 							"value": "@pipeline().parameters.CLAN_TAG",
 							"type": "Expression"
+						},
+						"JOB_TIME": {
+							"value": "@variables('JOB_START_TIME')",
+							"type": "Expression"
 						}
 					}
 				}
@@ -24,7 +35,14 @@
 			{
 				"name": "pullCurrentCWL",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "set JobStart",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
@@ -36,6 +54,10 @@
 						"CLAN_TAG": {
 							"value": "@pipeline().parameters.CLAN_TAG",
 							"type": "Expression"
+						},
+						"JOB_TIME": {
+							"value": "@variables('JOB_START_TIME')",
+							"type": "Expression"
 						}
 					}
 				}
@@ -43,7 +65,14 @@
 			{
 				"name": "pullCurrentWar",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "set JobStart",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
@@ -55,7 +84,24 @@
 						"CLAN_TAG": {
 							"value": "@pipeline().parameters.CLAN_TAG",
 							"type": "Expression"
+						},
+						"JOB_TIME": {
+							"value": "@variables('JOB_START_TIME')",
+							"type": "Expression"
 						}
+					}
+				}
+			},
+			{
+				"name": "set JobStart",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "JOB_START_TIME",
+					"value": {
+						"value": "utcNow()",
+						"type": "Expression"
 					}
 				}
 			}
@@ -67,8 +113,8 @@
 			}
 		},
 		"variables": {
-			"CLAN_MEMBERS": {
-				"type": "Array"
+			"JOB_START_TIME": {
+				"type": "String"
 			}
 		},
 		"folder": {

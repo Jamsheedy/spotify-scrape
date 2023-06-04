@@ -1,5 +1,5 @@
 {
-	"name": "pullClanTest",
+	"name": "pullCwlTest",
 	"properties": {
 		"activities": [
 			{
@@ -29,6 +29,10 @@
 						"TGT_DIR": "clash/clan/",
 						"TGT_FILE_NM": {
 							"value": "@variables('OUT_FILE_NAME')",
+							"type": "Expression"
+						},
+						"JOB_TIME": {
+							"value": "@pipeline().parameters.JOB_TIME",
 							"type": "Expression"
 						}
 					}
@@ -158,6 +162,9 @@
 			"CLAN_TAG": {
 				"type": "string",
 				"defaultValue": "#P02CUUUU"
+			},
+			"JOB_TIME": {
+				"type": "string"
 			}
 		},
 		"variables": {
@@ -167,9 +174,6 @@
 			},
 			"CLAN_MEMBERS": {
 				"type": "Array"
-			},
-			"JOB_START_TIME": {
-				"type": "String"
 			}
 		},
 		"folder": {
