@@ -21,7 +21,7 @@
 							{
 								"name": "api_call_ts",
 								"value": {
-									"value": "@utcNow()",
+									"value": "@pipeline().parameters.JOB_TIME",
 									"type": "Expression"
 								}
 							}
@@ -87,6 +87,9 @@
 			"TGT_FILE_NM": {
 				"type": "string",
 				"defaultValue": "test_result.json"
+			},
+			"JOB_TIME": {
+				"type": "string"
 			}
 		},
 		"folder": {
