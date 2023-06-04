@@ -1,9 +1,9 @@
 {
-	"name": "pullCwlTest",
+	"name": "pullClanDeep",
 	"properties": {
 		"activities": [
 			{
-				"name": "pullCurrentCWL",
+				"name": "pullClan",
 				"description": "call clash api /clans for given CLAN_TAG param",
 				"type": "ExecutePipeline",
 				"dependsOn": [
@@ -23,27 +23,23 @@
 					"waitOnCompletion": true,
 					"parameters": {
 						"SRC_REL_URL": {
-							"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar/leaguegroup'\n)",
+							"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG\n)",
 							"type": "Expression"
 						},
-						"TGT_DIR": "clash/stg/cwl/",
+						"TGT_DIR": "clash/clan/",
 						"TGT_FILE_NM": {
 							"value": "@variables('OUT_FILE_NAME')",
-							"type": "Expression"
-						},
-						"JOB_TIME": {
-							"value": "@pipeline().parameters.JOB_TIME",
 							"type": "Expression"
 						}
 					}
 				}
 			},
 			{
-				"name": "LookupCWLRounds",
+				"name": "LookupClanMembers",
 				"type": "Lookup",
 				"dependsOn": [
 					{
-						"activity": "pullCurrentCWL",
+						"activity": "pullClan",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -73,7 +69,7 @@
 						"referenceName": "clan_ds_json",
 						"type": "DatasetReference",
 						"parameters": {
-							"TGT_DIR": "clash/stg/cwl/",
+							"TGT_DIR": "clash/clan/",
 							"TGT_FILE_NM": {
 								"value": "@variables('OUT_FILE_NAME')",
 								"type": "Expression"
@@ -97,7 +93,7 @@
 				}
 			},
 			{
-				"name": "ForEach Round",
+				"name": "ForEach ClanMember",
 				"type": "ForEach",
 				"dependsOn": [
 					{
@@ -110,10 +106,35 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@variables('CWL_ROUNDS')",
+						"value": "@variables('CLAN_MEMBERS')",
 						"type": "Expression"
 					},
-					"isSequential": false
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "pullPlayer",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pullPlayer",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": false,
+								"parameters": {
+									"PLAYER_TAG": {
+										"value": "@item().tag",
+										"type": "Expression"
+									},
+									"JOB_TIME": {
+										"value": "@pipeline().parameters.JOB_TIME",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
 				}
 			},
 			{
@@ -121,7 +142,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "LookupCWLRounds",
+						"activity": "LookupClanMembers",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -129,9 +150,9 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "CWL_ROUNDS",
+					"variableName": "CLAN_MEMBERS",
 					"value": {
-						"value": "@activity('LookupCWLRounds').output.value[0].rounds",
+						"value": "@activity('LookupClanMembers').output.value[0].memberList",
 						"type": "Expression"
 					}
 				}
@@ -151,7 +172,7 @@
 				"type": "String",
 				"defaultValue": "clandata_2023-05-21T05:28:18.1963747Z.json"
 			},
-			"CWL_ROUNDS": {
+			"CLAN_MEMBERS": {
 				"type": "Array"
 			}
 		},
