@@ -366,7 +366,7 @@
 									{
 										"name": "api_call_ts",
 										"value": {
-											"value": "@utcNow()",
+											"value": "@pipeline().parameters.JOB_TIME",
 											"type": "Expression"
 										}
 									}
@@ -436,6 +436,9 @@
 					"TGT_FILE_NM": {
 						"type": "string",
 						"defaultValue": "test_result.json"
+					},
+					"JOB_TIME": {
+						"type": "string"
 					}
 				},
 				"folder": {
@@ -475,6 +478,10 @@
 								"TGT_FILE_NM": {
 									"value": "@concat(\n    'clandata_',\n    utcnow(),\n    '.json'\n)",
 									"type": "Expression"
+								},
+								"JOB_TIME": {
+									"value": "@pipeline().parameters.JOB_TIME",
+									"type": "Expression"
 								}
 							}
 						}
@@ -488,6 +495,14 @@
 					"CLAN_TAG": {
 						"type": "string",
 						"defaultValue": "#P02CUUUU"
+					},
+					"JOB_TIME": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"JOB_START_TIME": {
+						"type": "String"
 					}
 				},
 				"folder": {
@@ -508,7 +523,14 @@
 					{
 						"name": "pullClan",
 						"type": "ExecutePipeline",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "set JobStart",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
@@ -520,6 +542,10 @@
 								"CLAN_TAG": {
 									"value": "@pipeline().parameters.CLAN_TAG",
 									"type": "Expression"
+								},
+								"JOB_TIME": {
+									"value": "@variables('JOB_START_TIME')",
+									"type": "Expression"
 								}
 							}
 						}
@@ -527,7 +553,14 @@
 					{
 						"name": "pullCurrentCWL",
 						"type": "ExecutePipeline",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "set JobStart",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
@@ -539,6 +572,10 @@
 								"CLAN_TAG": {
 									"value": "@pipeline().parameters.CLAN_TAG",
 									"type": "Expression"
+								},
+								"JOB_TIME": {
+									"value": "@variables('JOB_START_TIME')",
+									"type": "Expression"
 								}
 							}
 						}
@@ -546,7 +583,14 @@
 					{
 						"name": "pullCurrentWar",
 						"type": "ExecutePipeline",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "set JobStart",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
@@ -558,7 +602,24 @@
 								"CLAN_TAG": {
 									"value": "@pipeline().parameters.CLAN_TAG",
 									"type": "Expression"
+								},
+								"JOB_TIME": {
+									"value": "@variables('JOB_START_TIME')",
+									"type": "Expression"
 								}
+							}
+						}
+					},
+					{
+						"name": "set JobStart",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "JOB_START_TIME",
+							"value": {
+								"value": "utcNow()",
+								"type": "Expression"
 							}
 						}
 					}
@@ -574,8 +635,8 @@
 					}
 				},
 				"variables": {
-					"CLAN_MEMBERS": {
-						"type": "Array"
+					"JOB_START_TIME": {
+						"type": "String"
 					}
 				},
 				"folder": {
@@ -764,6 +825,9 @@
 					},
 					"CLAN_MEMBERS": {
 						"type": "Array"
+					},
+					"JOB_START_TIME": {
+						"type": "String"
 					}
 				},
 				"folder": {
@@ -804,6 +868,10 @@
 								"TGT_FILE_NM": {
 									"value": "@concat(\n    'cwldata_',\n    utcnow(),\n    '.json'\n)",
 									"type": "Expression"
+								},
+								"JOB_TIME": {
+									"value": "@pipeline().parameters.JOB_TIME",
+									"type": "Expression"
 								}
 							}
 						}
@@ -817,6 +885,9 @@
 					"CLAN_TAG": {
 						"type": "string",
 						"defaultValue": "#P02CUUUU"
+					},
+					"JOB_TIME": {
+						"type": "string"
 					}
 				},
 				"folder": {
@@ -855,6 +926,10 @@
 								"TGT_FILE_NM": {
 									"value": "@concat(\n    'wardata_',\n    utcnow(),\n    '.json'\n)",
 									"type": "Expression"
+								},
+								"JOB_TIME": {
+									"value": "@pipeline().parameters.JOB_TIME",
+									"type": "Expression"
 								}
 							}
 						}
@@ -868,6 +943,9 @@
 					"CLAN_TAG": {
 						"type": "string",
 						"defaultValue": "#P02CUUUU"
+					},
+					"JOB_TIME": {
+						"type": "string"
 					}
 				},
 				"folder": {
@@ -877,6 +955,201 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pullCwlTest')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pullClan",
+						"description": "call clash api /clans for given CLAN_TAG param",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "set OutFileNM",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_api",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"SRC_REL_URL": {
+									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG\n)",
+									"type": "Expression"
+								},
+								"TGT_DIR": "clash/clan/",
+								"TGT_FILE_NM": {
+									"value": "@variables('OUT_FILE_NAME')",
+									"type": "Expression"
+								},
+								"JOB_TIME": {
+									"value": "@pipeline().parameters.JOB_TIME",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "LookupClanMembers",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "pullClan",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "clan_ds_json",
+								"type": "DatasetReference",
+								"parameters": {
+									"TGT_DIR": "clash/clan/",
+									"TGT_FILE_NM": {
+										"value": "@variables('OUT_FILE_NAME')",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "set OutFileNM",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "OUT_FILE_NAME",
+							"value": {
+								"value": "@concat(\n    'clandata_',\n    utcnow(),\n    '.json'\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "ForEach ClanMember",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "set ClanMembers",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('CLAN_MEMBERS')",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "pullPlayer",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pullPlayer",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": false,
+										"parameters": {
+											"PLAYER_TAG": {
+												"value": "@item().tag",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "set ClanMembers",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "LookupClanMembers",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "CLAN_MEMBERS",
+							"value": {
+								"value": "@activity('LookupClanMembers').output.value[0].memberList",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"CLAN_TAG": {
+						"type": "string",
+						"defaultValue": "#P02CUUUU"
+					},
+					"JOB_TIME": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"OUT_FILE_NAME": {
+						"type": "String",
+						"defaultValue": "clandata_2023-05-21T05:28:18.1963747Z.json"
+					},
+					"CLAN_MEMBERS": {
+						"type": "Array"
+					}
+				},
+				"folder": {
+					"name": "clash/pull/endpoints"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_api')]",
+				"[concat(variables('workspaceId'), '/datasets/clan_ds_json')]",
+				"[concat(variables('workspaceId'), '/pipelines/pullPlayer')]"
 			]
 		},
 		{
@@ -906,6 +1179,10 @@
 								"TGT_FILE_NM": {
 									"value": "@concat(\n    'membersdata_',\n    utcnow(),\n    '.json'\n)",
 									"type": "Expression"
+								},
+								"JOB_TIME": {
+									"value": "@pipeline().parameters.JOB_TIME",
+									"type": "Expression"
 								}
 							}
 						}
@@ -919,6 +1196,9 @@
 					"CLAN_TAG": {
 						"type": "string",
 						"defaultValue": "#P02CUUUU"
+					},
+					"JOB_TIME": {
+						"type": "string"
 					}
 				},
 				"folder": {
@@ -957,6 +1237,10 @@
 								"TGT_FILE_NM": {
 									"value": "@concat(\n    'player_',\n    utcnow(),\n    '.json'\n)",
 									"type": "Expression"
+								},
+								"JOB_TIME": {
+									"value": "@pipeline().parameters.JOB_TIME",
+									"type": "Expression"
 								}
 							}
 						}
@@ -970,6 +1254,9 @@
 					"PLAYER_TAG": {
 						"type": "string",
 						"defaultValue": "#YJV2882JL"
+					},
+					"JOB_TIME": {
+						"type": "string"
 					}
 				},
 				"folder": {
@@ -1668,7 +1955,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -3011,7 +3298,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "259320df-ef7f-49f5-8fdb-1301cc9ffb42"
+						"spark.autotune.trackingId": "8abcda2a-11af-49bb-8a0b-a453f909fb90"
 					}
 				},
 				"metadata": {
@@ -3276,7 +3563,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "add43dcf-5bfa-46a6-b7e1-6c326aa7a963"
+						"spark.autotune.trackingId": "5c01e0a8-833a-41fc-9f50-d4d4244a3ab5"
 					}
 				},
 				"metadata": {
@@ -3573,6 +3860,31 @@
 								"transient": {
 									"deleting": false
 								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"\r\n",
+							"CREATE SCHEMA IF NOT EXISTS clash_raw"
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
 							}
 						},
 						"source": [
@@ -3582,7 +3894,7 @@
 							"    )"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 2
 					},
 					{
 						"cell_type": "code",
@@ -3609,6 +3921,70 @@
 						],
 						"outputs": [],
 						"execution_count": 11
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"\r\n",
+							"SELECT * FROM clash_raw.cwl"
+						],
+						"outputs": [],
+						"execution_count": 12
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df = spark.read.table('clash_raw.clan')"
+						],
+						"outputs": [],
+						"execution_count": 14
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"display(df)"
+						],
+						"outputs": [],
+						"execution_count": 15
 					}
 				]
 			},
@@ -3619,6 +3995,9 @@
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "clash"
+				},
 				"nbformat": 4,
 				"nbformat_minor": 2,
 				"bigDataPool": {
@@ -3635,7 +4014,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "2a3d5b9e-1eba-4d03-9002-c819427a3e49"
+						"spark.autotune.trackingId": "b528c7e8-04db-4a57-a5b2-709b43c0e402"
 					}
 				},
 				"metadata": {
