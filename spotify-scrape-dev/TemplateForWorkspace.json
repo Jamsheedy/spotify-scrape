@@ -452,6 +452,84 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/pullCWLWar')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Each War Tag",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.WAR_TAGS",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "pullCurrentCWLWar",
+									"description": "call clash api /clans for given CLAN_TAG param",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_api",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"SRC_REL_URL": {
+												"value": "@concat(\n    'clanwarleagues/wars/',\n    item()\n)",
+												"type": "Expression"
+											},
+											"TGT_DIR": "clash/stg/cwl_wars/",
+											"TGT_FILE_NM": {
+												"value": "@concat(\n    'cwlwardata_',\n    utcnow(),\n    '.json'\n)",
+												"type": "Expression"
+											},
+											"JOB_TIME": {
+												"value": "@pipeline().parameters.JOB_TIME",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"WAR_TAGS": {
+						"type": "array",
+						"defaultValue": [
+							"#88PG8JUVP",
+							"#88PG8C2QU",
+							"#88PG8C09G",
+							"#88PG8C8U8"
+						]
+					},
+					"JOB_TIME": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "clash/pull/endpoints"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/pullClan')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -564,7 +642,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "pullCurrentCWL",
+								"referenceName": "pullCwl",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
@@ -594,7 +672,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "pullCurrentWar",
+								"referenceName": "pullWar",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
@@ -646,12 +724,12 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/pipelines/pullClan')]",
-				"[concat(variables('workspaceId'), '/pipelines/pullCurrentCWL')]",
-				"[concat(variables('workspaceId'), '/pipelines/pullCurrentWar')]"
+				"[concat(variables('workspaceId'), '/pipelines/pullCwl')]",
+				"[concat(variables('workspaceId'), '/pipelines/pullWar')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/pullClanTest')]",
+			"name": "[concat(parameters('workspaceName'), '/pullClanDeep')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -780,6 +858,10 @@
 											"PLAYER_TAG": {
 												"value": "@item().tag",
 												"type": "Expression"
+											},
+											"JOB_TIME": {
+												"value": "@pipeline().parameters.JOB_TIME",
+												"type": "Expression"
 											}
 										}
 									}
@@ -816,6 +898,9 @@
 					"CLAN_TAG": {
 						"type": "string",
 						"defaultValue": "#P02CUUUU"
+					},
+					"JOB_TIME": {
+						"type": "string"
 					}
 				},
 				"variables": {
@@ -825,9 +910,6 @@
 					},
 					"CLAN_MEMBERS": {
 						"type": "Array"
-					},
-					"JOB_START_TIME": {
-						"type": "String"
 					}
 				},
 				"folder": {
@@ -842,7 +924,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/pullCurrentCWL')]",
+			"name": "[concat(parameters('workspaceName'), '/pullCwl')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -851,7 +933,14 @@
 						"name": "pullCurrentCWL",
 						"description": "call clash api /clans for given CLAN_TAG param",
 						"type": "ExecutePipeline",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "set OutFileNM",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
@@ -866,129 +955,6 @@
 								},
 								"TGT_DIR": "clash/stg/cwl/",
 								"TGT_FILE_NM": {
-									"value": "@concat(\n    'cwldata_',\n    utcnow(),\n    '.json'\n)",
-									"type": "Expression"
-								},
-								"JOB_TIME": {
-									"value": "@pipeline().parameters.JOB_TIME",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"CLAN_TAG": {
-						"type": "string",
-						"defaultValue": "#P02CUUUU"
-					},
-					"JOB_TIME": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "clash/pull/endpoints"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/pullCurrentWar')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "pullCurrentWar",
-						"description": "call clash api /clans for given CLAN_TAG param",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_api",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"SRC_REL_URL": {
-									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar'\n)",
-									"type": "Expression"
-								},
-								"TGT_DIR": "clash/stg/wars/",
-								"TGT_FILE_NM": {
-									"value": "@concat(\n    'wardata_',\n    utcnow(),\n    '.json'\n)",
-									"type": "Expression"
-								},
-								"JOB_TIME": {
-									"value": "@pipeline().parameters.JOB_TIME",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"CLAN_TAG": {
-						"type": "string",
-						"defaultValue": "#P02CUUUU"
-					},
-					"JOB_TIME": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "clash/pull/endpoints"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/pullCwlTest')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "pullClan",
-						"description": "call clash api /clans for given CLAN_TAG param",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "set OutFileNM",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_api",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"SRC_REL_URL": {
-									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG\n)",
-									"type": "Expression"
-								},
-								"TGT_DIR": "clash/clan/",
-								"TGT_FILE_NM": {
 									"value": "@variables('OUT_FILE_NAME')",
 									"type": "Expression"
 								},
@@ -1000,11 +966,11 @@
 						}
 					},
 					{
-						"name": "LookupClanMembers",
+						"name": "LookupCWLRounds",
 						"type": "Lookup",
 						"dependsOn": [
 							{
-								"activity": "pullClan",
+								"activity": "pullCurrentCWL",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1034,7 +1000,7 @@
 								"referenceName": "clan_ds_json",
 								"type": "DatasetReference",
 								"parameters": {
-									"TGT_DIR": "clash/clan/",
+									"TGT_DIR": "clash/stg/cwl/",
 									"TGT_FILE_NM": {
 										"value": "@variables('OUT_FILE_NAME')",
 										"type": "Expression"
@@ -1058,11 +1024,11 @@
 						}
 					},
 					{
-						"name": "ForEach ClanMember",
+						"name": "ForEach CWL_ROUND",
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "set ClanMembers",
+								"activity": "set CWL_ROUNDS",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1071,25 +1037,29 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@variables('CLAN_MEMBERS')",
+								"value": "@variables('CWL_ROUNDS')",
 								"type": "Expression"
 							},
 							"isSequential": false,
 							"activities": [
 								{
-									"name": "pullPlayer",
+									"name": "pullCurrentCWLWar",
 									"type": "ExecutePipeline",
 									"dependsOn": [],
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "pullPlayer",
+											"referenceName": "pullCWLWar",
 											"type": "PipelineReference"
 										},
-										"waitOnCompletion": false,
+										"waitOnCompletion": true,
 										"parameters": {
-											"PLAYER_TAG": {
-												"value": "@item().tag",
+											"WAR_TAGS": {
+												"value": "@item().warTags",
+												"type": "Expression"
+											},
+											"JOB_TIME": {
+												"value": "@pipeline().parameters.JOB_TIME",
 												"type": "Expression"
 											}
 										}
@@ -1099,11 +1069,11 @@
 						}
 					},
 					{
-						"name": "set ClanMembers",
+						"name": "set CWL_ROUNDS",
 						"type": "SetVariable",
 						"dependsOn": [
 							{
-								"activity": "LookupClanMembers",
+								"activity": "LookupCWLRounds",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1111,9 +1081,9 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"variableName": "CLAN_MEMBERS",
+							"variableName": "CWL_ROUNDS",
 							"value": {
-								"value": "@activity('LookupClanMembers').output.value[0].memberList",
+								"value": "@activity('LookupCWLRounds').output.value[0].rounds",
 								"type": "Expression"
 							}
 						}
@@ -1137,8 +1107,11 @@
 						"type": "String",
 						"defaultValue": "clandata_2023-05-21T05:28:18.1963747Z.json"
 					},
-					"CLAN_MEMBERS": {
+					"CWL_ROUNDS": {
 						"type": "Array"
+					},
+					"WAR_TAGS_ARRAY": {
+						"type": "String"
 					}
 				},
 				"folder": {
@@ -1149,7 +1122,7 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/pipelines/pl_api')]",
 				"[concat(variables('workspaceId'), '/datasets/clan_ds_json')]",
-				"[concat(variables('workspaceId'), '/pipelines/pullPlayer')]"
+				"[concat(variables('workspaceId'), '/pipelines/pullCWLWar')]"
 			]
 		},
 		{
@@ -1254,6 +1227,64 @@
 					"PLAYER_TAG": {
 						"type": "string",
 						"defaultValue": "#YJV2882JL"
+					},
+					"JOB_TIME": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "clash/pull/endpoints"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_api')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pullWar')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pullCurrentWar",
+						"description": "call clash api /clans for given CLAN_TAG param",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_api",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"SRC_REL_URL": {
+									"value": "@concat(\n    'clans/',\n    pipeline().parameters.CLAN_TAG,\n    '/currentwar'\n)",
+									"type": "Expression"
+								},
+								"TGT_DIR": "clash/stg/wars/",
+								"TGT_FILE_NM": {
+									"value": "@concat(\n    'wardata_',\n    utcnow(),\n    '.json'\n)",
+									"type": "Expression"
+								},
+								"JOB_TIME": {
+									"value": "@pipeline().parameters.JOB_TIME",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"CLAN_TAG": {
+						"type": "string",
+						"defaultValue": "#P02CUUUU"
 					},
 					"JOB_TIME": {
 						"type": "string"
@@ -1955,7 +1986,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
