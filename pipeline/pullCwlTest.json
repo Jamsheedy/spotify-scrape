@@ -122,7 +122,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "pullCurrentCWLWar",
+									"referenceName": "pullCWLWar",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
