@@ -97,11 +97,11 @@
 				}
 			},
 			{
-				"name": "ForEach Round",
+				"name": "ForEach CWL_ROUND",
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "set ClanMembers",
+						"activity": "set CWL_ROUNDS",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -113,11 +113,36 @@
 						"value": "@variables('CWL_ROUNDS')",
 						"type": "Expression"
 					},
-					"isSequential": false
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "pullCurrentCWLWar",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pullCurrentCWLWar",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"WAR_TAGS": {
+										"value": "@item().warTags",
+										"type": "Expression"
+									},
+									"JOB_TIME": {
+										"value": "@pipeline().parameters.JOB_TIME",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
 				}
 			},
 			{
-				"name": "set ClanMembers",
+				"name": "set CWL_ROUNDS",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
@@ -153,6 +178,9 @@
 			},
 			"CWL_ROUNDS": {
 				"type": "Array"
+			},
+			"WAR_TAGS_ARRAY": {
+				"type": "String"
 			}
 		},
 		"folder": {

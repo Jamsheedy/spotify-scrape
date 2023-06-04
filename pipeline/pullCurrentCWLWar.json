@@ -3,39 +3,59 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "pullCurrentCWL",
-				"description": "call clash api /clans for given CLAN_TAG param",
-				"type": "ExecutePipeline",
+				"name": "Each War Tag",
+				"type": "ForEach",
 				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
-					"pipeline": {
-						"referenceName": "pl_api",
-						"type": "PipelineReference"
+					"items": {
+						"value": "@pipeline().parameters.WAR_TAGS",
+						"type": "Expression"
 					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"SRC_REL_URL": {
-							"value": "@concat(\n    'clanwarleagues/wars/',\n    pipeline().parameters.WAR_TAG\n)",
-							"type": "Expression"
-						},
-						"TGT_DIR": "clash/stg/cwl_wars/",
-						"TGT_FILE_NM": {
-							"value": "@concat(\n    'cwlwardata_',\n    utcnow(),\n    '.json'\n)",
-							"type": "Expression"
-						},
-						"JOB_TIME": {
-							"value": "@pipeline().parameters.JOB_TIME",
-							"type": "Expression"
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "pullCurrentCWLWar",
+							"description": "call clash api /clans for given CLAN_TAG param",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_api",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"SRC_REL_URL": {
+										"value": "@concat(\n    'clanwarleagues/wars/',\n    item()\n)",
+										"type": "Expression"
+									},
+									"TGT_DIR": "clash/stg/cwl_wars/",
+									"TGT_FILE_NM": {
+										"value": "@concat(\n    'cwlwardata_',\n    utcnow(),\n    '.json'\n)",
+										"type": "Expression"
+									},
+									"JOB_TIME": {
+										"value": "@pipeline().parameters.JOB_TIME",
+										"type": "Expression"
+									}
+								}
+							}
 						}
-					}
+					]
 				}
 			}
 		],
 		"parameters": {
-			"WAR_TAG": {
-				"type": "string",
-				"defaultValue": "#88PG8C2QU"
+			"WAR_TAGS": {
+				"type": "array",
+				"defaultValue": [
+					"#88PG8JUVP",
+					"#88PG8C2QU",
+					"#88PG8C09G",
+					"#88PG8C8U8"
+				]
 			},
 			"JOB_TIME": {
 				"type": "string"
