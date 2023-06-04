@@ -167,6 +167,9 @@
 			},
 			"CLAN_MEMBERS": {
 				"type": "Array"
+			},
+			"JOB_START_TIME": {
+				"type": "String"
 			}
 		},
 		"folder": {

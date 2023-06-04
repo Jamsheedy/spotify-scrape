@@ -23,6 +23,10 @@
 						"TGT_FILE_NM": {
 							"value": "@concat(\n    'player_',\n    utcnow(),\n    '.json'\n)",
 							"type": "Expression"
+						},
+						"JOB_TIME": {
+							"value": "@pipeline().parameters.JOB_TIME",
+							"type": "Expression"
 						}
 					}
 				}
@@ -32,6 +36,9 @@
 			"PLAYER_TAG": {
 				"type": "string",
 				"defaultValue": "#YJV2882JL"
+			},
+			"JOB_TIME": {
+				"type": "string"
 			}
 		},
 		"folder": {

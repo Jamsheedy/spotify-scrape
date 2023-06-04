@@ -52,6 +52,10 @@
 					"waitOnCompletion": true,
 					"parameters": {
 						"CLAN_TAG": {
+							"value": "@pipeline().parameters.CLAN_TAG",
+							"type": "Expression"
+						},
+						"JOB_TIME": {
 							"value": "@variables('JOB_START_TIME')",
 							"type": "Expression"
 						}
@@ -78,7 +82,11 @@
 					"waitOnCompletion": true,
 					"parameters": {
 						"CLAN_TAG": {
-							"value": "@variables('JOB_START_TIME')pipeline().parameters.CLAN_TAG",
+							"value": "@pipeline().parameters.CLAN_TAG",
+							"type": "Expression"
+						},
+						"JOB_TIME": {
+							"value": "@variables('JOB_START_TIME')",
 							"type": "Expression"
 						}
 					}
