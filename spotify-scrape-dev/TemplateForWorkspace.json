@@ -710,7 +710,7 @@
 						"typeProperties": {
 							"variableName": "JOB_START_TIME",
 							"value": {
-								"value": "utcNow()",
+								"value": "@utcNow()",
 								"type": "Expression"
 							}
 						}
