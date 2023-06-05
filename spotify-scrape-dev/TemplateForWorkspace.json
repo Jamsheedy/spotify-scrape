@@ -470,32 +470,46 @@
 							"isSequential": false,
 							"activities": [
 								{
-									"name": "pullCurrentCWLWar",
-									"description": "call clash api /clans for given CLAN_TAG param",
-									"type": "ExecutePipeline",
+									"name": "Check NonActive WarTag",
+									"type": "IfCondition",
 									"dependsOn": [],
 									"userProperties": [],
 									"typeProperties": {
-										"pipeline": {
-											"referenceName": "pl_api",
-											"type": "PipelineReference"
+										"expression": {
+											"value": "@equals(item(), '#0')",
+											"type": "Expression"
 										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"SRC_REL_URL": {
-												"value": "@concat(\n    'clanwarleagues/wars/',\n    item()\n)",
-												"type": "Expression"
-											},
-											"TGT_DIR": "clash/stg/cwl_wars/",
-											"TGT_FILE_NM": {
-												"value": "@concat(\n    'cwlwardata_',\n    utcnow(),\n    '.json'\n)",
-												"type": "Expression"
-											},
-											"JOB_TIME": {
-												"value": "@pipeline().parameters.JOB_TIME",
-												"type": "Expression"
+										"ifFalseActivities": [
+											{
+												"name": "pullCurrentCWLWar_copy1",
+												"description": "call clash api /clans for given CLAN_TAG param",
+												"type": "ExecutePipeline",
+												"dependsOn": [],
+												"userProperties": [],
+												"typeProperties": {
+													"pipeline": {
+														"referenceName": "pl_api",
+														"type": "PipelineReference"
+													},
+													"waitOnCompletion": true,
+													"parameters": {
+														"SRC_REL_URL": {
+															"value": "@concat(\n    'clanwarleagues/wars/',\n    item()\n)",
+															"type": "Expression"
+														},
+														"TGT_DIR": "clash/stg/cwl_wars/",
+														"TGT_FILE_NM": {
+															"value": "@concat(\n    'cwlwardata_',\n    utcnow(),\n    '.json'\n)",
+															"type": "Expression"
+														},
+														"JOB_TIME": {
+															"value": "@pipeline().parameters.JOB_TIME",
+															"type": "Expression"
+														}
+													}
+												}
 											}
-										}
+										]
 									}
 								}
 							]
@@ -3594,7 +3608,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "5c01e0a8-833a-41fc-9f50-d4d4244a3ab5"
+						"spark.autotune.trackingId": "704a783e-e31f-40cb-bb72-242d29f532fa"
 					}
 				},
 				"metadata": {
@@ -3925,7 +3939,57 @@
 							"    )"
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"\r\n",
+							"DESCRIBE HISTORY clash_raw.clan"
+						],
+						"outputs": [],
+						"execution_count": 8
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"\r\n",
+							"DROP TABLE clash_raw.cwl_wars"
+						],
+						"outputs": [],
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
@@ -3992,30 +4056,14 @@
 							}
 						},
 						"source": [
-							"df = spark.read.table('clash_raw.clan')"
+							"df = spark.read.format('delta') \\\r\n",
+							"    .option(\"readChangeFeed\", \"true\") \\\r\n",
+							"    .option(\"startingVersion\", 0) \\\r\n",
+							"    .option(\"endingVersion\", 5) \\\r\n",
+							"    .table(\"clash_raw.clan\")"
 						],
 						"outputs": [],
-						"execution_count": 14
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"display(df)"
-						],
-						"outputs": [],
-						"execution_count": 15
+						"execution_count": 10
 					}
 				]
 			},
