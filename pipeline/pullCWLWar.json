@@ -15,32 +15,46 @@
 					"isSequential": false,
 					"activities": [
 						{
-							"name": "pullCurrentCWLWar",
-							"description": "call clash api /clans for given CLAN_TAG param",
-							"type": "ExecutePipeline",
+							"name": "Check NonActive WarTag",
+							"type": "IfCondition",
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
-								"pipeline": {
-									"referenceName": "pl_api",
-									"type": "PipelineReference"
+								"expression": {
+									"value": "@equals(item(), '#0')",
+									"type": "Expression"
 								},
-								"waitOnCompletion": true,
-								"parameters": {
-									"SRC_REL_URL": {
-										"value": "@concat(\n    'clanwarleagues/wars/',\n    item()\n)",
-										"type": "Expression"
-									},
-									"TGT_DIR": "clash/stg/cwl_wars/",
-									"TGT_FILE_NM": {
-										"value": "@concat(\n    'cwlwardata_',\n    utcnow(),\n    '.json'\n)",
-										"type": "Expression"
-									},
-									"JOB_TIME": {
-										"value": "@pipeline().parameters.JOB_TIME",
-										"type": "Expression"
+								"ifFalseActivities": [
+									{
+										"name": "pullCurrentCWLWar_copy1",
+										"description": "call clash api /clans for given CLAN_TAG param",
+										"type": "ExecutePipeline",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"pipeline": {
+												"referenceName": "pl_api",
+												"type": "PipelineReference"
+											},
+											"waitOnCompletion": true,
+											"parameters": {
+												"SRC_REL_URL": {
+													"value": "@concat(\n    'clanwarleagues/wars/',\n    item()\n)",
+													"type": "Expression"
+												},
+												"TGT_DIR": "clash/stg/cwl_wars/",
+												"TGT_FILE_NM": {
+													"value": "@concat(\n    'cwlwardata_',\n    utcnow(),\n    '.json'\n)",
+													"type": "Expression"
+												},
+												"JOB_TIME": {
+													"value": "@pipeline().parameters.JOB_TIME",
+													"type": "Expression"
+												}
+											}
+										}
 									}
-								}
+								]
 							}
 						}
 					]
