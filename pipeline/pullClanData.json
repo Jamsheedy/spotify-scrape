@@ -46,7 +46,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pullCWL",
+						"referenceName": "pullCwl",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
@@ -100,7 +100,7 @@
 				"typeProperties": {
 					"variableName": "JOB_START_TIME",
 					"value": {
-						"value": "utcNow()",
+						"value": "@utcNow()",
 						"type": "Expression"
 					}
 				}
