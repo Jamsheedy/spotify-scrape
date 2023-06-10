@@ -1,0 +1,17 @@
+{
+	"name": "clanView",
+	"properties": {
+		"content": {
+			"query": "SELECT TOP (100) api_call_ts,\nbadgeUrls\ncapitalLeague,\nchatLanguage,\nclanBuilderBasePoints,\nclanCapital,\nclanLevel,\nclanPoints,\nclanVersusPoints,\ndescription,\nisFamilyFriendly,\nisWarLogPublic,\nlabels,\nlocation,\n--memberList,\nmembers,\nname,\nrequiredBuilderBaseTrophies,\nrequiredTownhallLevel,\nrequiredTrophies,\nrequiredVersusTrophies,\ntag,\ntype, \nwarfrequency,\nwarLeague, \nwarWinStreak, \nwarWins\n FROM [clash_raw].[dbo].[clan]\nWHERE api_call_ts is not null order by api_call_ts desc",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "clash_raw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
