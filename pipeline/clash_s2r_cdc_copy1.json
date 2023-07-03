@@ -1,0 +1,87 @@
+{
+	"name": "clash_s2r_cdc_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "pr2r",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_pr2r",
+						"type": "DataFlowReference",
+						"parameters": {
+							"TGT_FILE_SYS": {
+								"value": "'@{pipeline().parameters.TGT_FILE_SYS}'",
+								"type": "Expression"
+							},
+							"TGT_DIR_LOC": {
+								"value": "'@{concat(\n    pipeline().parameters.TGT_DIR,\n    '/',\n    pipeline().parameters.TGT_FILE_NM\n)}'",
+								"type": "Expression"
+							},
+							"SRC_FILE_SYS": {
+								"value": "'@{pipeline().parameters.SRC_FILE_SYS}'",
+								"type": "Expression"
+							},
+							"SRC_DIR_LOC": {
+								"value": "'@{concat(\n    pipeline().parameters.SRC_DIR,\n    '/',\n    pipeline().parameters.SRC_FILE_NM\n)}'",
+								"type": "Expression"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Coarse",
+					"continuationSettings": {
+						"customizedCheckpointKey": "4f115e66-f48e-46fd-9b0e-faeed410bf28"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"SRC_FILE_SYS": {
+				"type": "string",
+				"defaultValue": "clash"
+			},
+			"SRC_DIR": {
+				"type": "string",
+				"defaultValue": "stg"
+			},
+			"SRC_FILE_NM": {
+				"type": "string",
+				"defaultValue": "cwl"
+			},
+			"TGT_FILE_SYS": {
+				"type": "string",
+				"defaultValue": "clash"
+			},
+			"TGT_DIR": {
+				"type": "string",
+				"defaultValue": "deltalake/raw"
+			},
+			"TGT_FILE_NM": {
+				"type": "string",
+				"defaultValue": "cwl"
+			}
+		},
+		"variables": {
+			"TGT_TBL_NM": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "clash/etl/s2r/generic"
+		},
+		"annotations": []
+	}
+}

@@ -1,39 +1,68 @@
 {
-	"name": "Dataflow1",
+	"name": "df_pr2r",
 	"properties": {
+		"folder": {
+			"name": "clash/generic"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
 				{
-					"dataset": {
-						"referenceName": "ds_json_gen",
-						"type": "DatasetReference"
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
 					},
 					"name": "source1"
 				}
 			],
 			"sinks": [
 				{
-					"dataset": {
-						"referenceName": "ds_parquet_gen",
-						"type": "DatasetReference"
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
 					},
 					"name": "sink1"
 				}
 			],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
 			"scriptLines": [
-				"source(allowSchemaDrift: true,",
+				"parameters{",
+				"     TGT_FILE_SYS as string,",
+				"     TGT_DIR_LOC as string,",
+				"     SRC_FILE_SYS as string,",
+				"     SRC_DIR_LOC as string",
+				"}",
+				"source(useSchema: false,",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     inferDriftedColumnTypes: true,",
 				"     ignoreNoFilesFound: false,",
 				"     enableCdc: true,",
 				"     mode: 'read',",
 				"     skipInitialLoad: false,",
+				"     format: 'json',",
+				"     fileSystem: ($SRC_FILE_SYS),",
+				"     folderPath: ($SRC_DIR_LOC),",
 				"     documentForm: 'documentPerLine') ~> source1",
-				"source1 sink(allowSchemaDrift: true,",
+				"source1 derive(load_date = currentDate(),",
+				"          load_ts = currentTimestamp()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'parquet',",
+				"     format: 'delta',",
+				"     fileSystem: ($TGT_FILE_SYS),",
+				"     folderPath: ($TGT_DIR_LOC),",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
