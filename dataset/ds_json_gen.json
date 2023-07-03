@@ -7,13 +7,16 @@
 		},
 		"parameters": {
 			"FILE_SYS": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "clash"
 			},
 			"DIR": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "stg/clan"
 			},
 			"FILE_NM": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "clandata_2023-05-26T04:30:32.3798450Z.json"
 			}
 		},
 		"annotations": [],
@@ -22,11 +25,15 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": {
-					"value": "@dataset().TGT_FILE_NM",
+					"value": "@dataset().FILE_NM",
 					"type": "Expression"
 				},
 				"folderPath": {
-					"value": "@dataset().TGT_DIR",
+					"value": "@dataset().DIR",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().FILE_SYS",
 					"type": "Expression"
 				}
 			}
