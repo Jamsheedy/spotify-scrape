@@ -22,15 +22,15 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": {
-					"value": "@dataset().TGT_FILE_NM",
+					"value": "@dataset().FILE_NM",
 					"type": "Expression"
 				},
 				"folderPath": {
-					"value": "@dataset().TGT_DIR",
+					"value": "@dataset().DIR",
 					"type": "Expression"
 				},
 				"fileSystem": {
-					"value": "@dataset().TGT_FS",
+					"value": "@dataset().FILE_SYS",
 					"type": "Expression"
 				}
 			},
