@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "LookupTable",
+				"name": "LU_InboundTable",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -22,18 +22,21 @@
 						"referenceName": "ds_webtbl_skysportsprem",
 						"type": "DatasetReference",
 						"parameters": {
-							"YEAR": "2023"
+							"YEAR": {
+								"value": "@pipeline().parameters.YEAR",
+								"type": "Expression"
+							}
 						}
 					},
 					"firstRowOnly": false
 				}
 			},
 			{
-				"name": "SetGamesPlayed",
+				"name": "Set GamesPlayed",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "LookupTable",
+						"activity": "LU_InboundTable",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -47,12 +50,407 @@
 				"typeProperties": {
 					"variableName": "GAMES_PLAYED",
 					"value": {
-						"value": "@add(\r\n    activity('LookupTable').output.value[0].Pl,\r\n    add(\r\n        activity('LookupTable').output.value[1].Pl,\r\n        add(\r\n            activity('LookupTable').output.value[2].Pl,\r\n            add(\r\n                activity('LookupTable').output.value[3].Pl,\r\n                add(\r\n                    activity('LookupTable').output.value[4].Pl,\r\n                    add(\r\n                        activity('LookupTable').output.value[5].Pl,\r\n                        add(\r\n                            activity('LookupTable').output.value[6].Pl,\r\n                            add(\r\n                                activity('LookupTable').output.value[7].Pl,\r\n                                add(\r\n                                    activity('LookupTable').output.value[8].Pl, \r\n                                    add(\r\n                                        activity('LookupTable').output.value[9].Pl,\r\n                                        add(\r\n                                            activity('LookupTable').output.value[10].Pl,\r\n                                             add(\r\n                                                activity('LookupTable').output.value[11].Pl,\r\n                                                add(\r\n                                                    activity('LookupTable').output.value[12].Pl,\r\n                                                    add(\r\n                                                        activity('LookupTable').output.value[13].Pl,\r\n                                                        add(\r\n                                                            activity('LookupTable').output.value[14].Pl,\r\n                                                            add(\r\n                                                                activity('LookupTable').output.value[15].Pl,\r\n                                                                add(\r\n                                                                    activity('LookupTable').output.value[16].Pl,\r\n                                                                    add(\r\n                                                                        activity('LookupTable').output.value[17].Pl,\r\n                                                                        add(\r\n                                                                            activity('LookupTable').output.value[18].Pl, \r\n                                                                            activity('LookupTable').output.value[19].Pl\r\n                                                                            )\r\n                                                                        )\r\n                                                                    )\r\n                                                                )\r\n                                                            )\r\n                                                        )\r\n                                                    )\r\n                                                )\r\n                                            )\r\n                                        )\r\n                                    )\r\n                                )\r\n                            )\r\n                        )\r\n                    )\r\n                )\r\n            )    \r\n        )\r\n    )\r\n)",
+						"value": "@string(\n    add(\n        int(activity('LU_InboundTable').output.value[0].Pl),\n        add(\n            int(activity('LU_InboundTable').output.value[1].Pl),\n            add(\n                int(activity('LU_InboundTable').output.value[2].Pl),\n                add(\n                    int(activity('LU_InboundTable').output.value[3].Pl),\n                    add(\n                        int(activity('LU_InboundTable').output.value[4].Pl),\n                        add(\n                            int(activity('LU_InboundTable').output.value[5].Pl),\n                            add(\n                                int(activity('LU_InboundTable').output.value[6].Pl),\n                                add(\n                                    int(activity('LU_InboundTable').output.value[7].Pl),\n                                    add(\n                                        int(activity('LU_InboundTable').output.value[8].Pl), \n                                        add(\n                                            int(activity('LU_InboundTable').output.value[9].Pl),\n                                            add(\n                                                int(activity('LU_InboundTable').output.value[10].Pl),\n                                                add(\n                                                    int(activity('LU_InboundTable').output.value[11].Pl),\n                                                    add(\n                                                        int(activity('LU_InboundTable').output.value[12].Pl),\n                                                        add(\n                                                            int(activity('LU_InboundTable').output.value[13].Pl),\n                                                            add(\n                                                                int(activity('LU_InboundTable').output.value[14].Pl),\n                                                                add(\n                                                                    int(activity('LU_InboundTable').output.value[15].Pl),\n                                                                    add(\n                                                                        int(activity('LU_InboundTable').output.value[16].Pl),\n                                                                        add(\n                                                                            int(activity('LU_InboundTable').output.value[17].Pl),\n                                                                            add(\n                                                                                int(activity('LU_InboundTable').output.value[18].Pl), \n                                                                                int(activity('LU_InboundTable').output.value[19].Pl)\n                                                                                )\n                                                                            )\n                                                                        )\n                                                                    )\n                                                                )\n                                                            )\n                                                        )\n                                                    )\n                                                )\n                                            )\n                                        )\n                                    )\n                                )\n                            )\n                        )\n                    )\n                )    \n            )\n        )\n)",
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "LU Last Game Count",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_csv_gen",
+						"type": "DatasetReference",
+						"parameters": {
+							"FILE_SYS": "premtracker",
+							"DIR": {
+								"value": "@concat(\n    'stg/gamecount/',\n    pipeline().parameters.YEAR\n)",
+								"type": "Expression"
+							},
+							"FILE_NM": "base.csv"
+						}
+					}
+				}
+			},
+			{
+				"name": "If New Games Played",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Set GamesPlayed",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "LU Last Game Count",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(\n    variables('GAMES_PLAYED'),\n    activity('LU Last Game Count').output.firstRow.LastGameCount\n)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Copy Prem Table",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "WebSource",
+									"additionalColumns": [
+										{
+											"name": "currentTs",
+											"value": {
+												"value": "@utcnow()",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "season",
+											"value": {
+												"value": "@pipeline().parameters.YEAR",
+												"type": "Expression"
+											}
+										}
+									]
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "#",
+												"type": "String"
+											},
+											"sink": {
+												"name": "Position",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "Team",
+												"type": "String"
+											},
+											"sink": {
+												"name": "Team",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "Pl",
+												"type": "String"
+											},
+											"sink": {
+												"name": "Pl",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "W",
+												"type": "String"
+											},
+											"sink": {
+												"name": "W",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "D",
+												"type": "String"
+											},
+											"sink": {
+												"name": "D",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "L",
+												"type": "String"
+											},
+											"sink": {
+												"name": "L",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "F",
+												"type": "String"
+											},
+											"sink": {
+												"name": "F",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "A",
+												"type": "String"
+											},
+											"sink": {
+												"name": "A",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "GD",
+												"type": "String"
+											},
+											"sink": {
+												"name": "GD",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "Pts",
+												"type": "String"
+											},
+											"sink": {
+												"name": "Pts",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "Last 6",
+												"type": "String"
+											},
+											"sink": {
+												"name": "Last 6",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "currentTs",
+												"type": "String"
+											},
+											"sink": {
+												"name": "currentTs",
+												"type": "String",
+												"physicalType": "String"
+											}
+										},
+										{
+											"source": {
+												"name": "season",
+												"type": "String"
+											},
+											"sink": {
+												"name": "season",
+												"type": "String",
+												"physicalType": "String"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": false,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_webtbl_skysportsprem",
+									"type": "DatasetReference",
+									"parameters": {
+										"YEAR": {
+											"value": "@pipeline().parameters.YEAR",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_csv_gen",
+									"type": "DatasetReference",
+									"parameters": {
+										"FILE_SYS": "premtracker",
+										"DIR": "stg/table/2023/inbound/",
+										"FILE_NM": "debug.csv"
+									}
+								}
+							]
+						},
+						{
+							"name": "Update Last Game Count",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "Copy Prem Table",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"additionalColumns": [
+										{
+											"name": "NewGameCount",
+											"value": {
+												"value": "@variables('GAMES_PLAYED')",
+												"type": "Expression"
+											}
+										}
+									],
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "NewGameCount",
+												"type": "String"
+											},
+											"sink": {
+												"name": "LastGameCount",
+												"type": "String",
+												"physicalType": "String"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_csv_gen",
+									"type": "DatasetReference",
+									"parameters": {
+										"FILE_SYS": "premtracker",
+										"DIR": {
+											"value": "@concat(\n    'stg/gamecount/',\n    pipeline().parameters.YEAR\n)",
+											"type": "Expression"
+										},
+										"FILE_NM": "base.csv"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_csv_gen",
+									"type": "DatasetReference",
+									"parameters": {
+										"FILE_SYS": "premtracker",
+										"DIR": {
+											"value": "@concat(\n    'stg/gamecount/',\n    pipeline().parameters.YEAR\n)",
+											"type": "Expression"
+										},
+										"FILE_NM": "base.csv"
+									}
+								}
+							]
+						}
+					]
+				}
 			}
 		],
+		"parameters": {
+			"YEAR": {
+				"type": "string",
+				"defaultValue": "2023"
+			}
+		},
 		"variables": {
 			"GAMES_PLAYED": {
 				"type": "String",
