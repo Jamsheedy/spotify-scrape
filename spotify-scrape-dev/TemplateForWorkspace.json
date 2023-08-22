@@ -36,6 +36,10 @@
 			"type": "string",
 			"defaultValue": "https://app-creds.vault.azure.net/"
 		},
+		"ls_webtable_prem23_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.skysports.com/premier-league-table/2023"
+		},
 		"spotify-scrape-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://spotifyfam.dfs.core.windows.net"
@@ -134,6 +138,10 @@
 						"description": "parse for the directory of inbound file",
 						"type": "SetVariable",
 						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
 						"userProperties": [],
 						"typeProperties": {
 							"variableName": "TGT_TBL_NM",
@@ -171,6 +179,107 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/notebooks/s2r_cdc')]",
 				"[concat(variables('workspaceId'), '/bigDataPools/smallspark33')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/clash_s2r_cdc_copy1')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "pr2r",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_pr2r",
+								"type": "DataFlowReference",
+								"parameters": {
+									"TGT_FILE_SYS": {
+										"value": "'@{pipeline().parameters.TGT_FILE_SYS}'",
+										"type": "Expression"
+									},
+									"TGT_DIR_LOC": {
+										"value": "'@{concat(\n    pipeline().parameters.TGT_DIR,\n    '/',\n    pipeline().parameters.TGT_FILE_NM\n)}'",
+										"type": "Expression"
+									},
+									"SRC_FILE_SYS": {
+										"value": "'@{pipeline().parameters.SRC_FILE_SYS}'",
+										"type": "Expression"
+									},
+									"SRC_DIR_LOC": {
+										"value": "'@{concat(\n    pipeline().parameters.SRC_DIR,\n    '/',\n    pipeline().parameters.SRC_FILE_NM\n)}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Coarse",
+							"continuationSettings": {
+								"customizedCheckpointKey": "4f115e66-f48e-46fd-9b0e-faeed410bf28"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"SRC_FILE_SYS": {
+						"type": "string",
+						"defaultValue": "clash"
+					},
+					"SRC_DIR": {
+						"type": "string",
+						"defaultValue": "stg"
+					},
+					"SRC_FILE_NM": {
+						"type": "string",
+						"defaultValue": "cwl"
+					},
+					"TGT_FILE_SYS": {
+						"type": "string",
+						"defaultValue": "clash"
+					},
+					"TGT_DIR": {
+						"type": "string",
+						"defaultValue": "deltalake/raw"
+					},
+					"TGT_FILE_NM": {
+						"type": "string",
+						"defaultValue": "cwl"
+					}
+				},
+				"variables": {
+					"TGT_TBL_NM": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "clash/etl/s2r/generic"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/df_pr2r')]"
 			]
 		},
 		{
@@ -452,6 +561,81 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/pr2r_master')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.SRC_STG_FOLDERS",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 3,
+							"activities": [
+								{
+									"name": "pr2r",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "clash_s2r_cdc_copy1",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"SRC_FILE_SYS": "clash",
+											"SRC_DIR": "stg",
+											"SRC_FILE_NM": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"TGT_FILE_SYS": "clash",
+											"TGT_DIR": "deltalake/raw",
+											"TGT_FILE_NM": {
+												"value": "@item()",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"SRC_STG_FOLDERS": {
+						"type": "array",
+						"defaultValue": [
+							"clan",
+							"cwl",
+							"cwl_wars",
+							"player",
+							"wars"
+						]
+					}
+				},
+				"folder": {
+					"name": "clash/etl/s2r/generic"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/clash_s2r_cdc_copy1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/pullCWLWar')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -706,6 +890,10 @@
 						"name": "set JobStart",
 						"type": "SetVariable",
 						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
 						"userProperties": [],
 						"typeProperties": {
 							"variableName": "JOB_START_TIME",
@@ -829,6 +1017,10 @@
 						"name": "set OutFileNM",
 						"type": "SetVariable",
 						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
 						"userProperties": [],
 						"typeProperties": {
 							"variableName": "OUT_FILE_NAME",
@@ -894,6 +1086,10 @@
 								]
 							}
 						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
 						"userProperties": [],
 						"typeProperties": {
 							"variableName": "CLAN_MEMBERS",
@@ -1028,6 +1224,10 @@
 						"name": "set OutFileNM",
 						"type": "SetVariable",
 						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
 						"userProperties": [],
 						"typeProperties": {
 							"variableName": "OUT_FILE_NAME",
@@ -1093,6 +1293,10 @@
 								]
 							}
 						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
 						"userProperties": [],
 						"typeProperties": {
 							"variableName": "CWL_ROUNDS",
@@ -1647,6 +1851,100 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/ds_json_gen')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FILE_SYS": {
+						"type": "string",
+						"defaultValue": "clash"
+					},
+					"DIR": {
+						"type": "string",
+						"defaultValue": "stg/clan"
+					},
+					"FILE_NM": {
+						"type": "string",
+						"defaultValue": "clandata_2023-05-26T04:30:32.3798450Z.json"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FILE_NM",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().DIR",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().FILE_SYS",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ds_parquet_gen')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FILE_SYS": {
+						"type": "string"
+					},
+					"DIR": {
+						"type": "string"
+					},
+					"FILE_NM": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FILE_NM",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().DIR",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().FILE_SYS",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/raw_spotify_subs_accounts')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -1952,6 +2250,26 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/ls_webtable_prem23')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "Web",
+				"typeProperties": {
+					"url": "[parameters('ls_webtable_prem23_properties_typeProperties_url')]",
+					"authenticationType": "Anonymous"
+				},
+				"connectVia": {
+					"referenceName": "clash-SHIR-laptop",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/clash-SHIR-laptop')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/spotify-scrape-dev-WorkspaceDefaultSqlServer')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -2034,7 +2352,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -2066,7 +2384,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -2101,7 +2419,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -2163,6 +2481,89 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/df_pr2r')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "clash/generic"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     TGT_FILE_SYS as string,",
+						"     TGT_DIR_LOC as string,",
+						"     SRC_FILE_SYS as string,",
+						"     SRC_DIR_LOC as string",
+						"}",
+						"source(useSchema: false,",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     inferDriftedColumnTypes: true,",
+						"     ignoreNoFilesFound: false,",
+						"     enableCdc: true,",
+						"     mode: 'read',",
+						"     skipInitialLoad: false,",
+						"     format: 'json',",
+						"     fileSystem: ($SRC_FILE_SYS),",
+						"     folderPath: ($SRC_DIR_LOC),",
+						"     documentForm: 'documentPerLine') ~> source1",
+						"source1 derive(load_date = currentDate(),",
+						"          load_ts = currentTimestamp()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delta',",
+						"     fileSystem: ($TGT_FILE_SYS),",
+						"     folderPath: ($TGT_DIR_LOC),",
+						"     mergeSchema: false,",
+						"     autoCompact: false,",
+						"     optimizedWrite: false,",
+						"     vacuum: 0,",
+						"     deletable: false,",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     upsertable: false,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('key',",
+						"          0,",
+						"          load_date",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/pr2r')]",
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
@@ -2219,10 +2620,10 @@
 						"     autoCompact: true,",
 						"     optimizedWrite: true,",
 						"     vacuum: 0,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
+						"     deletable: false,",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     upsertable: false,",
 						"     umask: 0022,",
 						"     preCommands: [],",
 						"     postCommands: [],",
