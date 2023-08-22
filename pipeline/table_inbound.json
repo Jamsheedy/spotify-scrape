@@ -19,11 +19,15 @@
 						"type": "WebSource",
 						"additionalColumns": [
 							{
-								"name": "createdTime",
+								"name": "currentTs",
 								"value": {
 									"value": "@utcnow()",
 									"type": "Expression"
 								}
+							},
+							{
+								"name": "season",
+								"value": "2023"
 							}
 						]
 					},
@@ -164,11 +168,22 @@
 							},
 							{
 								"source": {
-									"name": "createdTime",
+									"name": "currentTs",
 									"type": "String"
 								},
 								"sink": {
-									"name": "createdTime",
+									"name": "currentTs",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "season",
+									"type": "String"
+								},
+								"sink": {
+									"name": "season",
 									"type": "String",
 									"physicalType": "String"
 								}
@@ -192,8 +207,13 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "DelimitedText1",
-						"type": "DatasetReference"
+						"referenceName": "ds_csv_gen",
+						"type": "DatasetReference",
+						"parameters": {
+							"FILE_SYS": "premtracker",
+							"DIR": "stg/table/2023/inbound/",
+							"FILE_NM": "debug.txt"
+						}
 					}
 				]
 			}

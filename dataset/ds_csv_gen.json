@@ -1,0 +1,44 @@
+{
+	"name": "ds_csv_gen",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FILE_SYS": {
+				"type": "string"
+			},
+			"DIR": {
+				"type": "string"
+			},
+			"FILE_NM": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().FILE_NM",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().DIR",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().FILE_SYS",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
