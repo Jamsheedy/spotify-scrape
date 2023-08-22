@@ -1,0 +1,43 @@
+{
+	"name": "ds_json_gen",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FILE_SYS": {
+				"type": "string",
+				"defaultValue": "clash"
+			},
+			"DIR": {
+				"type": "string",
+				"defaultValue": "stg/clan"
+			},
+			"FILE_NM": {
+				"type": "string",
+				"defaultValue": "clandata_2023-05-26T04:30:32.3798450Z.json"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().FILE_NM",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().DIR",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().FILE_SYS",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	}
+}

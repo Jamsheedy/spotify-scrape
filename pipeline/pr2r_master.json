@@ -1,0 +1,66 @@
+{
+	"name": "pr2r_master",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.SRC_STG_FOLDERS",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"batchCount": 3,
+					"activities": [
+						{
+							"name": "pr2r",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "clash_s2r_cdc_copy1",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"SRC_FILE_SYS": "clash",
+									"SRC_DIR": "stg",
+									"SRC_FILE_NM": {
+										"value": "@item()",
+										"type": "Expression"
+									},
+									"TGT_FILE_SYS": "clash",
+									"TGT_DIR": "deltalake/raw",
+									"TGT_FILE_NM": {
+										"value": "@item()",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"SRC_STG_FOLDERS": {
+				"type": "array",
+				"defaultValue": [
+					"clan",
+					"cwl",
+					"cwl_wars",
+					"player",
+					"wars"
+				]
+			}
+		},
+		"folder": {
+			"name": "clash/etl/s2r/generic"
+		},
+		"annotations": []
+	}
+}

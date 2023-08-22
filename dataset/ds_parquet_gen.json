@@ -1,0 +1,41 @@
+{
+	"name": "ds_parquet_gen",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FILE_SYS": {
+				"type": "string"
+			},
+			"DIR": {
+				"type": "string"
+			},
+			"FILE_NM": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().FILE_NM",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().DIR",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().FILE_SYS",
+					"type": "Expression"
+				}
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
