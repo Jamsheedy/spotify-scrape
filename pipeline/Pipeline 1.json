@@ -27,6 +27,30 @@
 					},
 					"firstRowOnly": false
 				}
+			},
+			{
+				"name": "SetGamesPlayed",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "LookupTable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "GAMES_PLAYED",
+					"value": {
+						"value": "@add(\r\n    activity('LookupTable').output.value[0].Pl,\r\n    add(\r\n        activity('LookupTable').output.value[1].Pl,\r\n        add(\r\n            activity('LookupTable').output.value[2].Pl,\r\n            add(\r\n                activity('LookupTable').output.value[3].Pl,\r\n                add(\r\n                    activity('LookupTable').output.value[4].Pl,\r\n                    add(\r\n                        activity('LookupTable').output.value[5].Pl,\r\n                        add(\r\n                            activity('LookupTable').output.value[6].Pl,\r\n                            add(\r\n                                activity('LookupTable').output.value[7].Pl,\r\n                                add(\r\n                                    activity('LookupTable').output.value[8].Pl, \r\n                                    add(\r\n                                        activity('LookupTable').output.value[9].Pl,\r\n                                        add(\r\n                                            activity('LookupTable').output.value[10].Pl,\r\n                                             add(\r\n                                                activity('LookupTable').output.value[11].Pl,\r\n                                                add(\r\n                                                    activity('LookupTable').output.value[12].Pl,\r\n                                                    add(\r\n                                                        activity('LookupTable').output.value[13].Pl,\r\n                                                        add(\r\n                                                            activity('LookupTable').output.value[14].Pl,\r\n                                                            add(\r\n                                                                activity('LookupTable').output.value[15].Pl,\r\n                                                                add(\r\n                                                                    activity('LookupTable').output.value[16].Pl,\r\n                                                                    add(\r\n                                                                        activity('LookupTable').output.value[17].Pl,\r\n                                                                        add(\r\n                                                                            activity('LookupTable').output.value[18].Pl, \r\n                                                                            activity('LookupTable').output.value[19].Pl\r\n                                                                            )\r\n                                                                        )\r\n                                                                    )\r\n                                                                )\r\n                                                            )\r\n                                                        )\r\n                                                    )\r\n                                                )\r\n                                            )\r\n                                        )\r\n                                    )\r\n                                )\r\n                            )\r\n                        )\r\n                    )\r\n                )\r\n            )    \r\n        )\r\n    )\r\n)",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
