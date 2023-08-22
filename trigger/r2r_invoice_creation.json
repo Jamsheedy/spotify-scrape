@@ -2,7 +2,7 @@
 	"name": "r2r_invoice_creation",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Started",
+		"runtimeState": "Stopped",
 		"pipelines": [
 			{
 				"pipelineReference": {
