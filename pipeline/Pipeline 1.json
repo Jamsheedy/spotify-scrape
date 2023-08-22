@@ -1,0 +1,43 @@
+{
+	"name": "Pipeline 1",
+	"properties": {
+		"activities": [
+			{
+				"name": "LookupTable",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "WebSource"
+					},
+					"dataset": {
+						"referenceName": "ds_webtbl_skysportsprem",
+						"type": "DatasetReference",
+						"parameters": {
+							"YEAR": "2023"
+						}
+					},
+					"firstRowOnly": false
+				}
+			}
+		],
+		"variables": {
+			"GAMES_PLAYED": {
+				"type": "String",
+				"defaultValue": "0"
+			}
+		},
+		"folder": {
+			"name": "premtracker"
+		},
+		"annotations": []
+	}
+}
