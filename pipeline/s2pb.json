@@ -279,8 +279,7 @@
 												"type": "String"
 											},
 											"sink": {
-												"name": "Last 6",
-												"type": "String",
+												"name": "last6",
 												"physicalType": "String"
 											}
 										},
