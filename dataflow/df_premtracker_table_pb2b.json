@@ -1,0 +1,57 @@
+{
+	"name": "df_premtracker_table_pb2b",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"name": "sink1",
+					"rejectedDataLinkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     moveFiles: ['stg/table/2023/inbound','stg/table/2023/archive'],",
+				"     format: 'delimited',",
+				"     fileSystem: 'premtracker',",
+				"     folderPath: 'stg/table/2023/inbound',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: true) ~> source1",
+				"source1 derive(load_date = currentDate('UTC')) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'premtracker_raw',",
+				"     tableName: 'table',",
+				"     partitionBy('key',",
+				"          0,",
+				"          load_date",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
