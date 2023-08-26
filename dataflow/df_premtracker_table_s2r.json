@@ -1,5 +1,5 @@
 {
-	"name": "df_premtracker_table_pb2b",
+	"name": "df_premtracker_table_s2r",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
