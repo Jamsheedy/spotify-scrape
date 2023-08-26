@@ -1,5 +1,5 @@
 {
-	"name": "s2r",
+	"name": "pl_premtracker_s2r_table",
 	"properties": {
 		"activities": [
 			{
@@ -136,7 +136,7 @@
 										{
 											"name": "currentTs",
 											"value": {
-												"value": "@formatDateTime(utcnow(), 'yyyy-MM-dd hh:mm:ss')",
+												"value": "@formatDateTime(utcnow(), 'yyyy.MM.dd HH:mm:ss')",
 												"type": "Expression"
 											}
 										},
@@ -332,8 +332,6 @@
 						{
 							"name": "Update Last Game Count",
 							"type": "Copy",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "Copy Prem Table",
@@ -343,7 +341,7 @@
 								}
 							],
 							"policy": {
-								"timeout": "0.12:00:00",
+								"timeout": "0.00:05:00",
 								"retry": 0,
 								"retryIntervalInSeconds": 30,
 								"secureOutput": false,
@@ -411,10 +409,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"FILE_SYS": "premtracker",
-										"DIR": {
-											"value": "@concat(\n    'stg/gamecount/',\n    pipeline().parameters.YEAR\n)",
-											"type": "Expression"
-										},
+										"DIR": "stg/gamecount",
 										"FILE_NM": "base.csv"
 									}
 								}
@@ -435,10 +430,8 @@
 							]
 						},
 						{
-							"name": "raw",
+							"name": "raw_table",
 							"type": "ExecuteDataFlow",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "Update Last Game Count",
@@ -448,7 +441,7 @@
 								}
 							],
 							"policy": {
-								"timeout": "0.12:00:00",
+								"timeout": "0.00:05:00",
 								"retry": 0,
 								"retryIntervalInSeconds": 30,
 								"secureOutput": false,
@@ -457,7 +450,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"dataflow": {
-									"referenceName": "df_premtracker_table_pb2b",
+									"referenceName": "df_premtracker_table_s2r",
 									"type": "DataFlowReference"
 								},
 								"compute": {
@@ -484,7 +477,7 @@
 			}
 		},
 		"folder": {
-			"name": "premtracker/s2r"
+			"name": "premtracker/s2r/table"
 		},
 		"annotations": []
 	}
