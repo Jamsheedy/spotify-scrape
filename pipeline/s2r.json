@@ -136,7 +136,7 @@
 										{
 											"name": "currentTs",
 											"value": {
-												"value": "@utcnow()",
+												"value": "@formatDateTime(utcnow(), 'yyyy-MM-dd hh:mm:ss')",
 												"type": "Expression"
 											}
 										},
@@ -332,6 +332,8 @@
 						{
 							"name": "Update Last Game Count",
 							"type": "Copy",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "Copy Prem Table",
@@ -435,6 +437,8 @@
 						{
 							"name": "raw",
 							"type": "ExecuteDataFlow",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "Update Last Game Count",
