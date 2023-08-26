@@ -40,7 +40,7 @@
 				"     escapeChar: '\\\\',",
 				"     quoteChar: '\\\"',",
 				"     columnNamesAsHeader: true,",
-				"     timestampFormats: ['MM-dd-yyyy HH:mm:ss']) ~> source1",
+				"     timestampFormats: ['yyyy.MM.dd HH:mm:ss']) ~> source1",
 				"source1 derive(load_date = currentDate('UTC')) ~> derivedColumn1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
