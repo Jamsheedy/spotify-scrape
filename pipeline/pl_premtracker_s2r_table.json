@@ -462,6 +462,26 @@
 								},
 								"traceLevel": "Fine"
 							}
+						},
+						{
+							"name": "r2f",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "raw_table",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_player_standings_r2f",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true
+							}
 						}
 					]
 				}
