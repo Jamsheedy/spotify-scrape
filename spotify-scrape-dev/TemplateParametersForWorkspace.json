@@ -26,8 +26,8 @@
 		"ls_kv_appcreds_properties_typeProperties_baseUrl": {
 			"value": "https://app-creds.vault.azure.net/"
 		},
-		"ls_webtable_prem23_properties_typeProperties_url": {
-			"value": "https://www.skysports.com/premier-league-table/2023"
+		"ls_webtbl_premtable_skysports_properties_typeProperties_url": {
+			"value": "https://www.skysports.com/premier-league-table"
 		},
 		"spotify-scrape-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://spotifyfam.dfs.core.windows.net"
@@ -43,6 +43,9 @@
 		},
 		"clash_s_r_pullClan_properties_pullClanData_parameters_CLAN_TAG": {
 			"value": "#P02CUUUU"
+		},
+		"tr_premtracker_master_properties_pl_premtracker_s2r_table_parameters_YEAR": {
+			"value": "2023"
 		}
 	}
 }

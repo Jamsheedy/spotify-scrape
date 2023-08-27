@@ -36,9 +36,9 @@
 			"type": "string",
 			"defaultValue": "https://app-creds.vault.azure.net/"
 		},
-		"ls_webtable_prem23_properties_typeProperties_url": {
+		"ls_webtbl_premtable_skysports_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://www.skysports.com/premier-league-table/2023"
+			"defaultValue": "https://www.skysports.com/premier-league-table"
 		},
 		"spotify-scrape-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
@@ -59,6 +59,10 @@
 		"clash_s_r_pullClan_properties_pullClanData_parameters_CLAN_TAG": {
 			"type": "string",
 			"defaultValue": "#P02CUUUU"
+		},
+		"tr_premtracker_master_properties_pl_premtracker_s2r_table_parameters_YEAR": {
+			"type": "string",
+			"defaultValue": "2023"
 		}
 	},
 	"variables": {
@@ -558,6 +562,653 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/datasets/RestResource1')]",
 				"[concat(variables('workspaceId'), '/datasets/clan_ds_json')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pl_player_standings_r2f')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "r2f",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:10:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_premtracker_r2f",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"table": {},
+									"draftboard": {},
+									"sink1": {},
+									"sink2": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "None",
+							"cacheSinks": {
+								"firstRowOnly": true
+							},
+							"continuationSettings": {
+								"customizedCheckpointKey": "710ca89b-9e23-4c5b-a934-e39f8d3e5882"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "premtracker/r2f"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/df_premtracker_r2f')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pl_premtracker_s2r_draftboard')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "raw_draftboard",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_premtracker_draftboard_s2r",
+								"type": "DataFlowReference",
+								"parameters": {
+									"YEAR": {
+										"value": "'@{pipeline().parameters.YEAR}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "None",
+							"cacheSinks": {
+								"firstRowOnly": true
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"YEAR": {
+						"type": "string",
+						"defaultValue": "2023"
+					}
+				},
+				"folder": {
+					"name": "premtracker/s2r/draftboard"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/df_premtracker_draftboard_s2r')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pl_premtracker_s2r_table')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "LU_InboundTable",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:05:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "WebSource"
+							},
+							"dataset": {
+								"referenceName": "ds_webtbl_skysportsprem",
+								"type": "DatasetReference",
+								"parameters": {
+									"YEAR": {
+										"value": "@pipeline().parameters.YEAR",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Set GamesPlayed",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "LU_InboundTable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "GAMES_PLAYED",
+							"value": {
+								"value": "@string(\n    add(\n        int(activity('LU_InboundTable').output.value[0].Pl),\n        add(\n            int(activity('LU_InboundTable').output.value[1].Pl),\n            add(\n                int(activity('LU_InboundTable').output.value[2].Pl),\n                add(\n                    int(activity('LU_InboundTable').output.value[3].Pl),\n                    add(\n                        int(activity('LU_InboundTable').output.value[4].Pl),\n                        add(\n                            int(activity('LU_InboundTable').output.value[5].Pl),\n                            add(\n                                int(activity('LU_InboundTable').output.value[6].Pl),\n                                add(\n                                    int(activity('LU_InboundTable').output.value[7].Pl),\n                                    add(\n                                        int(activity('LU_InboundTable').output.value[8].Pl), \n                                        add(\n                                            int(activity('LU_InboundTable').output.value[9].Pl),\n                                            add(\n                                                int(activity('LU_InboundTable').output.value[10].Pl),\n                                                add(\n                                                    int(activity('LU_InboundTable').output.value[11].Pl),\n                                                    add(\n                                                        int(activity('LU_InboundTable').output.value[12].Pl),\n                                                        add(\n                                                            int(activity('LU_InboundTable').output.value[13].Pl),\n                                                            add(\n                                                                int(activity('LU_InboundTable').output.value[14].Pl),\n                                                                add(\n                                                                    int(activity('LU_InboundTable').output.value[15].Pl),\n                                                                    add(\n                                                                        int(activity('LU_InboundTable').output.value[16].Pl),\n                                                                        add(\n                                                                            int(activity('LU_InboundTable').output.value[17].Pl),\n                                                                            add(\n                                                                                int(activity('LU_InboundTable').output.value[18].Pl), \n                                                                                int(activity('LU_InboundTable').output.value[19].Pl)\n                                                                                )\n                                                                            )\n                                                                        )\n                                                                    )\n                                                                )\n                                                            )\n                                                        )\n                                                    )\n                                                )\n                                            )\n                                        )\n                                    )\n                                )\n                            )\n                        )\n                    )\n                )    \n            )\n        )\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "LU Last Game Count",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_csv_gen",
+								"type": "DatasetReference",
+								"parameters": {
+									"FILE_SYS": "premtracker",
+									"DIR": {
+										"value": "@concat(\n    'stg/gamecount/',\n    pipeline().parameters.YEAR\n)",
+										"type": "Expression"
+									},
+									"FILE_NM": "base.csv"
+								}
+							}
+						}
+					},
+					{
+						"name": "If New Games Get Data",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Set GamesPlayed",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "LU Last Game Count",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(\n    variables('GAMES_PLAYED'),\n    activity('LU Last Game Count').output.firstRow.LastGameCount\n)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Copy Prem Table",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.00:05:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "WebSource",
+											"additionalColumns": [
+												{
+													"name": "currentTs",
+													"value": {
+														"value": "@formatDateTime(utcnow(), 'yyyy.MM.dd HH:mm:ss')",
+														"type": "Expression"
+													}
+												},
+												{
+													"name": "season",
+													"value": {
+														"value": "@pipeline().parameters.YEAR",
+														"type": "Expression"
+													}
+												}
+											]
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "#",
+														"type": "String"
+													},
+													"sink": {
+														"name": "Position",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "Team",
+														"type": "String"
+													},
+													"sink": {
+														"name": "Team",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "Pl",
+														"type": "String"
+													},
+													"sink": {
+														"name": "Pl",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "W",
+														"type": "String"
+													},
+													"sink": {
+														"name": "W",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "D",
+														"type": "String"
+													},
+													"sink": {
+														"name": "D",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "L",
+														"type": "String"
+													},
+													"sink": {
+														"name": "L",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "F",
+														"type": "String"
+													},
+													"sink": {
+														"name": "F",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "A",
+														"type": "String"
+													},
+													"sink": {
+														"name": "A",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "GD",
+														"type": "String"
+													},
+													"sink": {
+														"name": "GD",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "Pts",
+														"type": "String"
+													},
+													"sink": {
+														"name": "Pts",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "currentTs",
+														"type": "String"
+													},
+													"sink": {
+														"name": "current_ts",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "season",
+														"type": "String"
+													},
+													"sink": {
+														"name": "season",
+														"type": "String",
+														"physicalType": "String"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": false,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_webtbl_skysportsprem",
+											"type": "DatasetReference",
+											"parameters": {
+												"YEAR": {
+													"value": "@pipeline().parameters.YEAR",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_csv_gen",
+											"type": "DatasetReference",
+											"parameters": {
+												"FILE_SYS": "premtracker",
+												"DIR": "stg/table/2023/inbound/",
+												"FILE_NM": {
+													"value": "@concat('table-', utcNow(), '.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Update Last Game Count",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Copy Prem Table",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.00:05:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"additionalColumns": [
+												{
+													"name": "NewGameCount",
+													"value": {
+														"value": "@variables('GAMES_PLAYED')",
+														"type": "Expression"
+													}
+												}
+											],
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "NewGameCount",
+														"type": "String"
+													},
+													"sink": {
+														"name": "LastGameCount",
+														"type": "String",
+														"physicalType": "String"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_csv_gen",
+											"type": "DatasetReference",
+											"parameters": {
+												"FILE_SYS": "premtracker",
+												"DIR": "stg/gamecount",
+												"FILE_NM": "base.csv"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_csv_gen",
+											"type": "DatasetReference",
+											"parameters": {
+												"FILE_SYS": "premtracker",
+												"DIR": {
+													"value": "@concat(\n    'stg/gamecount/',\n    pipeline().parameters.YEAR\n)",
+													"type": "Expression"
+												},
+												"FILE_NM": "base.csv"
+											}
+										}
+									]
+								},
+								{
+									"name": "raw_table",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [
+										{
+											"activity": "Update Last Game Count",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.00:05:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "df_premtracker_table_s2r",
+											"type": "DataFlowReference",
+											"parameters": {
+												"YEAR": "'2023'"
+											},
+											"datasetParameters": {
+												"source1": {},
+												"sink1": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								},
+								{
+									"name": "r2f",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "raw_table",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_player_standings_r2f",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"YEAR": {
+						"type": "string",
+						"defaultValue": "2023"
+					}
+				},
+				"variables": {
+					"GAMES_PLAYED": {
+						"type": "String",
+						"defaultValue": "200"
+					}
+				},
+				"folder": {
+					"name": "premtracker/s2r/table"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/ds_webtbl_skysportsprem')]",
+				"[concat(variables('workspaceId'), '/datasets/ds_csv_gen')]",
+				"[concat(variables('workspaceId'), '/dataflows/df_premtracker_table_s2r')]",
+				"[concat(variables('workspaceId'), '/pipelines/pl_player_standings_r2f')]"
 			]
 		},
 		{
@@ -1782,6 +2433,59 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/Binary1')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "test4",
+						"folderPath": "stg/table/2023/inbound",
+						"fileSystem": "premtracker"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DelimitedText1')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "retry.csv",
+						"folderPath": "stg/table/2023/inbound",
+						"fileSystem": "premtracker"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/RestResource1')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -1845,6 +2549,55 @@
 					}
 				},
 				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ds_csv_gen')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FILE_SYS": {
+						"type": "string"
+					},
+					"DIR": {
+						"type": "string"
+					},
+					"FILE_NM": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FILE_NM",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().DIR",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().FILE_SYS",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
@@ -1942,6 +2695,36 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ds_webtbl_skysportsprem')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_webtbl_premtable_skysports",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"YEAR": {
+						"type": "string",
+						"defaultValue": "2023"
+					}
+				},
+				"annotations": [],
+				"type": "WebTable",
+				"schema": [],
+				"typeProperties": {
+					"index": 0,
+					"path": {
+						"value": "@dataset().YEAR",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/ls_webtbl_premtable_skysports')]"
 			]
 		},
 		{
@@ -2250,14 +3033,14 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/ls_webtable_prem23')]",
+			"name": "[concat(parameters('workspaceName'), '/ls_webtbl_premtable_skysports')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
 				"type": "Web",
 				"typeProperties": {
-					"url": "[parameters('ls_webtable_prem23_properties_typeProperties_url')]",
+					"url": "[parameters('ls_webtbl_premtable_skysports_properties_typeProperties_url')]",
 					"authenticationType": "Anonymous"
 				},
 				"connectVia": {
@@ -2452,6 +3235,47 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/tr_premtracker_master')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pl_premtracker_s2r_table",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"YEAR": "[parameters('tr_premtracker_master_properties_pl_premtracker_s2r_table_parameters_YEAR')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2023-08-27T11:06:00",
+						"endTime": "2024-07-31T20:06:00",
+						"timeZone": "Eastern Standard Time",
+						"schedule": {
+							"minutes": [
+								30
+							],
+							"hours": [
+								14
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_premtracker_s2r_table')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
 			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
 			"apiVersion": "2019-06-01-preview",
@@ -2552,6 +3376,322 @@
 						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('key',",
+						"          0,",
+						"          load_date",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/df_premtracker_draftboard_s2r')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "premtracker"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"name": "sink1",
+							"rejectedDataLinkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     YEAR as string",
+						"}",
+						"source(useSchema: false,",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     inferDriftedColumnTypes: true,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'delimited',",
+						"     fileSystem: 'premtracker',",
+						"     folderPath: ('stg/draftboard/' + $YEAR +'/'),",
+						"     fileName: 'Draft Board.csv',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: true,",
+						"     timestampFormats: ['yyyy.MM.dd HH:mm:ss']) ~> source1",
+						"source1 derive(season = $YEAR,",
+						"          load_date = currentDate('UTC')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'premtracker_raw',",
+						"     tableName: 'draftboard',",
+						"     partitionBy('key',",
+						"          0,",
+						"          load_date",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/df_premtracker_r2f')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "premtracker"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "table"
+						},
+						{
+							"name": "draftboard"
+						}
+					],
+					"sinks": [
+						{
+							"name": "sink1"
+						},
+						{
+							"name": "sink2"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "derivedColumn3"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Position as short,",
+						"          Team as string,",
+						"          Pl as short,",
+						"          W as short,",
+						"          D as short,",
+						"          L as short,",
+						"          F as short,",
+						"          A as short,",
+						"          GD as short,",
+						"          Pts as short,",
+						"          current_ts as timestamp,",
+						"          season as short,",
+						"          load_date as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     enableCdc: true,",
+						"     mode: 'read',",
+						"     skipInitialLoad: false,",
+						"     format: 'parquet',",
+						"     fileSystem: 'sys',",
+						"     folderPath: 'synapse/workspaces/spotify-scrape-dev/warehouse/premtracker_raw.db/table') ~> table",
+						"source(output(",
+						"          Team as string,",
+						"          Player as string,",
+						"          Pick as short,",
+						"          season as short,",
+						"          load_date as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'premtracker_raw',",
+						"     tableName: 'draftboard') ~> draftboard",
+						"table, draftboard join(table@Team == draftboard@Team",
+						"     && table@season == draftboard@season,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"derivedColumn2 select(mapColumn(",
+						"          Position,",
+						"          Team = table@Team,",
+						"          Pl,",
+						"          W,",
+						"          D,",
+						"          L,",
+						"          F,",
+						"          A,",
+						"          GD,",
+						"          Pts,",
+						"          current_ts,",
+						"          season = table@season,",
+						"          load_date,",
+						"          Team = draftboard@Team,",
+						"          Player,",
+						"          Pick,",
+						"          season = draftboard@season",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 aggregate(groupBy(Player,",
+						"          season,",
+						"          current_ts),",
+						"     PointTotal = sum(Pts),",
+						"          MatchTotal = sum(Pl),",
+						"          WinTotal = sum(W),",
+						"          DrawTotal = sum(D),",
+						"          LossTotal = sum(L),",
+						"          GoalsForTotal = sum(F),",
+						"          GoalsAgainstTotal = sum(A),",
+						"          GoalDiffTotal = sum(GD)) ~> aggregate1",
+						"select1 derive(PickValue = Pick - Position) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          Position,",
+						"          Team,",
+						"          Player,",
+						"          Pick,",
+						"          PickValue,",
+						"          Points = Pts,",
+						"          Matches = Pl,",
+						"          Wins = W,",
+						"          Draws = D,",
+						"          Losses = L,",
+						"          GoalsFor = F,",
+						"          GoalsAgainst = A,",
+						"          GoalDiff = GD,",
+						"          Season = season,",
+						"          current_ts,",
+						"          load_date",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"join1 derive(load_date = currentDate('UTC')) ~> derivedColumn2",
+						"aggregate1 derive(load_date = currentDate('UTC')) ~> derivedColumn3",
+						"select2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'premtracker_foundation',",
+						"     tableName: 'standings') ~> sink1",
+						"derivedColumn3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'premtracker_foundation',",
+						"     tableName: 'player_totals') ~> sink2"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/df_premtracker_table_s2r')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "premtracker"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"name": "sink1",
+							"rejectedDataLinkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     YEAR as string ('2023')",
+						"}",
+						"source(useSchema: false,",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     inferDriftedColumnTypes: true,",
+						"     ignoreNoFilesFound: false,",
+						"     moveFiles: [('stg/table/'+$YEAR+'/inbound'),('stg/table/'+$YEAR+'/archive')],",
+						"     format: 'delimited',",
+						"     fileSystem: 'premtracker',",
+						"     folderPath: ('stg/table/' + $YEAR),",
+						"     fileName: 'inbound',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: true,",
+						"     timestampFormats: ['yyyy.MM.dd HH:mm:ss']) ~> source1",
+						"source1 derive(load_date = currentDate('UTC')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'premtracker_raw',",
+						"     tableName: 'table',",
 						"     partitionBy('key',",
 						"          0,",
 						"          load_date",
@@ -3675,6 +4815,46 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [Player]\n,[season]\n,[current_ts]\n,[PointTotal]\n,[MatchTotal]\n,[WinTotal]\n,[DrawTotal]\n,[LossTotal]\n,[GoalsForTotal]\n,[GoalsAgainstTotal]\n,[GoalDiffTotal]\n,[load_date]\n FROM [premtracker_foundation].[dbo].[player_totals]\n WHERE current_ts = (SELECT MAX(current_ts) FROM [premtracker_foundation].[dbo].[player_totals])\n ORDER BY pointTotal desc, GoalDiffTotal desc",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "premtracker_foundation",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 3')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT current_ts, count(*)\nFROM premtracker_foundation.dbo.player_totals\nGROUP BY current_ts",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "premtracker_foundation",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/SubAccounts')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -4000,6 +5180,152 @@
 							"df.write.mode('overwrite').format('parquet').saveAsTable('raw.spotify_sub_accs')"
 						],
 						"outputs": []
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/nb_scrape')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "premtracker/scrape"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "medspark0",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "a1ea3a7b-69cb-4629-9503-013dd5ff44ed"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/medspark0",
+						"name": "medspark0",
+						"type": "Spark",
+						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/medspark0",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.3",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"tags": [
+								"parameters"
+							]
+						},
+						"source": [
+							"YEAR = '2023'"
+						],
+						"outputs": [],
+						"execution_count": 12
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"import requests\r\n",
+							"from bs4 import BeautifulSoup\r\n",
+							"from pyspark.sql.types import StructType, StructField, StringType, IntegerType\r\n",
+							"\r\n",
+							"\r\n",
+							"# Define the URL to scrape\r\n",
+							"url = f\"https://www.skysports.com/premier-league-table/{YEAR}\"\r\n",
+							"\r\n",
+							"# Send an HTTP GET request to the URL\r\n",
+							"response = requests.get(url)\r\n",
+							"\r\n",
+							"# Check if the request was successful\r\n",
+							"if response.status_code == 200:\r\n",
+							"    # Parse the HTML content of the page\r\n",
+							"    soup = BeautifulSoup(response.text, \"html.parser\")\r\n",
+							"    \r\n",
+							"    # Find the table containing the Premier League standings\r\n",
+							"    table = soup.find(\"table\", {\"class\": \"standing-table__table\"})\r\n",
+							"    \r\n",
+							"    # Define the schema for the Spark DataFrame\r\n",
+							"    schema = StructType([\r\n",
+							"        StructField(\"Position\", IntegerType(), True),\r\n",
+							"        StructField(\"Team\", StringType(), True),\r\n",
+							"        StructField(\"Played\", IntegerType(), True),\r\n",
+							"        StructField(\"Won\", IntegerType(), True),\r\n",
+							"        StructField(\"Drawn\", IntegerType(), True),\r\n",
+							"        StructField(\"Lost\", IntegerType(), True),\r\n",
+							"        StructField(\"GF\", IntegerType(), True),\r\n",
+							"        StructField(\"GA\", IntegerType(), True),\r\n",
+							"        StructField(\"GD\", IntegerType(), True),\r\n",
+							"        StructField(\"Points\", IntegerType(), True)\r\n",
+							"    ])\r\n",
+							"    \r\n",
+							"    # Extract data from the table and create a list of rows\r\n",
+							"    rows = []\r\n",
+							"    for row in table.find(\"tbody\").find_all(\"tr\"):\r\n",
+							"        cols = row.find_all(\"td\")\r\n",
+							"        data = [int(cols[0].text.strip()), cols[1].text.strip(), int(cols[2].text.strip()),\r\n",
+							"                int(cols[3].text.strip()), int(cols[4].text.strip()), int(cols[5].text.strip()),\r\n",
+							"                int(cols[6].text.strip()), int(cols[7].text.strip()), int(cols[8].text.strip()),\r\n",
+							"                int(cols[9].text.strip())]\r\n",
+							"        rows.append(data)\r\n",
+							"    \r\n",
+							"    # Create a Spark DataFrame\r\n",
+							"    df = spark.createDataFrame(rows, schema=schema)\r\n",
+							"\r\n",
+							"    display(df)"
+						],
+						"outputs": [],
+						"execution_count": 13
 					}
 				]
 			},
