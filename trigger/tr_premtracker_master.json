@@ -1,0 +1,36 @@
+{
+	"name": "tr_premtracker_master",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_premtracker_s2r_table",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"YEAR": "2023"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-08-27T11:06:00",
+				"endTime": "2024-07-31T20:06:00",
+				"timeZone": "Eastern Standard Time",
+				"schedule": {
+					"minutes": [
+						30
+					],
+					"hours": [
+						14
+					]
+				}
+			}
+		}
+	}
+}
