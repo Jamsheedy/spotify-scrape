@@ -1,0 +1,142 @@
+{
+	"name": "nb_scrape",
+	"properties": {
+		"folder": {
+			"name": "premtracker/scrape"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "medspark0",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "a1ea3a7b-69cb-4629-9503-013dd5ff44ed"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/medspark0",
+				"name": "medspark0",
+				"type": "Spark",
+				"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/medspark0",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"YEAR = '2023'"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"import requests\r\n",
+					"from bs4 import BeautifulSoup\r\n",
+					"from pyspark.sql.types import StructType, StructField, StringType, IntegerType\r\n",
+					"\r\n",
+					"\r\n",
+					"# Define the URL to scrape\r\n",
+					"url = f\"https://www.skysports.com/premier-league-table/{YEAR}\"\r\n",
+					"\r\n",
+					"# Send an HTTP GET request to the URL\r\n",
+					"response = requests.get(url)\r\n",
+					"\r\n",
+					"# Check if the request was successful\r\n",
+					"if response.status_code == 200:\r\n",
+					"    # Parse the HTML content of the page\r\n",
+					"    soup = BeautifulSoup(response.text, \"html.parser\")\r\n",
+					"    \r\n",
+					"    # Find the table containing the Premier League standings\r\n",
+					"    table = soup.find(\"table\", {\"class\": \"standing-table__table\"})\r\n",
+					"    \r\n",
+					"    # Define the schema for the Spark DataFrame\r\n",
+					"    schema = StructType([\r\n",
+					"        StructField(\"Position\", IntegerType(), True),\r\n",
+					"        StructField(\"Team\", StringType(), True),\r\n",
+					"        StructField(\"Played\", IntegerType(), True),\r\n",
+					"        StructField(\"Won\", IntegerType(), True),\r\n",
+					"        StructField(\"Drawn\", IntegerType(), True),\r\n",
+					"        StructField(\"Lost\", IntegerType(), True),\r\n",
+					"        StructField(\"GF\", IntegerType(), True),\r\n",
+					"        StructField(\"GA\", IntegerType(), True),\r\n",
+					"        StructField(\"GD\", IntegerType(), True),\r\n",
+					"        StructField(\"Points\", IntegerType(), True)\r\n",
+					"    ])\r\n",
+					"    \r\n",
+					"    # Extract data from the table and create a list of rows\r\n",
+					"    rows = []\r\n",
+					"    for row in table.find(\"tbody\").find_all(\"tr\"):\r\n",
+					"        cols = row.find_all(\"td\")\r\n",
+					"        data = [int(cols[0].text.strip()), cols[1].text.strip(), int(cols[2].text.strip()),\r\n",
+					"                int(cols[3].text.strip()), int(cols[4].text.strip()), int(cols[5].text.strip()),\r\n",
+					"                int(cols[6].text.strip()), int(cols[7].text.strip()), int(cols[8].text.strip()),\r\n",
+					"                int(cols[9].text.strip())]\r\n",
+					"        rows.append(data)\r\n",
+					"    \r\n",
+					"    # Create a Spark DataFrame\r\n",
+					"    df = spark.createDataFrame(rows, schema=schema)\r\n",
+					"\r\n",
+					"    display(df)"
+				],
+				"execution_count": 13
+			}
+		]
+	}
+}

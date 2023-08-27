@@ -1,0 +1,25 @@
+{
+	"name": "ds_webtbl_skysportsprem",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_webtbl_premtable_skysports",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"YEAR": {
+				"type": "string",
+				"defaultValue": "2023"
+			}
+		},
+		"annotations": [],
+		"type": "WebTable",
+		"schema": [],
+		"typeProperties": {
+			"index": 0,
+			"path": {
+				"value": "@dataset().YEAR",
+				"type": "Expression"
+			}
+		}
+	}
+}
