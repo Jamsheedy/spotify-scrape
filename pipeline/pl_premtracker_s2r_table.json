@@ -451,7 +451,10 @@
 							"typeProperties": {
 								"dataflow": {
 									"referenceName": "df_premtracker_table_s2r",
-									"type": "DataFlowReference"
+									"type": "DataFlowReference",
+									"parameters": {
+										"YEAR": "'2023'"
+									}
 								},
 								"compute": {
 									"coreCount": 8,
@@ -473,7 +476,7 @@
 		"variables": {
 			"GAMES_PLAYED": {
 				"type": "String",
-				"defaultValue": "0"
+				"defaultValue": "200"
 			}
 		},
 		"folder": {

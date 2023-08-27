@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 1",
+	"properties": {
+		"content": {
+			"query": "SELECT TOP (100) [Player]\n,[season]\n,[current_ts]\n,[PointTotal]\n,[MatchTotal]\n,[WinTotal]\n,[DrawTotal]\n,[LossTotal]\n,[GoalsForTotal]\n,[GoalsAgainstTotal]\n,[GoalDiffTotal]\n,[load_date]\n FROM [premtracker_foundation].[dbo].[player_totals]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "premtracker_foundation",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

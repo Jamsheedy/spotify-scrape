@@ -1,6 +1,9 @@
 {
 	"name": "df_premtracker_draftboard_s2r",
 	"properties": {
+		"folder": {
+			"name": "premtracker"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
