@@ -1,0 +1,66 @@
+{
+	"name": "df_premtracker_table_s2r",
+	"properties": {
+		"folder": {
+			"name": "premtracker"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"name": "sink1",
+					"rejectedDataLinkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     YEAR as string ('2023')",
+				"}",
+				"source(useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false,",
+				"     moveFiles: [('stg/table/'+$YEAR+'/inbound'),('stg/table/'+$YEAR+'/archive')],",
+				"     format: 'delimited',",
+				"     fileSystem: 'premtracker',",
+				"     folderPath: ('stg/table/' + $YEAR),",
+				"     fileName: 'inbound',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: true,",
+				"     timestampFormats: ['yyyy.MM.dd HH:mm:ss']) ~> source1",
+				"source1 derive(load_date = currentDate('UTC')) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'premtracker_raw',",
+				"     tableName: 'table',",
+				"     partitionBy('key',",
+				"          0,",
+				"          load_date",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

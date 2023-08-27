@@ -1,10 +1,10 @@
 {
-	"name": "ls_webtable_prem23",
+	"name": "ls_webtbl_premtable_skysports",
 	"properties": {
 		"annotations": [],
 		"type": "Web",
 		"typeProperties": {
-			"url": "https://www.skysports.com/premier-league-table/2023",
+			"url": "https://www.skysports.com/premier-league-table",
 			"authenticationType": "Anonymous"
 		},
 		"connectVia": {
