@@ -1,0 +1,41 @@
+{
+	"name": "Pipeline 1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_premtracker_r2f_copy1",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "None",
+					"cacheSinks": {
+						"firstRowOnly": true
+					},
+					"continuationSettings": {
+						"customizedCheckpointKey": "b7a30d6d-5e7f-4aa0-912e-00f322356ecd"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "premtracker"
+		},
+		"annotations": []
+	}
+}
