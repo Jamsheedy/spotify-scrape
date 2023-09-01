@@ -5,6 +5,8 @@
 			{
 				"name": "LU_InboundTable",
 				"type": "Lookup",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.00:05:00",
@@ -34,6 +36,8 @@
 			{
 				"name": "Set GamesPlayed",
 				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "LU_InboundTable",
@@ -332,6 +336,8 @@
 						{
 							"name": "Update Last Game Count",
 							"type": "Copy",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "Copy Prem Table",
@@ -432,6 +438,8 @@
 						{
 							"name": "raw_table",
 							"type": "ExecuteDataFlow",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "Update Last Game Count",
