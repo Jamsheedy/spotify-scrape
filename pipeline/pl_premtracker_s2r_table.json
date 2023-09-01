@@ -465,7 +465,7 @@
 						},
 						{
 							"name": "r2f",
-							"type": "ExecutePipeline",
+							"type": "ExecuteDataFlow",
 							"dependsOn": [
 								{
 									"activity": "raw_table",
@@ -474,13 +474,30 @@
 									]
 								}
 							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
 							"userProperties": [],
 							"typeProperties": {
-								"pipeline": {
-									"referenceName": "pl_player_standings_r2f",
-									"type": "PipelineReference"
+								"dataflow": {
+									"referenceName": "df_premtracker_r2f_copy1",
+									"type": "DataFlowReference"
 								},
-								"waitOnCompletion": true
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "None",
+								"cacheSinks": {
+									"firstRowOnly": true
+								},
+								"continuationSettings": {
+									"customizedCheckpointKey": "b7a30d6d-5e7f-4aa0-912e-00f322356ecd"
+								}
 							}
 						}
 					]
