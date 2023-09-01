@@ -60,7 +60,7 @@
 			"type": "string",
 			"defaultValue": "#P02CUUUU"
 		},
-		"tr_premtracker_master_properties_pl_premtracker_s2r_table_parameters_YEAR": {
+		"tr_premtracker_master_properties_pl_premtracker_standings_master_parameters_YEAR": {
 			"type": "string",
 			"defaultValue": "2023"
 		}
@@ -565,64 +565,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/pl_player_standings_r2f')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "r2f",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.00:10:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "df_premtracker_r2f",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"table": {},
-									"draftboard": {},
-									"sink1": {},
-									"sink2": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "None",
-							"cacheSinks": {
-								"firstRowOnly": true
-							},
-							"continuationSettings": {
-								"customizedCheckpointKey": "710ca89b-9e23-4c5b-a934-e39f8d3e5882"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"folder": {
-					"name": "premtracker/r2f"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/df_premtracker_r2f')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/pl_premtracker_s2r_draftboard')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -687,7 +629,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/pl_premtracker_s2r_table')]",
+			"name": "[concat(parameters('workspaceName'), '/pl_premtracker_standings_master')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -1160,7 +1102,7 @@
 								},
 								{
 									"name": "r2f",
-									"type": "ExecutePipeline",
+									"type": "ExecuteDataFlow",
 									"dependsOn": [
 										{
 											"activity": "raw_table",
@@ -1169,14 +1111,37 @@
 											]
 										}
 									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
 									"userProperties": [],
 									"typeProperties": {
-										"pipeline": {
-											"referenceName": "pl_player_standings_r2f",
-											"type": "PipelineReference"
+										"dataflow": {
+											"referenceName": "df_premtracker_r2f_mock1",
+											"type": "DataFlowReference",
+											"parameters": {},
+											"datasetParameters": {
+												"table": {},
+												"draftboard": {},
+												"sink1": {}
+											}
 										},
-										"waitOnCompletion": true,
-										"parameters": {}
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "None",
+										"cacheSinks": {
+											"firstRowOnly": true
+										},
+										"continuationSettings": {
+											"customizedCheckpointKey": "b7a30d6d-5e7f-4aa0-912e-00f322356ecd"
+										}
 									}
 								}
 							]
@@ -1200,7 +1165,7 @@
 					}
 				},
 				"folder": {
-					"name": "premtracker/s2r/table"
+					"name": "premtracker/s2r"
 				},
 				"annotations": []
 			},
@@ -1208,7 +1173,7 @@
 				"[concat(variables('workspaceId'), '/datasets/ds_webtbl_skysportsprem')]",
 				"[concat(variables('workspaceId'), '/datasets/ds_csv_gen')]",
 				"[concat(variables('workspaceId'), '/dataflows/df_premtracker_table_s2r')]",
-				"[concat(variables('workspaceId'), '/pipelines/pl_player_standings_r2f')]"
+				"[concat(variables('workspaceId'), '/dataflows/df_premtracker_r2f_mock1')]"
 			]
 		},
 		{
@@ -3244,11 +3209,11 @@
 				"pipelines": [
 					{
 						"pipelineReference": {
-							"referenceName": "pl_premtracker_s2r_table",
+							"referenceName": "pl_premtracker_standings_master",
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"YEAR": "[parameters('tr_premtracker_master_properties_pl_premtracker_s2r_table_parameters_YEAR')]"
+							"YEAR": "[parameters('tr_premtracker_master_properties_pl_premtracker_standings_master_parameters_YEAR')]"
 						}
 					}
 				],
@@ -3262,17 +3227,19 @@
 						"timeZone": "Eastern Standard Time",
 						"schedule": {
 							"minutes": [
-								30
+								30,
+								0
 							],
 							"hours": [
-								14
+								14,
+								20
 							]
 						}
 					}
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/pipelines/pl_premtracker_s2r_table')]"
+				"[concat(variables('workspaceId'), '/pipelines/pl_premtracker_standings_master')]"
 			]
 		},
 		{
@@ -3625,6 +3592,189 @@
 						"     format: 'table',",
 						"     database: 'premtracker_foundation',",
 						"     tableName: 'player_totals') ~> sink2"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/df_premtracker_r2f_mock1')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "premtracker"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "table"
+						},
+						{
+							"name": "draftboard"
+						}
+					],
+					"sinks": [
+						{
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "join2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Position as short,",
+						"          Team as string,",
+						"          Pl as short,",
+						"          W as short,",
+						"          D as short,",
+						"          L as short,",
+						"          F as short,",
+						"          A as short,",
+						"          GD as short,",
+						"          Pts as short,",
+						"          current_ts as timestamp,",
+						"          season as short,",
+						"          load_date as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     enableCdc: true,",
+						"     mode: 'read',",
+						"     skipInitialLoad: false,",
+						"     format: 'parquet',",
+						"     fileSystem: 'sys',",
+						"     folderPath: 'synapse/workspaces/spotify-scrape-dev/warehouse/premtracker_raw.db/table') ~> table",
+						"source(output(",
+						"          Team as string,",
+						"          Player as string,",
+						"          Pick as short,",
+						"          season as short,",
+						"          load_date as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'premtracker_raw',",
+						"     tableName: 'draftboard') ~> draftboard",
+						"table, draftboard join(table@Team == draftboard@Team",
+						"     && table@season == draftboard@season,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"derivedColumn2 select(mapColumn(",
+						"          Position,",
+						"          Team = table@Team,",
+						"          Pl,",
+						"          W,",
+						"          D,",
+						"          L,",
+						"          F,",
+						"          A,",
+						"          GD,",
+						"          Pts,",
+						"          current_ts,",
+						"          season = table@season,",
+						"          load_date,",
+						"          Team = draftboard@Team,",
+						"          Player,",
+						"          Pick,",
+						"          season = draftboard@season",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 aggregate(groupBy(Player,",
+						"          season,",
+						"          current_ts),",
+						"     PointTotal = sum(Pts),",
+						"          MatchTotal = sum(Pl),",
+						"          WinTotal = sum(W),",
+						"          DrawTotal = sum(D),",
+						"          LossTotal = sum(L),",
+						"          GoalsForTotal = sum(F),",
+						"          GoalsAgainstTotal = sum(A),",
+						"          GoalDiffTotal = sum(GD)) ~> aggregate1",
+						"select1 derive(PickValue = Pick - Position) ~> derivedColumn1",
+						"join2 select(mapColumn(",
+						"          Position,",
+						"          Season = select1@season,",
+						"          Team,",
+						"          Player,",
+						"          Pick,",
+						"          PickValue,",
+						"          Points = Pts,",
+						"          Matches = Pl,",
+						"          Wins = W,",
+						"          Draws = D,",
+						"          Losses = L,",
+						"          GoalsFor = F,",
+						"          GoalsAgainst = A,",
+						"          GoalDiff = GD,",
+						"          PointTotal,",
+						"          MatchTotal,",
+						"          WinTotal,",
+						"          DrawTotal,",
+						"          LossTotal,",
+						"          GoalsForTotal,",
+						"          GoalsAgainstTotal,",
+						"          GoalDiffTotal,",
+						"          load_date,",
+						"          current_ts = select1@current_ts",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"join1 derive(load_date = currentDate('UTC')) ~> derivedColumn2",
+						"derivedColumn1, aggregate1 join(select1@season == aggregate1@season",
+						"     && select1@Player == aggregate1@Player",
+						"     && select1@current_ts == aggregate1@current_ts,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join2",
+						"select2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     store: 'synapse',",
+						"     databaseType: 'spark',",
+						"     format: 'table',",
+						"     database: 'premtracker_foundation',",
+						"     tableName: 'standings_mock1',",
+						"     partitionBy('key',",
+						"          0,",
+						"          Season,",
+						"          current_ts",
+						"     )) ~> sink1"
 					]
 				}
 			},
@@ -4841,6 +4991,26 @@
 			"properties": {
 				"content": {
 					"query": "SELECT current_ts, count(*)\nFROM premtracker_foundation.dbo.player_totals\nGROUP BY current_ts",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "premtracker_foundation",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 4')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [Position]\n,[Season]\n,[Team]\n,[Player]\n,[Pick]\n,[PickValue]\n,[Points]\n,[Matches]\n,[Wins]\n,[Draws]\n,[Losses]\n,[GoalsFor]\n,[GoalsAgainst]\n,[GoalDiff]\n,[PointTotal]\n,[MatchTotal]\n,[WinTotal]\n,[DrawTotal]\n,[LossTotal]\n,[GoalsForTotal]\n,[GoalsAgainstTotal]\n,[GoalDiffTotal]\n,[load_date]\n,[current_ts]\n FROM [premtracker_foundation].[dbo].[standings_mock1]",
 					"metadata": {
 						"language": "sql"
 					},
