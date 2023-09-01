@@ -1,0 +1,178 @@
+{
+	"name": "df_premtracker_r2f_mock1",
+	"properties": {
+		"folder": {
+			"name": "premtracker"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "table"
+				},
+				{
+					"name": "draftboard"
+				}
+			],
+			"sinks": [
+				{
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "join2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Position as short,",
+				"          Team as string,",
+				"          Pl as short,",
+				"          W as short,",
+				"          D as short,",
+				"          L as short,",
+				"          F as short,",
+				"          A as short,",
+				"          GD as short,",
+				"          Pts as short,",
+				"          current_ts as timestamp,",
+				"          season as short,",
+				"          load_date as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     enableCdc: true,",
+				"     mode: 'read',",
+				"     skipInitialLoad: false,",
+				"     format: 'parquet',",
+				"     fileSystem: 'sys',",
+				"     folderPath: 'synapse/workspaces/spotify-scrape-dev/warehouse/premtracker_raw.db/table') ~> table",
+				"source(output(",
+				"          Team as string,",
+				"          Player as string,",
+				"          Pick as short,",
+				"          season as short,",
+				"          load_date as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'premtracker_raw',",
+				"     tableName: 'draftboard') ~> draftboard",
+				"table, draftboard join(table@Team == draftboard@Team",
+				"     && table@season == draftboard@season,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"derivedColumn2 select(mapColumn(",
+				"          Position,",
+				"          Team = table@Team,",
+				"          Pl,",
+				"          W,",
+				"          D,",
+				"          L,",
+				"          F,",
+				"          A,",
+				"          GD,",
+				"          Pts,",
+				"          current_ts,",
+				"          season = table@season,",
+				"          load_date,",
+				"          Team = draftboard@Team,",
+				"          Player,",
+				"          Pick,",
+				"          season = draftboard@season",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 aggregate(groupBy(Player,",
+				"          season,",
+				"          current_ts),",
+				"     PointTotal = sum(Pts),",
+				"          MatchTotal = sum(Pl),",
+				"          WinTotal = sum(W),",
+				"          DrawTotal = sum(D),",
+				"          LossTotal = sum(L),",
+				"          GoalsForTotal = sum(F),",
+				"          GoalsAgainstTotal = sum(A),",
+				"          GoalDiffTotal = sum(GD)) ~> aggregate1",
+				"select1 derive(PickValue = Pick - Position) ~> derivedColumn1",
+				"join2 select(mapColumn(",
+				"          Position,",
+				"          Season = select1@season,",
+				"          Team,",
+				"          Player,",
+				"          Pick,",
+				"          PickValue,",
+				"          Points = Pts,",
+				"          Matches = Pl,",
+				"          Wins = W,",
+				"          Draws = D,",
+				"          Losses = L,",
+				"          GoalsFor = F,",
+				"          GoalsAgainst = A,",
+				"          GoalDiff = GD,",
+				"          PointTotal,",
+				"          MatchTotal,",
+				"          WinTotal,",
+				"          DrawTotal,",
+				"          LossTotal,",
+				"          GoalsForTotal,",
+				"          GoalsAgainstTotal,",
+				"          GoalDiffTotal,",
+				"          load_date,",
+				"          current_ts = select1@current_ts",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"join1 derive(load_date = currentDate('UTC')) ~> derivedColumn2",
+				"derivedColumn1, aggregate1 join(select1@season == aggregate1@season",
+				"     && select1@Player == aggregate1@Player",
+				"     && select1@current_ts == aggregate1@current_ts,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"select2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     store: 'synapse',",
+				"     databaseType: 'spark',",
+				"     format: 'table',",
+				"     database: 'premtracker_foundation',",
+				"     tableName: 'standings_mock1',",
+				"     partitionBy('key',",
+				"          0,",
+				"          Season,",
+				"          current_ts",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

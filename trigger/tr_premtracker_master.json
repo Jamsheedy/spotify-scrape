@@ -6,7 +6,7 @@
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "pl_premtracker_s2r_table",
+					"referenceName": "pl_premtracker_standings_master",
 					"type": "PipelineReference"
 				},
 				"parameters": {
@@ -24,10 +24,12 @@
 				"timeZone": "Eastern Standard Time",
 				"schedule": {
 					"minutes": [
-						30
+						30,
+						0
 					],
 					"hours": [
-						14
+						14,
+						20
 					]
 				}
 			}
