@@ -1,0 +1,173 @@
+{
+	"name": "convert_hist",
+	"properties": {
+		"folder": {
+			"name": "premtracker"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "medspark0",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "7114dcc9-68b2-4b29-b3d5-1d7e2a7cf9bb"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/medspark0",
+				"name": "medspark0",
+				"type": "Spark",
+				"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/medspark0",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"df = spark.read.format('delta').load('abfss://raw@premlake.dfs.core.windows.net/seasons/2022/standings/')"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import col, lit\r\n",
+					"\r\n",
+					"# Position\r\n",
+					"# Team\r\n",
+					"# Pl\r\n",
+					"# W\r\n",
+					"# D\r\n",
+					"# L\r\n",
+					"# F\r\n",
+					"# A\r\n",
+					"# GD\r\n",
+					"# Pts\r\n",
+					"# current_ts\r\n",
+					"# season\r\n",
+					"\r\n",
+					"df = df.select(\r\n",
+					"        col(\"position\").alias(\"Position\"),\r\n",
+					"        col(\"name\").alias(\"Team\"),\r\n",
+					"        col(\"matchesPlayed\").alias(\"Pl\"),\r\n",
+					"        col(\"wins\").alias(\"W\"),\r\n",
+					"        col(\"draws\").alias(\"D\"),\r\n",
+					"        col(\"losses\").alias(\"L\"),\r\n",
+					"        col(\"goalsFor\").alias(\"F\"),\r\n",
+					"        col(\"goalsAgainst\").alias(\"A\"),\r\n",
+					"        col(\"goalDifferential\").alias(\"GD\"),\r\n",
+					"        col(\"points\").alias(\"Pts\"),\r\n",
+					"        col(\"load_date\").alias(\"current_ts\")\r\n",
+					"    ).withColumn('season', lit(2022))"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"from pyspark.sql.functions import date_format\r\n",
+					"\r\n",
+					"# yyyy.MM.dd HH:mm:ss\r\n",
+					"\r\n",
+					"df = df.withColumn('current_ts', date_format('current_ts', 'yyyy.MM.dd HH:mm:ss'))"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"display(df)"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"\r\n",
+					"out_df = df.filter(df.current_ts == load.current_ts)\r\n",
+					"\r\n",
+					"df.repartition(1, 'current_ts').write.mode('overwrite').csv(f'abfss://premtracker@spotifyfam.dfs.core.windows.net/stg/table/2022/inbound/', header=True)\r\n",
+					""
+				],
+				"execution_count": 48
+			}
+		]
+	}
+}
