@@ -58,7 +58,14 @@
 			{
 				"name": "LU Last Game Count",
 				"type": "Lookup",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "If No Game Count Exists",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -320,7 +327,10 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"FILE_SYS": "premtracker",
-										"DIR": "stg/table/2023/inbound/",
+										"DIR": {
+											"value": "@concat(\n    'stg/table/',\n    pipeline().parameters.YEAR,\n    '/inbound'\n)",
+											"type": "Expression"
+										},
 										"FILE_NM": {
 											"value": "@concat('table-', utcNow(), '.csv')",
 											"type": "Expression"
@@ -432,6 +442,8 @@
 						{
 							"name": "raw_table",
 							"type": "ExecuteDataFlow",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "Update Last Game Count",
@@ -453,7 +465,10 @@
 									"referenceName": "df_premtracker_table_s2r",
 									"type": "DataFlowReference",
 									"parameters": {
-										"YEAR": "'2023'"
+										"YEAR": {
+											"value": "'@{pipeline().parameters.YEAR}'",
+											"type": "Expression"
+										}
 									}
 								},
 								"compute": {
@@ -466,6 +481,8 @@
 						{
 							"name": "r2f",
 							"type": "ExecuteDataFlow",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "raw_table",
@@ -499,6 +516,135 @@
 									"customizedCheckpointKey": "b7a30d6d-5e7f-4aa0-912e-00f322356ecd"
 								}
 							}
+						}
+					]
+				}
+			},
+			{
+				"name": "check Game Count Exists",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_csv_gen",
+						"type": "DatasetReference",
+						"parameters": {
+							"FILE_SYS": "premtracker",
+							"DIR": {
+								"value": "@concat(\n    'stg/gamecount/',\n    pipeline().parameters.YEAR\n)",
+								"type": "Expression"
+							},
+							"FILE_NM": "base.csv"
+						}
+					},
+					"fieldList": [
+						"exists"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "If No Game Count Exists",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "check Game Count Exists",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@activity('check Game Count Exists').output.exists",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Set Last Game Count 0",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.00:05:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_csv_gen",
+									"type": "DatasetReference",
+									"parameters": {
+										"FILE_SYS": "premtracker",
+										"DIR": "stg/gamecount",
+										"FILE_NM": "base.csv"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_csv_gen",
+									"type": "DatasetReference",
+									"parameters": {
+										"FILE_SYS": "premtracker",
+										"DIR": {
+											"value": "@concat(\n    'stg/gamecount/',\n    pipeline().parameters.YEAR\n)",
+											"type": "Expression"
+										},
+										"FILE_NM": "base.csv"
+									}
+								}
+							]
 						}
 					]
 				}
