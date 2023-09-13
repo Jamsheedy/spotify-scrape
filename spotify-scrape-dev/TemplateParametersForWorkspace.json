@@ -11,6 +11,9 @@
 		"gcs_secretAccessKey": {
 			"value": ""
 		},
+		"google_sheets_apiToken": {
+			"value": ""
+		},
 		"spotify-scrape-dev-WorkspaceDefaultSqlServer_connectionString": {
 			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:spotify-scrape-dev.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
 		},
@@ -28,6 +31,9 @@
 		},
 		"ls_webtbl_premtable_skysports_properties_typeProperties_url": {
 			"value": "https://www.skysports.com/premier-league-table"
+		},
+		"previous_premlake_properties_typeProperties_url": {
+			"value": "https://premlake.dfs.core.windows.net/"
 		},
 		"spotify-scrape-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://spotifyfam.dfs.core.windows.net"

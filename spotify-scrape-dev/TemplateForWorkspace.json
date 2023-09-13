@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'secretAccessKey' of 'gcs'"
 		},
+		"google_sheets_apiToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'apiToken' of 'google_sheets'"
+		},
 		"spotify-scrape-dev-WorkspaceDefaultSqlServer_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'spotify-scrape-dev-WorkspaceDefaultSqlServer'",
@@ -39,6 +43,10 @@
 		"ls_webtbl_premtable_skysports_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://www.skysports.com/premier-league-table"
+		},
+		"previous_premlake_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://premlake.dfs.core.windows.net/"
 		},
 		"spotify-scrape-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
@@ -590,6 +598,10 @@
 									"YEAR": {
 										"value": "'@{pipeline().parameters.YEAR}'",
 										"type": "Expression"
+									},
+									"SHEET_ID": {
+										"value": "'@{pipeline().parameters.SHEET_ID}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -616,7 +628,11 @@
 				"parameters": {
 					"YEAR": {
 						"type": "string",
-						"defaultValue": "2023"
+						"defaultValue": "2022"
+					},
+					"SHEET_ID": {
+						"type": "string",
+						"defaultValue": "1DeiwYigE0YNqW6Rw7_h4NBABs4yFRsDLdKAKaF8Pwus"
 					}
 				},
 				"folder": {
@@ -690,7 +706,14 @@
 					{
 						"name": "LU Last Game Count",
 						"type": "Lookup",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "If No Game Count Exists",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -952,7 +975,10 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"FILE_SYS": "premtracker",
-												"DIR": "stg/table/2023/inbound/",
+												"DIR": {
+													"value": "@concat(\n    'stg/table/',\n    pipeline().parameters.YEAR,\n    '/inbound'\n)",
+													"type": "Expression"
+												},
 												"FILE_NM": {
 													"value": "@concat('table-', utcNow(), '.csv')",
 													"type": "Expression"
@@ -1085,7 +1111,10 @@
 											"referenceName": "df_premtracker_table_s2r",
 											"type": "DataFlowReference",
 											"parameters": {
-												"YEAR": "'2023'"
+												"YEAR": {
+													"value": "'@{pipeline().parameters.YEAR}'",
+													"type": "Expression"
+												}
 											},
 											"datasetParameters": {
 												"source1": {},
@@ -1143,6 +1172,136 @@
 											"customizedCheckpointKey": "b7a30d6d-5e7f-4aa0-912e-00f322356ecd"
 										}
 									}
+								}
+							]
+						}
+					},
+					{
+						"name": "check Game Count Exists",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_csv_gen",
+								"type": "DatasetReference",
+								"parameters": {
+									"FILE_SYS": "premtracker",
+									"DIR": {
+										"value": "@concat(\n    'stg/gamecount/',\n    pipeline().parameters.YEAR\n)",
+										"type": "Expression"
+									},
+									"FILE_NM": "base.csv"
+								}
+							},
+							"fieldList": [
+								"exists"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "If No Game Count Exists",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "check Game Count Exists",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@activity('check Game Count Exists').output.exists",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Set Last Game Count 0",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.00:05:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_csv_gen",
+											"type": "DatasetReference",
+											"parameters": {
+												"FILE_SYS": "premtracker",
+												"DIR": "stg/gamecount",
+												"FILE_NM": "base.csv"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_csv_gen",
+											"type": "DatasetReference",
+											"parameters": {
+												"FILE_SYS": "premtracker",
+												"DIR": {
+													"value": "@concat(\n    'stg/gamecount/',\n    pipeline().parameters.YEAR\n)",
+													"type": "Expression"
+												},
+												"FILE_NM": "base.csv"
+											}
+										}
+									]
 								}
 							]
 						}
@@ -2953,6 +3112,28 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/google_sheets')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "GoogleSheets",
+				"typeProperties": {
+					"apiToken": {
+						"type": "SecureString",
+						"value": "[parameters('google_sheets_apiToken')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ls_clash_restapi')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -3015,6 +3196,25 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/integrationRuntimes/clash-SHIR-laptop')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/previous_premlake')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('previous_premlake_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
@@ -3227,8 +3427,7 @@
 						"timeZone": "Eastern Standard Time",
 						"schedule": {
 							"minutes": [
-								30,
-								0
+								30
 							],
 							"hours": [
 								14,
@@ -3367,7 +3566,7 @@
 					"sources": [
 						{
 							"linkedService": {
-								"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+								"referenceName": "Sheets",
 								"type": "LinkedServiceReference"
 							},
 							"name": "source1"
@@ -3385,28 +3584,40 @@
 					"transformations": [
 						{
 							"name": "derivedColumn1"
+						},
+						{
+							"name": "renameColumns"
 						}
 					],
 					"scriptLines": [
 						"parameters{",
-						"     YEAR as string",
+						"     YEAR as string ('2022'),",
+						"     SHEET_ID as string ('1DeiwYigE0YNqW6Rw7_h4NBABs4yFRsDLdKAKaF8Pwus')",
 						"}",
-						"source(useSchema: false,",
+						"source(output(",
+						"          column_1 as string,",
+						"          column_2 as string,",
+						"          column_3 as short",
+						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     inferDriftedColumnTypes: true,",
-						"     ignoreNoFilesFound: false,",
-						"     format: 'delimited',",
-						"     fileSystem: 'premtracker',",
-						"     folderPath: ('stg/draftboard/' + $YEAR +'/'),",
-						"     fileName: 'Draft Board.csv',",
-						"     columnDelimiter: ',',",
-						"     escapeChar: '\\\\',",
-						"     quoteChar: '\\\"',",
-						"     columnNamesAsHeader: true,",
+						"     store: 'googlesheets',",
+						"     format: 'rest',",
+						"     spreadSheetId: ($SHEET_ID),",
+						"     startCell: 'A2',",
+						"     endCell: 'C21',",
+						"     sheetName: 'Draft Board',",
 						"     timestampFormats: ['yyyy.MM.dd HH:mm:ss']) ~> source1",
-						"source1 derive(season = $YEAR,",
+						"renameColumns derive(season = $YEAR,",
 						"          load_date = currentDate('UTC')) ~> derivedColumn1",
+						"source1 select(mapColumn(",
+						"          Team = column_1,",
+						"          Player = column_2,",
+						"          Pick = column_3",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> renameColumns",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     store: 'synapse',",
@@ -3422,6 +3633,7 @@
 				}
 			},
 			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/Sheets')]",
 				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
 			]
 		},
@@ -5288,6 +5500,186 @@
 						],
 						"outputs": [],
 						"execution_count": 47
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/convert_hist')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "premtracker"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "medspark0",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "7114dcc9-68b2-4b29-b3d5-1d7e2a7cf9bb"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/medspark0",
+						"name": "medspark0",
+						"type": "Spark",
+						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/medspark0",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.3",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"df = spark.read.format('delta').load('abfss://raw@premlake.dfs.core.windows.net/seasons/2022/standings/')"
+						],
+						"outputs": [],
+						"execution_count": 29
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyspark.sql.functions import col, lit\r\n",
+							"\r\n",
+							"# Position\r\n",
+							"# Team\r\n",
+							"# Pl\r\n",
+							"# W\r\n",
+							"# D\r\n",
+							"# L\r\n",
+							"# F\r\n",
+							"# A\r\n",
+							"# GD\r\n",
+							"# Pts\r\n",
+							"# current_ts\r\n",
+							"# season\r\n",
+							"\r\n",
+							"df = df.select(\r\n",
+							"        col(\"position\").alias(\"Position\"),\r\n",
+							"        col(\"name\").alias(\"Team\"),\r\n",
+							"        col(\"matchesPlayed\").alias(\"Pl\"),\r\n",
+							"        col(\"wins\").alias(\"W\"),\r\n",
+							"        col(\"draws\").alias(\"D\"),\r\n",
+							"        col(\"losses\").alias(\"L\"),\r\n",
+							"        col(\"goalsFor\").alias(\"F\"),\r\n",
+							"        col(\"goalsAgainst\").alias(\"A\"),\r\n",
+							"        col(\"goalDifferential\").alias(\"GD\"),\r\n",
+							"        col(\"points\").alias(\"Pts\"),\r\n",
+							"        col(\"load_date\").alias(\"current_ts\")\r\n",
+							"    ).withColumn('season', lit(2022))"
+						],
+						"outputs": [],
+						"execution_count": 31
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"from pyspark.sql.functions import date_format\r\n",
+							"\r\n",
+							"# yyyy.MM.dd HH:mm:ss\r\n",
+							"\r\n",
+							"df = df.withColumn('current_ts', date_format('current_ts', 'yyyy.MM.dd HH:mm:ss'))"
+						],
+						"outputs": [],
+						"execution_count": 33
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"display(df)"
+						],
+						"outputs": [],
+						"execution_count": 34
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"\r\n",
+							"out_df = df.filter(df.current_ts == load.current_ts)\r\n",
+							"\r\n",
+							"df.repartition(1, 'current_ts').write.mode('overwrite').csv(f'abfss://premtracker@spotifyfam.dfs.core.windows.net/stg/table/2022/inbound/', header=True)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 48
 					}
 				]
 			},
