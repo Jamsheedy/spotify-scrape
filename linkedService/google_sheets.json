@@ -1,0 +1,15 @@
+{
+	"name": "google_sheets",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "GoogleSheets",
+		"typeProperties": {
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIlNZTkFQU0VAQjgxQkYzRDQtRDY4MC00MDRELUIxQTYtM0Q1NDFDODNDNTYzXzE2ZDdiYjc5LTM4NzAtNGI4YS1iZTE0LTY3OThlNWY5MDk2ZiINCn0="
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
