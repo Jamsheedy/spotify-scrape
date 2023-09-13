@@ -9,7 +9,7 @@
 			"sources": [
 				{
 					"linkedService": {
-						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"referenceName": "Sheets",
 						"type": "LinkedServiceReference"
 					},
 					"name": "source1"
@@ -27,28 +27,40 @@
 			"transformations": [
 				{
 					"name": "derivedColumn1"
+				},
+				{
+					"name": "renameColumns"
 				}
 			],
 			"scriptLines": [
 				"parameters{",
-				"     YEAR as string",
+				"     YEAR as string ('2022'),",
+				"     SHEET_ID as string ('1DeiwYigE0YNqW6Rw7_h4NBABs4yFRsDLdKAKaF8Pwus')",
 				"}",
-				"source(useSchema: false,",
+				"source(output(",
+				"          column_1 as string,",
+				"          column_2 as string,",
+				"          column_3 as short",
+				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     inferDriftedColumnTypes: true,",
-				"     ignoreNoFilesFound: false,",
-				"     format: 'delimited',",
-				"     fileSystem: 'premtracker',",
-				"     folderPath: ('stg/draftboard/' + $YEAR +'/'),",
-				"     fileName: 'Draft Board.csv',",
-				"     columnDelimiter: ',',",
-				"     escapeChar: '\\\\',",
-				"     quoteChar: '\\\"',",
-				"     columnNamesAsHeader: true,",
+				"     store: 'googlesheets',",
+				"     format: 'rest',",
+				"     spreadSheetId: ($SHEET_ID),",
+				"     startCell: 'A2',",
+				"     endCell: 'C21',",
+				"     sheetName: 'Draft Board',",
 				"     timestampFormats: ['yyyy.MM.dd HH:mm:ss']) ~> source1",
-				"source1 derive(season = $YEAR,",
+				"renameColumns derive(season = $YEAR,",
 				"          load_date = currentDate('UTC')) ~> derivedColumn1",
+				"source1 select(mapColumn(",
+				"          Team = column_1,",
+				"          Player = column_2,",
+				"          Pick = column_3",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> renameColumns",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     store: 'synapse',",
