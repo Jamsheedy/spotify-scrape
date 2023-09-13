@@ -442,8 +442,6 @@
 						{
 							"name": "raw_table",
 							"type": "ExecuteDataFlow",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "Update Last Game Count",
@@ -481,8 +479,6 @@
 						{
 							"name": "r2f",
 							"type": "ExecuteDataFlow",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "raw_table",
@@ -550,6 +546,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
