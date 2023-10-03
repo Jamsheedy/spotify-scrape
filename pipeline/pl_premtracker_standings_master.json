@@ -120,7 +120,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@greater(\n    variables('GAMES_PLAYED'),\n    activity('LU Last Game Count').output.firstRow.LastGameCount\n)",
+						"value": "@greater(\n    int(variables('GAMES_PLAYED')),\n    int(activity('LU Last Game Count').output.firstRow.LastGameCount)\n)",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
