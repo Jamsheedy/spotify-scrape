@@ -1,0 +1,22 @@
+{
+	"name": "imgur",
+	"properties": {
+		"parameters": {
+			"IMAGE_URL": {
+				"type": "string",
+				"defaultValue": "https://imgur.com/"
+			}
+		},
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "@{linkedService().IMAGE_URL}",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
