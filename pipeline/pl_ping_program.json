@@ -1,0 +1,45 @@
+{
+	"name": "pl_ping_program",
+	"properties": {
+		"activities": [
+			{
+				"name": "run program",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat(pipeline().parameters.BASE_URL, pipeline().parameters.APP_URL)",
+						"type": "Expression"
+					},
+					"connectVia": {
+						"referenceName": "clash-SHIR-laptop",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "GET"
+				}
+			}
+		],
+		"parameters": {
+			"BASE_URL": {
+				"type": "string",
+				"defaultValue": "http://127.0.0.1:5000"
+			},
+			"APP_URL": {
+				"type": "string",
+				"defaultValue": "/turkey_visa_status"
+			}
+		},
+		"folder": {
+			"name": "appserver"
+		},
+		"annotations": []
+	}
+}
