@@ -71,6 +71,14 @@
 		"tr_premtracker_master_properties_pl_premtracker_standings_master_parameters_YEAR": {
 			"type": "string",
 			"defaultValue": "2023"
+		},
+		"turkey_visa_status_properties_pl_ping_program_parameters_BASE_URL": {
+			"type": "string",
+			"defaultValue": "http://127.0.0.1:5000"
+		},
+		"turkey_visa_status_properties_pl_ping_program_parameters_APP_URL": {
+			"type": "string",
+			"defaultValue": "/turkey_visa_status"
 		}
 	},
 	"variables": {
@@ -165,8 +173,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"SRC_DIR": {
@@ -251,8 +258,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"SRC_FILE_SYS": {
@@ -450,8 +456,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"folder": {
 					"name": "clash/etl/raw"
@@ -542,8 +547,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"SRC_REL_URL": {
@@ -570,6 +574,60 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/datasets/RestResource1')]",
 				"[concat(variables('workspaceId'), '/datasets/clan_ds_json')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/pl_ping_program')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "run program",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat(pipeline().parameters.BASE_URL, pipeline().parameters.APP_URL)",
+								"type": "Expression"
+							},
+							"connectVia": {
+								"referenceName": "clash-SHIR-laptop",
+								"type": "IntegrationRuntimeReference"
+							},
+							"method": "GET",
+							"headers": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"BASE_URL": {
+						"type": "string",
+						"defaultValue": "http://127.0.0.1:5000"
+					},
+					"APP_URL": {
+						"type": "string",
+						"defaultValue": "/turkey_visa_status"
+					}
+				},
+				"folder": {
+					"name": "appserver"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/clash-SHIR-laptop')]"
 			]
 		},
 		{
@@ -622,8 +680,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"YEAR": {
@@ -1308,8 +1365,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"YEAR": {
@@ -1386,8 +1442,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"SRC_STG_FOLDERS": {
@@ -1476,8 +1531,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"WAR_TAGS": {
@@ -1539,8 +1593,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"CLAN_TAG": {
@@ -1680,8 +1733,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"CLAN_TAG": {
@@ -1876,8 +1928,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"CLAN_TAG": {
@@ -2083,8 +2134,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"CLAN_TAG": {
@@ -2155,8 +2205,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"CLAN_TAG": {
@@ -2213,8 +2262,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"PLAYER_TAG": {
@@ -2271,8 +2319,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
 					"CLAN_TAG": {
@@ -2336,8 +2383,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"folder": {
 					"name": "spotify"
@@ -2391,8 +2437,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"folder": {
 					"name": "spotify"
@@ -2448,8 +2493,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"folder": {
 					"name": "spotify"
@@ -2542,8 +2586,7 @@
 					}
 				],
 				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
+					"elapsedTimeMetric": {}
 				},
 				"folder": {
 					"name": "spotify"
@@ -3439,6 +3482,47 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/pipelines/pl_premtracker_standings_master')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/turkey_visa_status')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pl_ping_program",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"BASE_URL": "[parameters('turkey_visa_status_properties_pl_ping_program_parameters_BASE_URL')]",
+							"APP_URL": "[parameters('turkey_visa_status_properties_pl_ping_program_parameters_APP_URL')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2024-01-01T21:35:00",
+						"timeZone": "Eastern Standard Time",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								11
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_ping_program')]"
 			]
 		},
 		{

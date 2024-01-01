@@ -52,6 +52,12 @@
 		},
 		"tr_premtracker_master_properties_pl_premtracker_standings_master_parameters_YEAR": {
 			"value": "2023"
+		},
+		"turkey_visa_status_properties_pl_ping_program_parameters_BASE_URL": {
+			"value": "http://127.0.0.1:5000"
+		},
+		"turkey_visa_status_properties_pl_ping_program_parameters_APP_URL": {
+			"value": "/turkey_visa_status"
 		}
 	}
 }
