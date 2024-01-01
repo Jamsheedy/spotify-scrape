@@ -1,9 +1,9 @@
 {
-	"name": "Pipeline 1",
+	"name": "pl_ping_program",
 	"properties": {
 		"activities": [
 			{
-				"name": "Web1",
+				"name": "run program",
 				"type": "WebActivity",
 				"dependsOn": [],
 				"policy": {
@@ -15,7 +15,10 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"url": "http://127.0.0.1:5000/",
+					"url": {
+						"value": "@concat(pipeline().parameters.BASE_URL, pipeline().parameters.APP_URL)",
+						"type": "Expression"
+					},
 					"connectVia": {
 						"referenceName": "clash-SHIR-laptop",
 						"type": "IntegrationRuntimeReference"
@@ -24,6 +27,19 @@
 				}
 			}
 		],
+		"parameters": {
+			"BASE_URL": {
+				"type": "string",
+				"defaultValue": "http://127.0.0.1:5000"
+			},
+			"APP_URL": {
+				"type": "string",
+				"defaultValue": "/turkey_visa_status"
+			}
+		},
+		"folder": {
+			"name": "appserver"
+		},
 		"annotations": []
 	}
 }
