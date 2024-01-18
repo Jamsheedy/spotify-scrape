@@ -85,7 +85,7 @@
 				"     format: 'table',",
 				"     database: 'premtracker_raw',",
 				"     tableName: 'draftboard') ~> draftboard",
-				"table, draftboard join(table@Team == draftboard@Team",
+				"table, draftboard join(trim(replace(table@Team, \"*\", \"\")) == draftboard@Team",
 				"     && table@season == draftboard@season,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
