@@ -40,10 +40,10 @@
 					"name": "select2"
 				},
 				{
-					"name": "derivedColumn2"
+					"name": "join2"
 				},
 				{
-					"name": "join2"
+					"name": "derivedColumn3"
 				}
 			],
 			"scriptLines": [
@@ -85,15 +85,15 @@
 				"     format: 'table',",
 				"     database: 'premtracker_raw',",
 				"     tableName: 'draftboard') ~> draftboard",
-				"table, draftboard join(table@Team == draftboard@Team",
+				"derivedColumn3, draftboard join(derivedColumn3@Team == draftboard@Team",
 				"     && table@season == draftboard@season,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1",
-				"derivedColumn2 select(mapColumn(",
+				"join1 select(mapColumn(",
 				"          Position,",
-				"          Team = table@Team,",
+				"          Team = derivedColumn3@Team,",
 				"          Pl,",
 				"          W,",
 				"          D,",
@@ -104,7 +104,7 @@
 				"          Pts,",
 				"          current_ts,",
 				"          season = table@season,",
-				"          load_date,",
+				"          load_date = derivedColumn3@load_date,",
 				"          Team = draftboard@Team,",
 				"          Player,",
 				"          Pick,",
@@ -152,7 +152,6 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select2",
-				"join1 derive(load_date = currentDate('UTC')) ~> derivedColumn2",
 				"derivedColumn1, aggregate1 join(select1@season == aggregate1@season",
 				"     && select1@Player == aggregate1@Player",
 				"     && select1@current_ts == aggregate1@current_ts,",
@@ -160,6 +159,8 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join2",
+				"table derive(Team = trim(replace(Team, \"*\", \"\")),",
+				"          load_date = currentDate('UTC')) ~> derivedColumn3",
 				"select2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     store: 'synapse',",
