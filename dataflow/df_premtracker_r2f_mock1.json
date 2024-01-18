@@ -93,7 +93,7 @@
 				"     broadcast: 'auto')~> join1",
 				"join1 select(mapColumn(",
 				"          Position,",
-				"          Team = table@Team,",
+				"          Team = derivedColumn3@Team,",
 				"          Pl,",
 				"          W,",
 				"          D,",
