@@ -1,0 +1,18 @@
+{
+	"name": "SourceDataset_kcs",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "stg/table/2023/archive",
+				"fileSystem": "premtracker"
+			}
+		}
+	}
+}
