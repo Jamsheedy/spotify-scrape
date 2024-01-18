@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "stg/table/2023/archive",
+				"folderPath": "stg/table/2022/archive",
 				"fileSystem": "premtracker"
 			}
 		}
