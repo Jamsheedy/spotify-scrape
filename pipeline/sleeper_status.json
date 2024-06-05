@@ -1,0 +1,71 @@
+{
+	"name": "sleeper_status",
+	"properties": {
+		"activities": [
+			{
+				"name": "Web1",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:10:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://api.sleeper.app/v1/state/nfl",
+					"connectVia": {
+						"referenceName": "AutoResolveIntegrationRuntime",
+						"type": "IntegrationRuntimeReference"
+					}
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Web1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_sleeper_week",
+					"value": {
+						"value": "@activity('Web1').output.week",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"par_league_id": {
+				"type": "string",
+				"defaultValue": "992125474790772736"
+			},
+			"par_week": {
+				"type": "int",
+				"defaultValue": 1
+			}
+		},
+		"variables": {
+			"var_sleeper_week": {
+				"type": "Integer"
+			}
+		},
+		"folder": {
+			"name": "sleeper"
+		},
+		"annotations": []
+	}
+}
