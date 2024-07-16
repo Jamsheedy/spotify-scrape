@@ -17,6 +17,15 @@
 				"typeProperties": {
 					"source": {
 						"type": "RestSource",
+						"additionalColumns": [
+							{
+								"name": "current_ts",
+								"value": {
+									"value": "@formatDateTime(utcnow(), 'yyyy.MM.dd HH:mm:ss')",
+									"type": "Expression"
+								}
+							}
+						],
 						"httpRequestTimeout": "00:01:40",
 						"requestInterval": "00.00:00:00.010",
 						"requestMethod": "GET",
@@ -41,7 +50,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"par_rel_url": {
-								"value": "@concat('league/', pipeline().parameters.par_league_id, '/matchups/8')",
+								"value": "@concat('league/', pipeline().parameters.par_league_id, '/matchups/', pipeline().parameters.par_week)",
 								"type": "Expression"
 							}
 						}
@@ -54,7 +63,10 @@
 						"parameters": {
 							"FILE_SYS": "raw",
 							"DIR": "sleeper/matchups",
-							"FILE_NM": "test.json"
+							"FILE_NM": {
+								"value": "@concat(\n    'matches_',\n    pipeline().parameters.par_league_id,\n    '_',\n    utcNow(),\n    '.json'\n)",
+								"type": "Expression"
+							}
 						}
 					}
 				]
@@ -74,6 +86,15 @@
 				"typeProperties": {
 					"source": {
 						"type": "RestSource",
+						"additionalColumns": [
+							{
+								"name": "current_ts",
+								"value": {
+									"value": "@formatDateTime(utcnow(), 'yyyy.MM.dd HH:mm:ss')",
+									"type": "Expression"
+								}
+							}
+						],
 						"httpRequestTimeout": "00:01:40",
 						"requestInterval": "00.00:00:00.010",
 						"requestMethod": "GET",
@@ -110,8 +131,11 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"FILE_SYS": "raw",
-							"DIR": "sleeper/matchups",
-							"FILE_NM": "test.json"
+							"DIR": "sleeper/rosters",
+							"FILE_NM": {
+								"value": "@concat(\n    'rosters_',\n    pipeline().parameters.par_league_id,\n    '_',\n    utcNow(),\n    '.json'\n)",
+								"type": "Expression"
+							}
 						}
 					}
 				]
@@ -131,6 +155,15 @@
 				"typeProperties": {
 					"source": {
 						"type": "RestSource",
+						"additionalColumns": [
+							{
+								"name": "current_ts",
+								"value": {
+									"value": "@formatDateTime(utcnow(), 'yyyy.MM.dd HH:mm:ss')",
+									"type": "Expression"
+								}
+							}
+						],
 						"httpRequestTimeout": "00:01:40",
 						"requestInterval": "00.00:00:00.010",
 						"requestMethod": "GET",
@@ -155,7 +188,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"par_rel_url": {
-								"value": "@concat('league/', pipeline().parameters.par_league_id, '/transactions/8')",
+								"value": "@concat('league/', pipeline().parameters.par_league_id, '/transactions/', pipeline().parameters.par_week)",
 								"type": "Expression"
 							}
 						}
@@ -167,8 +200,11 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"FILE_SYS": "raw",
-							"DIR": "sleeper/matchups",
-							"FILE_NM": "test.json"
+							"DIR": "sleeper/transactions",
+							"FILE_NM": {
+								"value": "@concat(\n    'transactions_',\n    pipeline().parameters.par_league_id,\n    '_',\n    utcNow(),\n    '.json'\n)",
+								"type": "Expression"
+							}
 						}
 					}
 				]
@@ -178,6 +214,10 @@
 			"par_league_id": {
 				"type": "string",
 				"defaultValue": "992125474790772736"
+			},
+			"par_week": {
+				"type": "string",
+				"defaultValue": "8"
 			}
 		},
 		"folder": {
