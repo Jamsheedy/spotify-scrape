@@ -1,5 +1,5 @@
 {
-	"name": "Pipeline 1",
+	"name": "pl_s2r_api_ffb_sleeper_league_ingest",
 	"properties": {
 		"activities": [
 			{
@@ -269,9 +269,9 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"FILE_SYS": "raw",
-							"DIR": "sleeper/transactions",
+							"DIR": "sleeper/league",
 							"FILE_NM": {
-								"value": "@concat(\n    'transactions_',\n    pipeline().parameters.par_league_id,\n    '_',\n    utcNow(),\n    '.json'\n)",
+								"value": "@concat(\n    'league_',\n    pipeline().parameters.par_league_id,\n    '_',\n    utcNow(),\n    '.json'\n)",
 								"type": "Expression"
 							}
 						}
@@ -338,9 +338,218 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"FILE_SYS": "raw",
-							"DIR": "sleeper/transactions",
+							"DIR": "sleeper/users",
 							"FILE_NM": {
-								"value": "@concat(\n    'transactions_',\n    pipeline().parameters.par_league_id,\n    '_',\n    utcNow(),\n    '.json'\n)",
+								"value": "@concat(\n    'users_',\n    pipeline().parameters.par_league_id,\n    '_',\n    utcNow(),\n    '.json'\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Get Players",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"additionalColumns": [
+							{
+								"name": "current_ts",
+								"value": {
+									"value": "@formatDateTime(utcnow(), 'yyyy.MM.dd HH:mm:ss')",
+									"type": "Expression"
+								}
+							}
+						],
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_sleeper",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_rel_url": {
+								"value": "@'players/nfl'",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_json_gen",
+						"type": "DatasetReference",
+						"parameters": {
+							"FILE_SYS": "raw",
+							"DIR": "sleeper/players",
+							"FILE_NM": {
+								"value": "@concat(\n    'players_',\n    pipeline().parameters.par_league_id,\n    '_',\n    utcNow(),\n    '.json'\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Get trending add",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"additionalColumns": [
+							{
+								"name": "current_ts",
+								"value": {
+									"value": "@formatDateTime(utcnow(), 'yyyy.MM.dd HH:mm:ss')",
+									"type": "Expression"
+								}
+							}
+						],
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_sleeper",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_rel_url": {
+								"value": "@concat(\n    'players/nfl/trending/add?lookback_hours=',\n    variables('var_trnd_lkp_hrs'),\n    '&limit=',\n    variables('var_trnd_limit')\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_json_gen",
+						"type": "DatasetReference",
+						"parameters": {
+							"FILE_SYS": "raw",
+							"DIR": "sleeper/trending_add",
+							"FILE_NM": {
+								"value": "@concat(\n    'trending_add_',\n    pipeline().parameters.par_league_id,\n    '_',\n    utcNow(),\n    '.json'\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Get trending drop",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"additionalColumns": [
+							{
+								"name": "current_ts",
+								"value": {
+									"value": "@formatDateTime(utcnow(), 'yyyy.MM.dd HH:mm:ss')",
+									"type": "Expression"
+								}
+							}
+						],
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_sleeper",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_rel_url": {
+								"value": "@concat(\n    'players/nfl/trending/drop?lookback_hours=',\n    variables('var_trnd_lkp_hrs'),\n    '&limit=',\n    variables('var_trnd_limit')\n    )",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_json_gen",
+						"type": "DatasetReference",
+						"parameters": {
+							"FILE_SYS": "raw",
+							"DIR": "sleeper/trending_drop",
+							"FILE_NM": {
+								"value": "@concat(\n    'trending_drop_',\n    pipeline().parameters.par_league_id,\n    '_',\n    utcNow(),\n    '.json'\n)",
 								"type": "Expression"
 							}
 						}
@@ -356,6 +565,16 @@
 			"par_week": {
 				"type": "string",
 				"defaultValue": "8"
+			}
+		},
+		"variables": {
+			"var_trnd_lkp_hrs": {
+				"type": "String",
+				"defaultValue": "168"
+			},
+			"var_trnd_limit": {
+				"type": "String",
+				"defaultValue": "25"
 			}
 		},
 		"folder": {
