@@ -10,13 +10,20 @@
 						"type": "LinkedServiceReference"
 					},
 					"name": "rosters"
-				},
-				{
-					"name": "matchups"
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "rosterColumns"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "flattenPlayers"
+				}
+			],
 			"scriptLines": [
 				"source(useSchema: false,",
 				"     allowSchemaDrift: true,",
@@ -27,8 +34,29 @@
 				"     folderPath: 'sleeper/rosters',",
 				"     fileName: 'rosters_992125474790772736_2024-07-17T03:38:12.2167244Z.json',",
 				"     documentForm: 'documentPerLine') ~> rosters",
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> matchups"
+				"rosters derive(players = flatten(array(byName(\"players\"))),",
+				"          roster_id = toString(byName(\"roster_id\")),",
+				"          owner_id = toString(byName(\"owner_id\")),",
+				"          streak = toString(byItem(byName('metadata'), 'streak')),",
+				"          record = toString(byItem(byName('metadata'), 'record'))) ~> rosterColumns",
+				"flattenPlayers select(mapColumn(",
+				"          players,",
+				"          roster_id,",
+				"          owner_id,",
+				"          streak",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"rosterColumns foldDown(unroll(players, players),",
+				"     mapColumn(",
+				"          players = players,",
+				"          roster_id,",
+				"          owner_id,",
+				"          streak,",
+				"          record",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenPlayers"
 			]
 		}
 	}
