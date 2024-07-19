@@ -21,7 +21,7 @@
 					"name": "select1"
 				},
 				{
-					"name": "flattenPlayers"
+					"name": "flattenRosterByPlayers"
 				}
 			],
 			"scriptLines": [
@@ -38,8 +38,20 @@
 				"          roster_id = toString(byName(\"roster_id\")),",
 				"          owner_id = toString(byName(\"owner_id\")),",
 				"          streak = toString(byItem(byName('metadata'), 'streak')),",
-				"          record = toString(byItem(byName('metadata'), 'record'))) ~> rosterColumns",
-				"flattenPlayers select(mapColumn(",
+				"          record = toString(byItem(byName('metadata'), 'record')),",
+				"          roster_wins = toShort(byItem(byName('settings'), 'wins')),",
+				"          waiver_position = toShort(byItem(byName('settings'), 'waiver_position')),",
+				"          waiver_budget_used = toShort(byItem(byName('settings'), 'waiver_budget_used')),",
+				"          total_moves = toShort(byItem(byName('settings'), 'total_moves')),",
+				"          roster_ties = toShort(byItem(byName('settings'), 'ties')),",
+				"          roster_ppts_decimal = toShort(byItem(byName('settings'), 'ppts_decimal')),",
+				"          roster_ppts = toShort(byItem(byName('settings'), 'ppts')),",
+				"          roster_losses = toShort(byItem(byName('settings'), 'losses')),",
+				"          fpts_decimal = toShort(byItem(byName('settings'), 'fpts_decimal')),",
+				"          fpts_against_decimal = toShort(byItem(byName('settings'), 'fpts_against_decimal')),",
+				"          fpts_against = toShort(byItem(byName('settings'), 'fpts_against')),",
+				"          fpts = toShort(byItem(byName('settings'), 'fpts'))) ~> rosterColumns",
+				"flattenRosterByPlayers select(mapColumn(",
 				"          players,",
 				"          roster_id,",
 				"          owner_id,",
@@ -53,10 +65,22 @@
 				"          roster_id,",
 				"          owner_id,",
 				"          streak,",
-				"          record",
+				"          record,",
+				"          roster_wins,",
+				"          waiver_position,",
+				"          waiver_budget_used,",
+				"          total_moves,",
+				"          roster_ties,",
+				"          roster_ppts_decimal,",
+				"          roster_ppts,",
+				"          roster_losses,",
+				"          fpts_decimal,",
+				"          fpts_against_decimal,",
+				"          fpts_against,",
+				"          fpts",
 				"     ),",
 				"     skipDuplicateMapInputs: false,",
-				"     skipDuplicateMapOutputs: false) ~> flattenPlayers"
+				"     skipDuplicateMapOutputs: false) ~> flattenRosterByPlayers"
 			]
 		}
 	}
