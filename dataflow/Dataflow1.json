@@ -18,9 +18,6 @@
 					"name": "rosterColumns"
 				},
 				{
-					"name": "select1"
-				},
-				{
 					"name": "flattenRosterByPlayers"
 				}
 			],
@@ -37,6 +34,7 @@
 				"rosters derive(players = flatten(array(byName(\"players\"))),",
 				"          roster_id = toString(byName(\"roster_id\")),",
 				"          owner_id = toString(byName(\"owner_id\")),",
+				"          league_id = toString(byName(\"league_id\")),",
 				"          streak = toString(byItem(byName('metadata'), 'streak')),",
 				"          record = toString(byItem(byName('metadata'), 'record')),",
 				"          roster_wins = toShort(byItem(byName('settings'), 'wins')),",
@@ -51,19 +49,12 @@
 				"          fpts_against_decimal = toShort(byItem(byName('settings'), 'fpts_against_decimal')),",
 				"          fpts_against = toShort(byItem(byName('settings'), 'fpts_against')),",
 				"          fpts = toShort(byItem(byName('settings'), 'fpts'))) ~> rosterColumns",
-				"flattenRosterByPlayers select(mapColumn(",
-				"          players,",
-				"          roster_id,",
-				"          owner_id,",
-				"          streak",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
 				"rosterColumns foldDown(unroll(players, players),",
 				"     mapColumn(",
 				"          players = players,",
 				"          roster_id,",
 				"          owner_id,",
+				"          league_id,",
 				"          streak,",
 				"          record,",
 				"          roster_wins,",
