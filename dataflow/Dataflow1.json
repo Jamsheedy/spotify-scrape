@@ -10,6 +10,13 @@
 						"type": "LinkedServiceReference"
 					},
 					"name": "rosters"
+				},
+				{
+					"linkedService": {
+						"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
 				}
 			],
 			"sinks": [],
@@ -31,7 +38,17 @@
 				"     folderPath: 'sleeper/rosters',",
 				"     fileName: 'rosters_992125474790772736_2024-07-17T03:38:12.2167244Z.json',",
 				"     documentForm: 'documentPerLine') ~> rosters",
+				"source(useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'json',",
+				"     fileSystem: 'raw',",
+				"     folderPath: 'sleeper/players',",
+				"     fileName: 'players_992125474790772736_2024-07-17T03:40:50.3694529Z.json',",
+				"     documentForm: 'singleDocument') ~> source1",
 				"rosters derive(players = flatten(array(byName(\"players\"))),",
+				"          roster_starters = flatten(array(byName(\"starters\"))),",
 				"          roster_id = toString(byName(\"roster_id\")),",
 				"          owner_id = toString(byName(\"owner_id\")),",
 				"          league_id = toString(byName(\"league_id\")),",
@@ -51,7 +68,8 @@
 				"          fpts = toShort(byItem(byName('settings'), 'fpts'))) ~> rosterColumns",
 				"rosterColumns foldDown(unroll(players, players),",
 				"     mapColumn(",
-				"          players = players,",
+				"          players,",
+				"          roster_starters,",
 				"          roster_id,",
 				"          owner_id,",
 				"          league_id,",
