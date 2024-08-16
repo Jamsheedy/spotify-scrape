@@ -4251,7 +4251,8 @@
 						"     quoteChar: '\\\"',",
 						"     columnNamesAsHeader: true,",
 						"     timestampFormats: ['yyyy.MM.dd HH:mm:ss'],",
-						"     preferredIntegralType: 'short') ~> source1",
+						"     preferredIntegralType: 'short',",
+						"     booleanFormat: ['True', 'False']) ~> source1",
 						"source1 derive(load_date = currentDate('UTC')) ~> derivedColumn1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -6729,15 +6730,15 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "24d8ba92-f793-4d43-b021-d121944f4d9c"
+						"spark.autotune.trackingId": "90b4c952-d9a3-4943-bd02-562ec5e8f3cf"
 					}
 				},
 				"metadata": {
 					"saveOutput": true,
 					"enableDebugMode": false,
 					"kernelspec": {
-						"name": "synapse_sparksql",
-						"display_name": "sql"
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
 					},
 					"language_info": {
 						"name": "sql"
@@ -6754,8 +6755,7 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
