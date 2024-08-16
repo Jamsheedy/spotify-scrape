@@ -1380,6 +1380,7 @@
 				"[concat(variables('workspaceId'), '/datasets/ds_webtbl_skysportsprem')]",
 				"[concat(variables('workspaceId'), '/datasets/ds_csv_gen')]",
 				"[concat(variables('workspaceId'), '/dataflows/df_premtracker_table_s2r')]",
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
 				"[concat(variables('workspaceId'), '/dataflows/df_premtracker_r2f_mock1')]"
 			]
 		},
@@ -4249,7 +4250,8 @@
 						"     escapeChar: '\\\\',",
 						"     quoteChar: '\\\"',",
 						"     columnNamesAsHeader: true,",
-						"     timestampFormats: ['yyyy.MM.dd HH:mm:ss']) ~> source1",
+						"     timestampFormats: ['yyyy.MM.dd HH:mm:ss'],",
+						"     preferredIntegralType: 'short') ~> source1",
 						"source1 derive(load_date = currentDate('UTC')) ~> derivedColumn1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -6727,15 +6729,15 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "90b4c952-d9a3-4943-bd02-562ec5e8f3cf"
+						"spark.autotune.trackingId": "24d8ba92-f793-4d43-b021-d121944f4d9c"
 					}
 				},
 				"metadata": {
 					"saveOutput": true,
 					"enableDebugMode": false,
 					"kernelspec": {
-						"name": "synapse_pyspark",
-						"display_name": "Synapse PySpark"
+						"name": "synapse_sparksql",
+						"display_name": "sql"
 					},
 					"language_info": {
 						"name": "sql"
@@ -6752,7 +6754,8 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
