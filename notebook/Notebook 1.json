@@ -1,0 +1,269 @@
+{
+	"name": "Notebook 1",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "medspark0",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "8a92fa02-3ffe-4394-87fe-12c829a2889a"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/medspark0",
+				"name": "medspark0",
+				"type": "Spark",
+				"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/medspark0",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"_FILE_PATH = \"abfss://raw@spotifyfam.dfs.core.windows.net/sleeper/players/players_992125474790772736_2024-07-17T03:40:50.3694529Z.json\"\r\n",
+					"\r\n",
+					"json_str = spark.read.text(_FILE_PATH).collect()"
+				],
+				"execution_count": 69
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Join the lines of text to form the full JSON string\r\n",
+					"json_str = ''.join([row.value for row in json_str])\r\n",
+					"\r\n",
+					"# Parse the JSON string using Python's json library\r\n",
+					"import json\r\n",
+					"data = json.loads(json_str)\r\n",
+					"\r\n",
+					"# Now you can manipulate the data as a Python dictionary\r\n",
+					"# print(data)"
+				],
+				"execution_count": 70
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"data = [v for k, v in data.items()]\r\n",
+					"# data = []\r\n",
+					"\r\n",
+					"# for k, v in data.items():\r\n",
+					"#     row = dict()\r\n",
+					"\r\n",
+					"#     for x in row.keys():\r\n",
+					"#         if row[x] == ' ':\r\n",
+					"#             row[x] == None\r\n",
+					"\r\n",
+					"        "
+				],
+				"execution_count": 71
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(data[0])"
+				],
+				"execution_count": 72
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"for id in range(len(data)):\r\n",
+					"    print(data[id])\r\n",
+					"    for k, v in data[id].items():\r\n",
+					"\r\n",
+					"        if data[id][k] == '':\r\n",
+					"            data[id][k] = None"
+				],
+				"execution_count": 75
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df = spark.createDataFrame(data=data)"
+				],
+				"execution_count": 41
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df.shoo"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"display(df)"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					"# Load the JSON file into a Spark DataFrame\r\n",
+					"df = spark.read.json(path)\r\n",
+					"\r\n",
+					"# Show the first few rows of the DataFrame\r\n",
+					"df.show()\r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"flattened_data = [{\"key\": k, **v} for k, v in data.items()]\r\n",
+					"df = spark.createDataFrame(flattened_data)\r\n",
+					"\r\n",
+					"# Show the DataFrame\r\n",
+					"df.show()"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}
