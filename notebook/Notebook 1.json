@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "8a92fa02-3ffe-4394-87fe-12c829a2889a"
+				"spark.autotune.trackingId": "74d5026d-bc87-48a6-ba7d-e7a6b72d641b"
 			}
 		},
 		"metadata": {
@@ -66,7 +66,7 @@
 					"\r\n",
 					"json_str = spark.read.text(_FILE_PATH).collect()"
 				],
-				"execution_count": 69
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -92,7 +92,7 @@
 					"# Now you can manipulate the data as a Python dictionary\r\n",
 					"# print(data)"
 				],
-				"execution_count": 70
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -120,7 +120,7 @@
 					"\r\n",
 					"        "
 				],
-				"execution_count": 71
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -136,9 +136,9 @@
 					}
 				},
 				"source": [
-					"print(data[0])"
+					"print(data[:5])"
 				],
-				"execution_count": 72
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -154,14 +154,38 @@
 					}
 				},
 				"source": [
-					"for id in range(len(data)):\r\n",
-					"    print(data[id])\r\n",
-					"    for k, v in data[id].items():\r\n",
+					"type(data)"
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"data = [row for row in data if isinstance(row, dict) and 'player_id' in row.keys()]\r\n",
 					"\r\n",
+					"for id in range(len(data)):\r\n",
+					"    data[id].pop('metadata', None)\r\n",
+					"    data[id].pop('competitions', None)\r\n",
+					"    data[id]['fantasy_positions'] = data[id]['fantasy_positions'][1]\r\n",
+					"\r\n",
+					"\r\n",
+					"    for k, v in data[id].items() :\r\n",
 					"        if data[id][k] == '':\r\n",
-					"            data[id][k] = None"
+					"            data[id][k] = None\r\n",
+					"        "
 				],
-				"execution_count": 75
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -177,9 +201,45 @@
 					}
 				},
 				"source": [
-					"df = spark.createDataFrame(data=data)"
+					"print(data[-1])"
 				],
-				"execution_count": 41
+				"execution_count": 53
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"type(data[:1])"
+				],
+				"execution_count": 50
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df = spark.createDataFrame(data=data[:1])"
+				],
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
