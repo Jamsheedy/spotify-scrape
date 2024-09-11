@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "74d5026d-bc87-48a6-ba7d-e7a6b72d641b"
+				"spark.autotune.trackingId": "41a3b1bc-9022-4fb7-979b-2bd5ddd28a13"
 			}
 		},
 		"metadata": {
@@ -66,7 +66,7 @@
 					"\r\n",
 					"json_str = spark.read.text(_FILE_PATH).collect()"
 				],
-				"execution_count": 1
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -90,55 +90,11 @@
 					"data = json.loads(json_str)\r\n",
 					"\r\n",
 					"# Now you can manipulate the data as a Python dictionary\r\n",
-					"# print(data)"
-				],
-				"execution_count": 2
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"data = [v for k, v in data.items()]\r\n",
-					"# data = []\r\n",
 					"\r\n",
-					"# for k, v in data.items():\r\n",
-					"#     row = dict()\r\n",
-					"\r\n",
-					"#     for x in row.keys():\r\n",
-					"#         if row[x] == ' ':\r\n",
-					"#             row[x] == None\r\n",
-					"\r\n",
-					"        "
+					"data = [v for k, v in data.items() if isinstance(v, dict) and 'player_id' in v.keys()]\r\n",
+					"# data = [row for row in data if isinstance(row, dict) and 'player_id' in row.keys()]"
 				],
-				"execution_count": 3
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"print(data[:5])"
-				],
-				"execution_count": 9
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -172,20 +128,65 @@
 					}
 				},
 				"source": [
-					"data = [row for row in data if isinstance(row, dict) and 'player_id' in row.keys()]\r\n",
+					"from pyspark.sql.types import StructType, StructField, StringType, IntegerType, BooleanType, ArrayType, LongType, StructType\r\n",
 					"\r\n",
-					"for id in range(len(data)):\r\n",
-					"    data[id].pop('metadata', None)\r\n",
-					"    data[id].pop('competitions', None)\r\n",
-					"    data[id]['fantasy_positions'] = data[id]['fantasy_positions'][1]\r\n",
-					"\r\n",
-					"\r\n",
-					"    for k, v in data[id].items() :\r\n",
-					"        if data[id][k] == '':\r\n",
-					"            data[id][k] = None\r\n",
-					"        "
+					"schema = StructType([\r\n",
+					"    StructField(\"birth_state\", StringType(), True),\r\n",
+					"    StructField(\"opta_id\", StringType(), True),\r\n",
+					"    StructField(\"pandascore_id\", StringType(), True),\r\n",
+					"    StructField(\"injury_status\", StringType(), True),\r\n",
+					"    StructField(\"espn_id\", IntegerType(), True),  # Integer now\r\n",
+					"    StructField(\"position\", StringType(), True),  # WR, String\r\n",
+					"    StructField(\"news_updated\", LongType(), True),  # Timestamp in ms\r\n",
+					"    StructField(\"sport\", StringType(), True),\r\n",
+					"    StructField(\"fantasy_data_id\", IntegerType(), True),\r\n",
+					"    StructField(\"sportradar_id\", StringType(), True),\r\n",
+					"    StructField(\"team\", StringType(), True),\r\n",
+					"    StructField(\"birth_date\", StringType(), True),  # String but represents a date\r\n",
+					"    StructField(\"team_abbr\", StringType(), True),\r\n",
+					"    StructField(\"gsis_id\", StringType(), True),  # gsis_id as String\r\n",
+					"    StructField(\"rotoworld_id\", IntegerType(), True),\r\n",
+					"    StructField(\"injury_start_date\", StringType(), True),\r\n",
+					"    StructField(\"depth_chart_position\", StringType(), True),\r\n",
+					"    StructField(\"search_rank\", IntegerType(), True),\r\n",
+					"    StructField(\"practice_participation\", StringType(), True),\r\n",
+					"    StructField(\"player_id\", StringType(), True),\r\n",
+					"    StructField(\"yahoo_id\", IntegerType(), True),  # Integer now\r\n",
+					"    StructField(\"stats_id\", IntegerType(), True),  # Integer now\r\n",
+					"    StructField(\"search_full_name\", StringType(), True),\r\n",
+					"    StructField(\"search_first_name\", StringType(), True),\r\n",
+					"    StructField(\"practice_description\", StringType(), True),\r\n",
+					"    StructField(\"number\", IntegerType(), True),  # Integer\r\n",
+					"    StructField(\"injury_body_part\", StringType(), True),\r\n",
+					"    StructField(\"oddsjam_id\", StringType(), True),\r\n",
+					"    StructField(\"depth_chart_order\", StringType(), True),\r\n",
+					"    StructField(\"swish_id\", IntegerType(), True),  # Integer now\r\n",
+					"    StructField(\"first_name\", StringType(), True),\r\n",
+					"    StructField(\"age\", IntegerType(), True),  # Age as Integer\r\n",
+					"    StructField(\"status\", StringType(), True),\r\n",
+					"    StructField(\"height\", StringType(), True),  # Keep as String for now\r\n",
+					"    StructField(\"high_school\", StringType(), True),\r\n",
+					"    StructField(\"birth_country\", StringType(), True),\r\n",
+					"    StructField(\"metadata\", StructType([              # Struct for metadata\r\n",
+					"        StructField(\"rookie_year\", StringType(), True),\r\n",
+					"        StructField(\"channel_id\", StringType(), True)\r\n",
+					"    ]), True),\r\n",
+					"    StructField(\"weight\", StringType(), True),  # Keep as String for now\r\n",
+					"    StructField(\"years_exp\", IntegerType(), True),  # Integer for experience\r\n",
+					"    StructField(\"search_last_name\", StringType(), True),\r\n",
+					"    StructField(\"rotowire_id\", IntegerType(), True),\r\n",
+					"    StructField(\"full_name\", StringType(), True),\r\n",
+					"    StructField(\"injury_notes\", StringType(), True),\r\n",
+					"    StructField(\"active\", BooleanType(), True),  # Boolean\r\n",
+					"    StructField(\"hashtag\", StringType(), True),\r\n",
+					"    StructField(\"last_name\", StringType(), True),\r\n",
+					"    StructField(\"college\", StringType(), True),\r\n",
+					"    StructField(\"fantasy_positions\", ArrayType(StringType()), True),  # Array of Strings\r\n",
+					"    StructField(\"competitions\", ArrayType(StringType()), True),  # Empty array\r\n",
+					"    StructField(\"birth_city\", StringType(), True)\r\n",
+					"])"
 				],
-				"execution_count": 55
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -201,63 +202,9 @@
 					}
 				},
 				"source": [
-					"print(data[-1])"
+					"df = spark.createDataFrame(data=data, schema=schema)"
 				],
-				"execution_count": 53
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"type(data[:1])"
-				],
-				"execution_count": 50
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"df = spark.createDataFrame(data=data[:1])"
-				],
-				"execution_count": 54
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"df.shoo"
-				],
-				"execution_count": null
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -274,9 +221,9 @@
 					"collapsed": false
 				},
 				"source": [
-					"display(df)"
+					"display(df.select('player_id', 'search_first_name', 'search_last_name', 'status', 'team'))"
 				],
-				"execution_count": 13
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -292,37 +239,9 @@
 					}
 				},
 				"source": [
-					"\r\n",
-					"# Load the JSON file into a Spark DataFrame\r\n",
-					"df = spark.read.json(path)\r\n",
-					"\r\n",
-					"# Show the first few rows of the DataFrame\r\n",
-					"df.show()\r\n",
-					""
+					"df.write.mode('append').parquet('abfss://raw@spotifyfam.dfs.core.windows.net/sleeper/players_parquet/')"
 				],
-				"execution_count": 3
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"flattened_data = [{\"key\": k, **v} for k, v in data.items()]\r\n",
-					"df = spark.createDataFrame(flattened_data)\r\n",
-					"\r\n",
-					"# Show the DataFrame\r\n",
-					"df.show()"
-				],
-				"execution_count": null
+				"execution_count": 39
 			}
 		]
 	}
