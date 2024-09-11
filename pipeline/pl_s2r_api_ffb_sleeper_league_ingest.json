@@ -560,11 +560,11 @@
 		"parameters": {
 			"par_league_id": {
 				"type": "string",
-				"defaultValue": "992125474790772736"
+				"defaultValue": "1124784521578180608"
 			},
 			"par_week": {
 				"type": "string",
-				"defaultValue": "8"
+				"defaultValue": "1"
 			}
 		},
 		"variables": {
