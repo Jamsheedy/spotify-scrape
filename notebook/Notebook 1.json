@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "5ce3772f-0bb8-40fc-afb4-92b3eb0c4d0d"
+				"spark.autotune.trackingId": "fc198fb2-0e91-4cdc-bc6d-bd4115a217e0"
 			}
 		},
 		"metadata": {
@@ -75,11 +75,29 @@
 					}
 				},
 				"source": [
+					"matchup_week = 2"
+				],
+				"execution_count": 131
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
 					"import requests, json\r\n",
-					"api_data = requests.get('https://api.sleeper.app/v1/league/1124784521578180608/matchups/2')\r\n",
+					"api_data = requests.get(f'https://api.sleeper.app/v1/league/1124784521578180608/matchups/{matchup_week}')\r\n",
 					"api_data = json.loads(api_data.text)"
 				],
-				"execution_count": 154
+				"execution_count": 132
 			},
 			{
 				"cell_type": "code",
@@ -109,7 +127,7 @@
 					"])\r\n",
 					"df = spark.createDataFrame(data = api_data, schema=schema)"
 				],
-				"execution_count": 155
+				"execution_count": 133
 			},
 			{
 				"cell_type": "code",
@@ -126,20 +144,21 @@
 					"collapsed": false
 				},
 				"source": [
-					"from pyspark.sql.functions import explode, col, array_contains\r\n",
-					"\r\n",
+					"from pyspark.sql.functions import explode, col, array_contains, current_timestamp, date_sub, lit\r\n",
 					"df_exploded = df.withColumn(\"player\", explode(col(\"players\")))\r\n",
 					"\r\n",
 					"# Use 'players_points' to map the points for each player\r\n",
 					"df_with_points = \\\r\n",
 					"    df_exploded\\\r\n",
 					"    .withColumn(\"player_points\", col(\"players_points\")[col(\"player\")])\\\r\n",
-					"    .withColumn(\"is_starter\", array_contains(col(\"starters\"), col(\"player\")))\r\n",
+					"    .withColumn(\"is_starter\", array_contains(col(\"starters\"), col(\"player\")))\\\r\n",
+					"    .withColumn(\"matchup_week\", lit(matchup_week))\\\r\n",
+					"    .withColumn(\"matchup_timestamp\", current_timestamp())\r\n",
 					"\r\n",
 					"# Show the result\r\n",
 					"display(df_with_points)"
 				],
-				"execution_count": 156
+				"execution_count": 134
 			},
 			{
 				"cell_type": "code",
@@ -158,7 +177,7 @@
 				"source": [
 					"display(df_with_points.select(\"player\", \"player_points\", \"is_starter\", \"points\", \"roster_id\", \"matchup_id\"))"
 				],
-				"execution_count": 157
+				"execution_count": 135
 			},
 			{
 				"cell_type": "markdown",
@@ -187,7 +206,7 @@
 					}
 				},
 				"source": [
-					"_FILE_PATH = \"abfss://raw@spotifyfam.dfs.core.windows.net/sleeper/players/players_992125474790772736_2024-07-17T03:40:50.3694529Z.json\"\r\n",
+					"_FILE_PATH = \"abfss://raw@spotifyfam.dfs.core.windows.net/sleeper/players/players_992125474790772736_2024-09-19T17:59:41.9794865Z.json\"\r\n",
 					"\r\n",
 					"json_str = spark.read.text(_FILE_PATH).collect()\r\n",
 					"\r\n",
@@ -203,7 +222,7 @@
 					"data = [v for k, v in data.items() if isinstance(v, dict) and 'player_id' in v.keys()]\r\n",
 					"# data = [row for row in data if isinstance(row, dict) and 'player_id' in row.keys()]"
 				],
-				"execution_count": 121
+				"execution_count": 136
 			},
 			{
 				"cell_type": "code",
@@ -277,7 +296,7 @@
 					"    StructField(\"birth_city\", StringType(), True)\r\n",
 					"])"
 				],
-				"execution_count": 122
+				"execution_count": 137
 			},
 			{
 				"cell_type": "code",
@@ -295,7 +314,7 @@
 				"source": [
 					"df_player = spark.createDataFrame(data=data, schema=schema)"
 				],
-				"execution_count": 123
+				"execution_count": 138
 			},
 			{
 				"cell_type": "code",
@@ -314,7 +333,7 @@
 				"source": [
 					"display(df_player.select('player_id', 'search_first_name', 'search_last_name', 'status', 'team'))"
 				],
-				"execution_count": 124
+				"execution_count": 139
 			},
 			{
 				"cell_type": "code",
@@ -332,7 +351,7 @@
 				"source": [
 					"joined_df = df_with_points.join(df_player, df_with_points[\"player\"] == df_player[\"player_id\"], \"left_outer\")"
 				],
-				"execution_count": 125
+				"execution_count": 140
 			},
 			{
 				"cell_type": "code",
@@ -350,7 +369,7 @@
 				"source": [
 					"joined_df.printSchema()"
 				],
-				"execution_count": 126
+				"execution_count": 141
 			},
 			{
 				"cell_type": "code",
@@ -369,7 +388,7 @@
 				"source": [
 					"display(joined_df.limit(2))"
 				],
-				"execution_count": 127
+				"execution_count": 142
 			},
 			{
 				"cell_type": "code",
@@ -395,12 +414,12 @@
 					"# )\r\n",
 					"\r\n",
 					"selected_fields_df = joined_df.select(\r\n",
-					"    \"matchup_id\", \r\n",
+					"    \"matchup_id\", \"matchup_week\", \"matchup_timestamp\",\r\n",
 					"    \"roster_id\", col(\"points\").alias(\"roster_points\"), \r\n",
 					"    \"player_id\", \"first_name\", \"last_name\", \"position\", \"team\", \"player_points\", \"is_starter\", \"injury_status\", \"injury_notes\", \"years_exp\", \"search_rank\", \"height\", \"weight\", \"high_school\", \"college\", \"age\", \"birth_date\" ,\"birth_state\", \"birth_city\"\r\n",
 					")"
 				],
-				"execution_count": 128
+				"execution_count": 143
 			},
 			{
 				"cell_type": "code",
@@ -419,7 +438,7 @@
 				"source": [
 					"display(selected_fields_df)"
 				],
-				"execution_count": 129
+				"execution_count": 144
 			},
 			{
 				"cell_type": "code",
@@ -437,7 +456,7 @@
 				"source": [
 					"selected_fields_df"
 				],
-				"execution_count": 130
+				"execution_count": 145
 			},
 			{
 				"cell_type": "markdown",
@@ -469,7 +488,7 @@
 					"roster_api_data = requests.get('https://api.sleeper.app/v1/league/1124784521578180608/rosters') \r\n",
 					"roster_api_data = json.loads(roster_api_data.text)"
 				],
-				"execution_count": 131
+				"execution_count": 146
 			},
 			{
 				"cell_type": "code",
@@ -510,7 +529,7 @@
 					"    ]), True)\r\n",
 					"])"
 				],
-				"execution_count": 132
+				"execution_count": 147
 			},
 			{
 				"cell_type": "code",
@@ -528,7 +547,7 @@
 				"source": [
 					"df = spark.createDataFrame(roster_api_data, schema=schema)"
 				],
-				"execution_count": 133
+				"execution_count": 148
 			},
 			{
 				"cell_type": "code",
@@ -546,7 +565,7 @@
 				"source": [
 					"df.printSchema()"
 				],
-				"execution_count": 134
+				"execution_count": 149
 			},
 			{
 				"cell_type": "code",
@@ -586,7 +605,7 @@
 					"\r\n",
 					"df_roster = df_flattened.select(*renamed_columns)"
 				],
-				"execution_count": 135
+				"execution_count": 150
 			},
 			{
 				"cell_type": "code",
@@ -605,7 +624,7 @@
 				"source": [
 					"display(df_roster)"
 				],
-				"execution_count": 136
+				"execution_count": 151
 			},
 			{
 				"cell_type": "code",
@@ -623,7 +642,7 @@
 				"source": [
 					"df_roster.printSchema()"
 				],
-				"execution_count": 137
+				"execution_count": 152
 			},
 			{
 				"cell_type": "code",
@@ -641,7 +660,7 @@
 				"source": [
 					"selected_fields_df.printSchema()"
 				],
-				"execution_count": 138
+				"execution_count": 153
 			},
 			{
 				"cell_type": "code",
@@ -680,7 +699,7 @@
 					"df_fixed = df_fixed.drop(\"roster_ppts_decimal\", \"roster_fpts_decimal\", \"roster_fpts_against_decimal\")\r\n",
 					""
 				],
-				"execution_count": 139
+				"execution_count": 154
 			},
 			{
 				"cell_type": "code",
@@ -697,13 +716,13 @@
 				},
 				"source": [
 					"selected_fields_df = df_fixed.select(\r\n",
-					"    \"matchup_id\",\r\n",
+					"    \"matchup_id\", \"matchup_week\", \"matchup_timestamp\",\r\n",
 					"    \"owner_id\", \r\n",
 					"    \"roster_id\", \"roster_points\", \"roster_wins\", \"roster_ties\", \"roster_losses\",  \"roster_record\", \"roster_streak\", \"roster_fpts\", \"roster_fpts_against\",\r\n",
 					"    \"player_id\", \"first_name\", \"last_name\", \"position\", \"team\", \"player_points\", \"is_starter\", \"injury_status\", \"injury_notes\", \"years_exp\", \"search_rank\", \"height\", \"weight\", \"high_school\", \"college\", \"age\", \"birth_date\" ,\"birth_state\", \"birth_city\"\r\n",
 					")"
 				],
-				"execution_count": 140
+				"execution_count": 155
 			},
 			{
 				"cell_type": "code",
@@ -721,7 +740,7 @@
 				"source": [
 					"df_fixed.printSchema()"
 				],
-				"execution_count": 141
+				"execution_count": 156
 			},
 			{
 				"cell_type": "code",
@@ -740,7 +759,7 @@
 				"source": [
 					"display(selected_fields_df)"
 				],
-				"execution_count": 142
+				"execution_count": 157
 			},
 			{
 				"cell_type": "markdown",
@@ -772,7 +791,7 @@
 					"users_api_data = requests.get('https://api.sleeper.app/v1/league/1124784521578180608/users') \r\n",
 					"users_api_data = json.loads(users_api_data.text)"
 				],
-				"execution_count": 143
+				"execution_count": 158
 			},
 			{
 				"cell_type": "code",
@@ -819,7 +838,7 @@
 					"    col(\"metadata.team_name\").alias(\"team_name\")  # Flatten metadata.team_name\r\n",
 					")"
 				],
-				"execution_count": 144
+				"execution_count": 159
 			},
 			{
 				"cell_type": "code",
@@ -838,7 +857,7 @@
 				"source": [
 					"display(df_users)"
 				],
-				"execution_count": 145
+				"execution_count": 160
 			},
 			{
 				"cell_type": "code",
@@ -858,7 +877,7 @@
 					"\r\n",
 					"#joined_df = df_with_points.join(df_player, df_with_points[\"player\"] == df_player[\"player_id\"], \"left_outer\")"
 				],
-				"execution_count": 146
+				"execution_count": 161
 			},
 			{
 				"cell_type": "code",
@@ -877,7 +896,7 @@
 				"source": [
 					"display(full_df)"
 				],
-				"execution_count": 147
+				"execution_count": 162
 			},
 			{
 				"cell_type": "code",
@@ -894,31 +913,13 @@
 				},
 				"source": [
 					"selected_fields_df = full_df.select(\r\n",
-					"    \"matchup_id\",\r\n",
+					"    \"matchup_id\", \"matchup_week\", \"matchup_timestamp\",\r\n",
 					"    \"owner_id\", col('display_name').alias('owner_name'), 'team_name',\r\n",
 					"    \"roster_id\", \"roster_points\", \"roster_wins\", \"roster_ties\", \"roster_losses\",  \"roster_record\", \"roster_streak\", \"roster_fpts\", \"roster_fpts_against\",\r\n",
 					"    \"player_id\", \"first_name\", \"last_name\", \"position\", \"team\", \"player_points\", \"is_starter\", \"injury_status\", \"injury_notes\", \"years_exp\", \"search_rank\", \"height\", \"weight\", \"high_school\", \"college\", \"age\", \"birth_date\" ,\"birth_state\", \"birth_city\"\r\n",
 					")"
 				],
-				"execution_count": 158
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"selected_fields_df.printSchema()"
-				],
-				"execution_count": 159
+				"execution_count": 163
 			},
 			{
 				"cell_type": "code",
@@ -937,7 +938,73 @@
 				"source": [
 					"display(selected_fields_df)"
 				],
-				"execution_count": 160
+				"execution_count": 164
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"selected_fields_df.write.mode('append').saveAsTable('sleeper.modelv1')"
+				],
+				"execution_count": 165
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT * FROM sleeper.modelv1 WHERE matchup_week = 2"
+				],
+				"execution_count": 171
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT DISTINCT team_name, owner_name FROM sleeper.modelv1"
+				],
+				"execution_count": 168
 			}
 		]
 	}
