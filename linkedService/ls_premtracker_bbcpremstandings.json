@@ -1,0 +1,15 @@
+{
+	"name": "ls_premtracker_bbcpremstandings",
+	"properties": {
+		"annotations": [],
+		"type": "Web",
+		"typeProperties": {
+			"url": "https://www.bbc.com/sport/football/premier-league/table",
+			"authenticationType": "Anonymous"
+		},
+		"connectVia": {
+			"referenceName": "clash-SHIR-laptop",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
