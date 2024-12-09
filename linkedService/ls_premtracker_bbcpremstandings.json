@@ -4,7 +4,7 @@
 		"annotations": [],
 		"type": "Web",
 		"typeProperties": {
-			"url": "https://www.bbc.com/sport/football/premier-league/table",
+			"url": "https://www.bbc.com/",
 			"authenticationType": "Anonymous"
 		},
 		"connectVia": {
