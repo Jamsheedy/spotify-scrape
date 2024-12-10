@@ -40,6 +40,10 @@
 			"type": "string",
 			"defaultValue": "https://app-creds.vault.azure.net/"
 		},
+		"ls_premtracker_bbcpremstandings_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.bbc.com/"
+		},
 		"ls_webtbl_premtable_skysports_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://www.skysports.com/premier-league-table"
@@ -716,14 +720,9 @@
 								"type": "WebSource"
 							},
 							"dataset": {
-								"referenceName": "ds_webtbl_skysportsprem",
+								"referenceName": "ds_webtbl_bbcprem",
 								"type": "DatasetReference",
-								"parameters": {
-									"YEAR": {
-										"value": "@pipeline().parameters.YEAR",
-										"type": "Expression"
-									}
-								}
+								"parameters": {}
 							},
 							"firstRowOnly": false
 						}
@@ -747,7 +746,7 @@
 						"typeProperties": {
 							"variableName": "GAMES_PLAYED",
 							"value": {
-								"value": "@string(\n    add(\n        int(activity('LU_InboundTable').output.value[0].Pl),\n        add(\n            int(activity('LU_InboundTable').output.value[1].Pl),\n            add(\n                int(activity('LU_InboundTable').output.value[2].Pl),\n                add(\n                    int(activity('LU_InboundTable').output.value[3].Pl),\n                    add(\n                        int(activity('LU_InboundTable').output.value[4].Pl),\n                        add(\n                            int(activity('LU_InboundTable').output.value[5].Pl),\n                            add(\n                                int(activity('LU_InboundTable').output.value[6].Pl),\n                                add(\n                                    int(activity('LU_InboundTable').output.value[7].Pl),\n                                    add(\n                                        int(activity('LU_InboundTable').output.value[8].Pl), \n                                        add(\n                                            int(activity('LU_InboundTable').output.value[9].Pl),\n                                            add(\n                                                int(activity('LU_InboundTable').output.value[10].Pl),\n                                                add(\n                                                    int(activity('LU_InboundTable').output.value[11].Pl),\n                                                    add(\n                                                        int(activity('LU_InboundTable').output.value[12].Pl),\n                                                        add(\n                                                            int(activity('LU_InboundTable').output.value[13].Pl),\n                                                            add(\n                                                                int(activity('LU_InboundTable').output.value[14].Pl),\n                                                                add(\n                                                                    int(activity('LU_InboundTable').output.value[15].Pl),\n                                                                    add(\n                                                                        int(activity('LU_InboundTable').output.value[16].Pl),\n                                                                        add(\n                                                                            int(activity('LU_InboundTable').output.value[17].Pl),\n                                                                            add(\n                                                                                int(activity('LU_InboundTable').output.value[18].Pl), \n                                                                                int(activity('LU_InboundTable').output.value[19].Pl)\n                                                                                )\n                                                                            )\n                                                                        )\n                                                                    )\n                                                                )\n                                                            )\n                                                        )\n                                                    )\n                                                )\n                                            )\n                                        )\n                                    )\n                                )\n                            )\n                        )\n                    )\n                )    \n            )\n        )\n)",
+								"value": "@string(\n    add(\n        int(activity('LU_InboundTable').output.value[0].Played),\n        add(\n            int(activity('LU_InboundTable').output.value[1].Played),\n            add(\n                int(activity('LU_InboundTable').output.value[2].Played),\n                add(\n                    int(activity('LU_InboundTable').output.value[3].Played),\n                    add(\n                        int(activity('LU_InboundTable').output.value[4].Played),\n                        add(\n                            int(activity('LU_InboundTable').output.value[5].Played),\n                            add(\n                                int(activity('LU_InboundTable').output.value[6].Played),\n                                add(\n                                    int(activity('LU_InboundTable').output.value[7].Played),\n                                    add(\n                                        int(activity('LU_InboundTable').output.value[8].Played), \n                                        add(\n                                            int(activity('LU_InboundTable').output.value[9].Played),\n                                            add(\n                                                int(activity('LU_InboundTable').output.value[10].Played),\n                                                add(\n                                                    int(activity('LU_InboundTable').output.value[11].Played),\n                                                    add(\n                                                        int(activity('LU_InboundTable').output.value[12].Played),\n                                                        add(\n                                                            int(activity('LU_InboundTable').output.value[13].Played),\n                                                            add(\n                                                                int(activity('LU_InboundTable').output.value[14].Played),\n                                                                add(\n                                                                    int(activity('LU_InboundTable').output.value[15].Played),\n                                                                    add(\n                                                                        int(activity('LU_InboundTable').output.value[16].Played),\n                                                                        add(\n                                                                            int(activity('LU_InboundTable').output.value[17].Played),\n                                                                            add(\n                                                                                int(activity('LU_InboundTable').output.value[18].Played), \n                                                                                int(activity('LU_InboundTable').output.value[19].Played)\n                                                                                )\n                                                                            )\n                                                                        )\n                                                                    )\n                                                                )\n                                                            )\n                                                        )\n                                                    )\n                                                )\n                                            )\n                                        )\n                                    )\n                                )\n                            )\n                        )\n                    )\n                )    \n            )\n        )\n)",
 								"type": "Expression"
 							}
 						}
@@ -870,8 +869,7 @@
 											"mappings": [
 												{
 													"source": {
-														"name": "#",
-														"type": "String"
+														"name": "Position"
 													},
 													"sink": {
 														"name": "Position",
@@ -891,8 +889,7 @@
 												},
 												{
 													"source": {
-														"name": "Pl",
-														"type": "String"
+														"name": "Played"
 													},
 													"sink": {
 														"name": "Pl",
@@ -902,8 +899,7 @@
 												},
 												{
 													"source": {
-														"name": "W",
-														"type": "String"
+														"name": "Won"
 													},
 													"sink": {
 														"name": "W",
@@ -913,8 +909,7 @@
 												},
 												{
 													"source": {
-														"name": "D",
-														"type": "String"
+														"name": "Drawn"
 													},
 													"sink": {
 														"name": "D",
@@ -924,8 +919,7 @@
 												},
 												{
 													"source": {
-														"name": "L",
-														"type": "String"
+														"name": "Lost"
 													},
 													"sink": {
 														"name": "L",
@@ -935,8 +929,7 @@
 												},
 												{
 													"source": {
-														"name": "F",
-														"type": "String"
+														"name": "Goals For"
 													},
 													"sink": {
 														"name": "F",
@@ -946,8 +939,7 @@
 												},
 												{
 													"source": {
-														"name": "A",
-														"type": "String"
+														"name": "Goals Against"
 													},
 													"sink": {
 														"name": "A",
@@ -957,8 +949,7 @@
 												},
 												{
 													"source": {
-														"name": "GD",
-														"type": "String"
+														"name": "Goal Difference"
 													},
 													"sink": {
 														"name": "GD",
@@ -968,8 +959,7 @@
 												},
 												{
 													"source": {
-														"name": "Pts",
-														"type": "String"
+														"name": "Points"
 													},
 													"sink": {
 														"name": "Pts",
@@ -1008,14 +998,9 @@
 									},
 									"inputs": [
 										{
-											"referenceName": "ds_webtbl_skysportsprem",
+											"referenceName": "ds_webtbl_bbcprem",
 											"type": "DatasetReference",
-											"parameters": {
-												"YEAR": {
-													"value": "@pipeline().parameters.YEAR",
-													"type": "Expression"
-												}
-											}
+											"parameters": {}
 										}
 									],
 									"outputs": [
@@ -1362,7 +1347,7 @@
 				"parameters": {
 					"YEAR": {
 						"type": "string",
-						"defaultValue": "2023"
+						"defaultValue": "2024"
 					}
 				},
 				"variables": {
@@ -1377,10 +1362,9 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/ds_webtbl_skysportsprem')]",
+				"[concat(variables('workspaceId'), '/datasets/ds_webtbl_bbcprem')]",
 				"[concat(variables('workspaceId'), '/datasets/ds_csv_gen')]",
 				"[concat(variables('workspaceId'), '/dataflows/df_premtracker_table_s2r')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
 				"[concat(variables('workspaceId'), '/dataflows/df_premtracker_r2f_mock1')]"
 			]
 		},
@@ -3026,6 +3010,27 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/ds_webtbl_bbcprem')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_premtracker_bbcpremstandings",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "WebTable",
+				"schema": [],
+				"typeProperties": {
+					"index": 0,
+					"path": "sport/football/premier-league/table"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/ls_premtracker_bbcpremstandings')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ds_webtbl_skysportsprem')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -3381,6 +3386,26 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ls_premtracker_bbcpremstandings')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "Web",
+				"typeProperties": {
+					"url": "[parameters('ls_premtracker_bbcpremstandings_properties_typeProperties_url')]",
+					"authenticationType": "Anonymous"
+				},
+				"connectVia": {
+					"referenceName": "clash-SHIR-laptop",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/clash-SHIR-laptop')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/ls_webtbl_premtable_skysports')]",
@@ -5955,6 +5980,297 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/draftboard_team_rename')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "premtracker"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "smallspark0",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "b0bf1c3d-5488-4f0a-8e59-edddecf7d8f7"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_sparksql",
+						"display_name": "sql"
+					},
+					"language_info": {
+						"name": "sql"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark0",
+						"name": "smallspark0",
+						"type": "Spark",
+						"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark0",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28,
+						"automaticScaleJobs": false
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"collapsed": false
+						},
+						"source": [
+							"SELECT 1"
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"CREATE TABLE premtracker_raw.draftboard_bkp AS SELECT * FROM premtracker_raw.draftboard"
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"SELECT * FROM premtracker_raw.draftboard WHERE"
+						],
+						"outputs": [],
+						"execution_count": 21
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"DROP TABLE premtracker_raw.draftboard"
+						],
+						"outputs": [],
+						"execution_count": 11
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"CREATE TABLE premtracker_raw.draftboard AS \r\n",
+							"SELECT\r\n",
+							"    CASE Team\r\n",
+							"       WHEN 'Brighton and Hove Albion' THEN 'Brighton & Hove Albion'\r\n",
+							"       WHEN 'Bournemouth' THEN 'AFC Bournemouth'\r\n",
+							"       ELSE Team\r\n",
+							"    END as Team,\r\n",
+							"    Player,\r\n",
+							"    Pick,\r\n",
+							"    season,\r\n",
+							"    load_date\r\n",
+							"FROM premtracker_raw.draftboard_bkp"
+						],
+						"outputs": [],
+						"execution_count": 13
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"--CREATE TABLE premtracker_foundation.standings_mock1_bkp AS\r\n",
+							"SELECT * FROM premtracker_foundation.standings_mock1"
+						],
+						"outputs": [],
+						"execution_count": 27
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"DROP TABLE premtracker_foundation.standings_mock1"
+						],
+						"outputs": [],
+						"execution_count": 25
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"CREATE TABLE premtracker_foundation.standings_mock1 AS\r\n",
+							"SELECT\r\n",
+							"    Position,\r\n",
+							"    Season,\r\n",
+							"    CASE Team\r\n",
+							"       WHEN 'Brighton and Hove Albion' THEN 'Brighton & Hove Albion'\r\n",
+							"       WHEN 'Bournemouth' THEN 'AFC Bournemouth'\r\n",
+							"       ELSE Team\r\n",
+							"    END as Team,\r\n",
+							"    Player,\r\n",
+							"    Pick,\r\n",
+							"    PickValue,\r\n",
+							"    Points,\r\n",
+							"    Matches,\r\n",
+							"    Wins,\r\n",
+							"    Draws,\r\n",
+							"    Losses,\r\n",
+							"    GoalsFor,\r\n",
+							"    GoalsAgainst,\r\n",
+							"    GoalDiff,\r\n",
+							"    PointTotal,\r\n",
+							"    MatchTotal,\r\n",
+							"    WinTotal,\r\n",
+							"    DrawTotal,\r\n",
+							"    LossTotal,\r\n",
+							"    GoalsForTotal,\r\n",
+							"    GoalsAgainstTotal,\r\n",
+							"    GoalDiffTotal,\r\n",
+							"    load_date,\r\n",
+							"    current_ts\r\n",
+							"FROM premtracker_foundation.standings_mock1_bkp"
+						],
+						"outputs": [],
+						"execution_count": 26
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"DESCRIBE TABLE EXTENDED premtracker_foundation.standings_mock1"
+						],
+						"outputs": [],
+						"execution_count": 20
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": [],
+						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/nb_scrape')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
@@ -6730,15 +7046,15 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "90b4c952-d9a3-4943-bd02-562ec5e8f3cf"
+						"spark.autotune.trackingId": "ca4037a6-df30-446a-a458-8fd450d82a04"
 					}
 				},
 				"metadata": {
 					"saveOutput": true,
 					"enableDebugMode": false,
 					"kernelspec": {
-						"name": "synapse_pyspark",
-						"display_name": "Synapse PySpark"
+						"name": "synapse_sparksql",
+						"display_name": "sql"
 					},
 					"language_info": {
 						"name": "sql"
@@ -6755,7 +7071,8 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},

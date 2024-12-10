@@ -29,6 +29,9 @@
 		"ls_kv_appcreds_properties_typeProperties_baseUrl": {
 			"value": "https://app-creds.vault.azure.net/"
 		},
+		"ls_premtracker_bbcpremstandings_properties_typeProperties_url": {
+			"value": "https://www.bbc.com/"
+		},
 		"ls_webtbl_premtable_skysports_properties_typeProperties_url": {
 			"value": "https://www.skysports.com/premier-league-table"
 		},
