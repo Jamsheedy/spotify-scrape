@@ -1,0 +1,278 @@
+{
+	"name": "draftboard_team_rename",
+	"properties": {
+		"folder": {
+			"name": "premtracker"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "smallspark0",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "e5f21a03-47d0-472f-a189-0e805e03b8be"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "sql"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/6cb2d3f3-d909-494e-8c69-03fc31778b22/resourceGroups/spotify-fam/providers/Microsoft.Synapse/workspaces/spotify-scrape-dev/bigDataPools/smallspark0",
+				"name": "smallspark0",
+				"type": "Spark",
+				"endpoint": "https://spotify-scrape-dev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/smallspark0",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"SELECT 1"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CREATE TABLE premtracker_raw.draftboard_bkp AS SELECT * FROM premtracker_raw.draftboard"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"SELECT * FROM premtracker_raw.draftboard WHERE"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DROP TABLE premtracker_raw.draftboard"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CREATE TABLE premtracker_raw.draftboard AS \r\n",
+					"SELECT\r\n",
+					"    CASE Team\r\n",
+					"       WHEN 'Brighton and Hove Albion' THEN 'Brighton & Hove Albion'\r\n",
+					"       WHEN 'Bournemouth' THEN 'AFC Bournemouth'\r\n",
+					"       ELSE Team\r\n",
+					"    END as Team,\r\n",
+					"    Player,\r\n",
+					"    Pick,\r\n",
+					"    season,\r\n",
+					"    load_date\r\n",
+					"FROM premtracker_raw.draftboard_bkp"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"--CREATE TABLE premtracker_foundation.standings_mock1_bkp AS\r\n",
+					"SELECT * FROM premtracker_foundation.standings_mock1"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DROP TABLE premtracker_foundation.standings_mock1"
+				],
+				"execution_count": 25
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CREATE TABLE premtracker_foundation.standings_mock1 AS\r\n",
+					"SELECT\r\n",
+					"    Position,\r\n",
+					"    Season,\r\n",
+					"    CASE Team\r\n",
+					"       WHEN 'Brighton and Hove Albion' THEN 'Brighton & Hove Albion'\r\n",
+					"       WHEN 'Bournemouth' THEN 'AFC Bournemouth'\r\n",
+					"       ELSE Team\r\n",
+					"    END as Team,\r\n",
+					"    Player,\r\n",
+					"    Pick,\r\n",
+					"    PickValue,\r\n",
+					"    Points,\r\n",
+					"    Matches,\r\n",
+					"    Wins,\r\n",
+					"    Draws,\r\n",
+					"    Losses,\r\n",
+					"    GoalsFor,\r\n",
+					"    GoalsAgainst,\r\n",
+					"    GoalDiff,\r\n",
+					"    PointTotal,\r\n",
+					"    MatchTotal,\r\n",
+					"    WinTotal,\r\n",
+					"    DrawTotal,\r\n",
+					"    LossTotal,\r\n",
+					"    GoalsForTotal,\r\n",
+					"    GoalsAgainstTotal,\r\n",
+					"    GoalDiffTotal,\r\n",
+					"    load_date,\r\n",
+					"    current_ts\r\n",
+					"FROM premtracker_foundation.standings_mock1_bkp"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DESCRIBE TABLE EXTENDED premtracker_foundation.standings_mock1"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

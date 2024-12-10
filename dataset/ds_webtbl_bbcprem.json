@@ -1,0 +1,16 @@
+{
+	"name": "ds_webtbl_bbcprem",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_premtracker_bbcpremstandings",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "WebTable",
+		"schema": [],
+		"typeProperties": {
+			"index": 0,
+			"path": "sport/football/premier-league/table"
+		}
+	}
+}
