@@ -19,14 +19,8 @@
 						"type": "WebSource"
 					},
 					"dataset": {
-						"referenceName": "ds_webtbl_skysportsprem",
-						"type": "DatasetReference",
-						"parameters": {
-							"YEAR": {
-								"value": "@pipeline().parameters.YEAR",
-								"type": "Expression"
-							}
-						}
+						"referenceName": "ds_webtbl_bbcprem",
+						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
 				}
@@ -50,7 +44,7 @@
 				"typeProperties": {
 					"variableName": "GAMES_PLAYED",
 					"value": {
-						"value": "@string(\n    add(\n        int(activity('LU_InboundTable').output.value[0].Pl),\n        add(\n            int(activity('LU_InboundTable').output.value[1].Pl),\n            add(\n                int(activity('LU_InboundTable').output.value[2].Pl),\n                add(\n                    int(activity('LU_InboundTable').output.value[3].Pl),\n                    add(\n                        int(activity('LU_InboundTable').output.value[4].Pl),\n                        add(\n                            int(activity('LU_InboundTable').output.value[5].Pl),\n                            add(\n                                int(activity('LU_InboundTable').output.value[6].Pl),\n                                add(\n                                    int(activity('LU_InboundTable').output.value[7].Pl),\n                                    add(\n                                        int(activity('LU_InboundTable').output.value[8].Pl), \n                                        add(\n                                            int(activity('LU_InboundTable').output.value[9].Pl),\n                                            add(\n                                                int(activity('LU_InboundTable').output.value[10].Pl),\n                                                add(\n                                                    int(activity('LU_InboundTable').output.value[11].Pl),\n                                                    add(\n                                                        int(activity('LU_InboundTable').output.value[12].Pl),\n                                                        add(\n                                                            int(activity('LU_InboundTable').output.value[13].Pl),\n                                                            add(\n                                                                int(activity('LU_InboundTable').output.value[14].Pl),\n                                                                add(\n                                                                    int(activity('LU_InboundTable').output.value[15].Pl),\n                                                                    add(\n                                                                        int(activity('LU_InboundTable').output.value[16].Pl),\n                                                                        add(\n                                                                            int(activity('LU_InboundTable').output.value[17].Pl),\n                                                                            add(\n                                                                                int(activity('LU_InboundTable').output.value[18].Pl), \n                                                                                int(activity('LU_InboundTable').output.value[19].Pl)\n                                                                                )\n                                                                            )\n                                                                        )\n                                                                    )\n                                                                )\n                                                            )\n                                                        )\n                                                    )\n                                                )\n                                            )\n                                        )\n                                    )\n                                )\n                            )\n                        )\n                    )\n                )    \n            )\n        )\n)",
+						"value": "@string(\n    add(\n        int(activity('LU_InboundTable').output.value[0].Played),\n        add(\n            int(activity('LU_InboundTable').output.value[1].Played),\n            add(\n                int(activity('LU_InboundTable').output.value[2].Played),\n                add(\n                    int(activity('LU_InboundTable').output.value[3].Played),\n                    add(\n                        int(activity('LU_InboundTable').output.value[4].Played),\n                        add(\n                            int(activity('LU_InboundTable').output.value[5].Played),\n                            add(\n                                int(activity('LU_InboundTable').output.value[6].Played),\n                                add(\n                                    int(activity('LU_InboundTable').output.value[7].Played),\n                                    add(\n                                        int(activity('LU_InboundTable').output.value[8].Played), \n                                        add(\n                                            int(activity('LU_InboundTable').output.value[9].Played),\n                                            add(\n                                                int(activity('LU_InboundTable').output.value[10].Played),\n                                                add(\n                                                    int(activity('LU_InboundTable').output.value[11].Played),\n                                                    add(\n                                                        int(activity('LU_InboundTable').output.value[12].Played),\n                                                        add(\n                                                            int(activity('LU_InboundTable').output.value[13].Played),\n                                                            add(\n                                                                int(activity('LU_InboundTable').output.value[14].Played),\n                                                                add(\n                                                                    int(activity('LU_InboundTable').output.value[15].Played),\n                                                                    add(\n                                                                        int(activity('LU_InboundTable').output.value[16].Played),\n                                                                        add(\n                                                                            int(activity('LU_InboundTable').output.value[17].Played),\n                                                                            add(\n                                                                                int(activity('LU_InboundTable').output.value[18].Played), \n                                                                                int(activity('LU_InboundTable').output.value[19].Played)\n                                                                                )\n                                                                            )\n                                                                        )\n                                                                    )\n                                                                )\n                                                            )\n                                                        )\n                                                    )\n                                                )\n                                            )\n                                        )\n                                    )\n                                )\n                            )\n                        )\n                    )\n                )    \n            )\n        )\n)",
 						"type": "Expression"
 					}
 				}
@@ -120,7 +114,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@greater(\n    variables('GAMES_PLAYED'),\n    activity('LU Last Game Count').output.firstRow.LastGameCount\n)",
+						"value": "@greater(\n    int(variables('GAMES_PLAYED')),\n    int(activity('LU Last Game Count').output.firstRow.LastGameCount)\n)",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
@@ -173,8 +167,7 @@
 									"mappings": [
 										{
 											"source": {
-												"name": "#",
-												"type": "String"
+												"name": "Position"
 											},
 											"sink": {
 												"name": "Position",
@@ -194,8 +187,7 @@
 										},
 										{
 											"source": {
-												"name": "Pl",
-												"type": "String"
+												"name": "Played"
 											},
 											"sink": {
 												"name": "Pl",
@@ -205,8 +197,7 @@
 										},
 										{
 											"source": {
-												"name": "W",
-												"type": "String"
+												"name": "Won"
 											},
 											"sink": {
 												"name": "W",
@@ -216,8 +207,7 @@
 										},
 										{
 											"source": {
-												"name": "D",
-												"type": "String"
+												"name": "Drawn"
 											},
 											"sink": {
 												"name": "D",
@@ -227,8 +217,7 @@
 										},
 										{
 											"source": {
-												"name": "L",
-												"type": "String"
+												"name": "Lost"
 											},
 											"sink": {
 												"name": "L",
@@ -238,8 +227,7 @@
 										},
 										{
 											"source": {
-												"name": "F",
-												"type": "String"
+												"name": "Goals For"
 											},
 											"sink": {
 												"name": "F",
@@ -249,8 +237,7 @@
 										},
 										{
 											"source": {
-												"name": "A",
-												"type": "String"
+												"name": "Goals Against"
 											},
 											"sink": {
 												"name": "A",
@@ -260,8 +247,7 @@
 										},
 										{
 											"source": {
-												"name": "GD",
-												"type": "String"
+												"name": "Goal Difference"
 											},
 											"sink": {
 												"name": "GD",
@@ -271,8 +257,7 @@
 										},
 										{
 											"source": {
-												"name": "Pts",
-												"type": "String"
+												"name": "Points"
 											},
 											"sink": {
 												"name": "Pts",
@@ -311,14 +296,8 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "ds_webtbl_skysportsprem",
-									"type": "DatasetReference",
-									"parameters": {
-										"YEAR": {
-											"value": "@pipeline().parameters.YEAR",
-											"type": "Expression"
-										}
-									}
+									"referenceName": "ds_webtbl_bbcprem",
+									"type": "DatasetReference"
 								}
 							],
 							"outputs": [
@@ -650,7 +629,7 @@
 		"parameters": {
 			"YEAR": {
 				"type": "string",
-				"defaultValue": "2023"
+				"defaultValue": "2024"
 			}
 		},
 		"variables": {
