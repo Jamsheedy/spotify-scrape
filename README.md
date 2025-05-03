@@ -1,6 +1,6 @@
 # Azure Synapse Analytics Repository
 
-This repo contains everything you need to stand up and manage a collection of Azure Synapse pipelines, dataflows, and helper scripts—organized into four distinct sub-projects:
+This repo contains a collection of Azure Synapse pipelines, dataflows, and helper scripts—organized into four distinct sub-projects:
 
 1. **appserver**  
 2. **clash-of-clans-warehouse** _(decommissioned)_  
