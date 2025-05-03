@@ -11,13 +11,7 @@ This repo contains a collection of Azure Synapse pipelines, dataflows, and helpe
 
 ## Table of Contents
 
-1. [Projects](#projects)  
-2. [Prerequisites](#prerequisites)  
-5. [Folder Structure](#folder-structure)  
-6. [Contributing](#contributing)  
-7. [License](#license)  
-8. [Contact](#contact)  
-
+1. [Projects](#projects)
 ---
 
 ## Projects
