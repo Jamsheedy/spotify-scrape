@@ -1,1 +1,66 @@
-# spotify-scrape
+# Azure Synapse Analytics Repository
+
+This repo contains everything you need to stand up and manage a collection of Azure Synapse pipelines, dataflows, and helper scripts—organized into four distinct sub-projects:
+
+1. **appserver**  
+2. **clash-of-clans-warehouse** _(decommissioned)_  
+3. **premtracker**  
+4. **spotifyscrape**  
+
+---
+
+## Table of Contents
+
+1. [Projects](#projects)  
+2. [Prerequisites](#prerequisites)  
+5. [Folder Structure](#folder-structure)  
+6. [Contributing](#contributing)  
+7. [License](#license)  
+8. [Contact](#contact)  
+
+---
+
+## Projects
+
+### 1. appserver  
+A proof-of-concept that lets your Synapse Pipeline invoke Python-based applications through a Flask server.  
+- **Trigger & Orchestrate** calls via Web Activity  
+- **Self-Hosted Integration Runtime** runs your web‐scraping scripts on-prem or in your own VM  
+- Leverages Synapse monitoring & logging while keeping cloud costs minimal  
+
+### 2. clash-of-clans-warehouse (Decommissioned)  
+An initial ETL pipeline for ingesting Clash of Clans clan & player data via the [Clash of Clans API](https://developer.clashofclans.com/#/).  
+> **Note:** This project has been decommissioned—kept here for reference only.
+
+### 3. premtracker  
+Weekly ETL that scrapes the Premier League table from BBC Sport and tracks standings over time.  
+- Source: https://www.bbc.com/sport/football/premier-league/table  
+- Outputs historical standings for use in analytics & dashboards  
+- Includes a sample Looker Studio dashboard:  
+  https://lookerstudio.google.com/reporting/6c5173fc-bc48-44a3-85cc-f5565b87cb21
+
+### 4. spotifyscrape  
+ETL pipelines that log usage on a Spotify Family plan to help you track listening patterns and calculate quarterly billing.
+
+---
+
+## Prerequisites
+
+- **Azure Subscription** with permissions to create Synapse Workspaces, Integration Runtimes, and Linked Services  
+- **Azure Synapse Studio** or the [Azure CLI](https://docs.microsoft.com/cli/azure/synapse)  
+- **Self-Hosted Integration Runtime** (for `appserver`) already installed on your VM or on-prem server  
+- **Python 3.8+**   
+- Python packages (see `requirements.txt` in each sub-project)  
+- **API Credentials**  
+  - Clash of Clans Developer Token  
+  - No-auth needed for BBC Sport (HTML scraping)  
+  - Spotify credentials (username/password or OAuth token)  
+
+---
+
+## Setup & Configuration
+
+1. **Clone the repo**
+   ```bash
+   git clone https://github.com/your-org/azure-synapse-analytics.git
+   cd azure-synapse-analytics
