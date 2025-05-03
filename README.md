@@ -41,26 +41,3 @@ Weekly ETL that scrapes the Premier League table from BBC Sport and tracks stand
 
 ### 4. spotifyscrape  
 ETL pipelines that log usage on a Spotify Family plan to help you track listening patterns and calculate quarterly billing.
-
----
-
-## Prerequisites
-
-- **Azure Subscription** with permissions to create Synapse Workspaces, Integration Runtimes, and Linked Services  
-- **Azure Synapse Studio** or the [Azure CLI](https://docs.microsoft.com/cli/azure/synapse)  
-- **Self-Hosted Integration Runtime** (for `appserver`) already installed on your VM or on-prem server  
-- **Python 3.8+**   
-- Python packages (see `requirements.txt` in each sub-project)  
-- **API Credentials**  
-  - Clash of Clans Developer Token  
-  - No-auth needed for BBC Sport (HTML scraping)  
-  - Spotify credentials (username/password or OAuth token)  
-
----
-
-## Setup & Configuration
-
-1. **Clone the repo**
-   ```bash
-   git clone https://github.com/your-org/azure-synapse-analytics.git
-   cd azure-synapse-analytics
