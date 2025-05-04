@@ -27,6 +27,15 @@
 			"transformations": [
 				{
 					"name": "derivedColumn1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "rank1"
 				}
 			],
 			"scriptLines": [
@@ -48,7 +57,13 @@
 				"     quoteChar: '\\\"',",
 				"     columnNamesAsHeader: true,",
 				"     timestampFormats: ['yyyy.MM.dd HH:mm:ss']) ~> source1",
-				"source1 derive(load_date = currentDate('UTC')) ~> derivedColumn1",
+				"rank1 derive(load_date = currentDate('UTC')) ~> derivedColumn1",
+				"source1 filter(!isNull(byName('Pl'))) ~> filter1",
+				"filter1 derive(Team = replace(toString(byName('Team')), '\"', '')) ~> derivedColumn2",
+				"derivedColumn2 rank(desc(toInteger(byName('Pts')), true),",
+				"     desc(toInteger(byName('GD')), true),",
+				"     desc(toInteger(byName('F')), true),",
+				"     output(Position as long)) ~> rank1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     store: 'synapse',",
