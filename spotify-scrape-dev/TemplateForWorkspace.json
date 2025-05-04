@@ -869,15 +869,6 @@
 											"mappings": [
 												{
 													"source": {
-														"name": "Position"
-													},
-													"sink": {
-														"name": "Position",
-														"physicalType": "String"
-													}
-												},
-												{
-													"source": {
 														"name": "Team",
 														"type": "String"
 													},
@@ -2867,6 +2858,56 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/ds_csv_bbcstg_format')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "spotify-scrape-dev-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FILE_SYS": {
+						"type": "string"
+					},
+					"DIR": {
+						"type": "string"
+					},
+					"FILE_NM": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FILE_NM",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().DIR",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().FILE_SYS",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/spotify-scrape-dev-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ds_csv_gen')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -4255,6 +4296,15 @@
 					"transformations": [
 						{
 							"name": "derivedColumn1"
+						},
+						{
+							"name": "filter1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "rank1"
 						}
 					],
 					"scriptLines": [
@@ -4275,10 +4325,14 @@
 						"     escapeChar: '\\\\',",
 						"     quoteChar: '\\\"',",
 						"     columnNamesAsHeader: true,",
-						"     timestampFormats: ['yyyy.MM.dd HH:mm:ss'],",
-						"     preferredIntegralType: 'short',",
-						"     booleanFormat: ['True', 'False']) ~> source1",
-						"source1 derive(load_date = currentDate('UTC')) ~> derivedColumn1",
+						"     timestampFormats: ['yyyy.MM.dd HH:mm:ss']) ~> source1",
+						"rank1 derive(load_date = currentDate('UTC')) ~> derivedColumn1",
+						"source1 filter(!isNull(byName('Pl'))) ~> filter1",
+						"filter1 derive(Team = replace(toString(byName('Team')), '\"', '')) ~> derivedColumn2",
+						"derivedColumn2 rank(desc(toInteger(byName('Pts')), true),",
+						"     desc(toInteger(byName('GD')), true),",
+						"     desc(toInteger(byName('F')), true),",
+						"     output(Position as long)) ~> rank1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     store: 'synapse',",
@@ -6003,15 +6057,15 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "b0bf1c3d-5488-4f0a-8e59-edddecf7d8f7"
+						"spark.autotune.trackingId": "e5f21a03-47d0-472f-a189-0e805e03b8be"
 					}
 				},
 				"metadata": {
 					"saveOutput": true,
 					"enableDebugMode": false,
 					"kernelspec": {
-						"name": "synapse_sparksql",
-						"display_name": "sql"
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
 					},
 					"language_info": {
 						"name": "sql"
@@ -6028,8 +6082,7 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -7046,15 +7099,15 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "ca4037a6-df30-446a-a458-8fd450d82a04"
+						"spark.autotune.trackingId": "90b4c952-d9a3-4943-bd02-562ec5e8f3cf"
 					}
 				},
 				"metadata": {
 					"saveOutput": true,
 					"enableDebugMode": false,
 					"kernelspec": {
-						"name": "synapse_sparksql",
-						"display_name": "sql"
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
 					},
 					"language_info": {
 						"name": "sql"
@@ -7071,8 +7124,7 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
