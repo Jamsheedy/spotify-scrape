@@ -167,15 +167,6 @@
 									"mappings": [
 										{
 											"source": {
-												"name": "Position"
-											},
-											"sink": {
-												"name": "Position",
-												"physicalType": "String"
-											}
-										},
-										{
-											"source": {
 												"name": "Team",
 												"type": "String"
 											},
