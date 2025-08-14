@@ -10,7 +10,7 @@
 					"type": "PipelineReference"
 				},
 				"parameters": {
-					"YEAR": "2024"
+					"YEAR": "2025"
 				}
 			}
 		],
@@ -19,8 +19,8 @@
 			"recurrence": {
 				"frequency": "Day",
 				"interval": 1,
-				"startTime": "2024-08-16T11:06:00",
-				"endTime": "2025-06-01T00:00:00",
+				"startTime": "2025-08-15T00:00:00",
+				"endTime": "2026-06-01T00:00:00",
 				"timeZone": "Eastern Standard Time",
 				"schedule": {
 					"minutes": [
