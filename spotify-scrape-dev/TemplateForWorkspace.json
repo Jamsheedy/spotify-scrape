@@ -74,7 +74,7 @@
 		},
 		"tr_premtracker_master_properties_pl_premtracker_standings_master_parameters_YEAR": {
 			"type": "string",
-			"defaultValue": "2024"
+			"defaultValue": "2025"
 		}
 	},
 	"variables": {
@@ -681,11 +681,11 @@
 				"parameters": {
 					"YEAR": {
 						"type": "string",
-						"defaultValue": "2022"
+						"defaultValue": "2025"
 					},
 					"SHEET_ID": {
 						"type": "string",
-						"defaultValue": "1DeiwYigE0YNqW6Rw7_h4NBABs4yFRsDLdKAKaF8Pwus"
+						"defaultValue": "1jxF36Yn58fIGiQaJmXza5t1IYXHzmr_spYNqi-GRfYc"
 					}
 				},
 				"folder": {
@@ -1338,7 +1338,7 @@
 				"parameters": {
 					"YEAR": {
 						"type": "string",
-						"defaultValue": "2024"
+						"defaultValue": "2025"
 					}
 				},
 				"variables": {
@@ -3692,8 +3692,8 @@
 					"recurrence": {
 						"frequency": "Day",
 						"interval": 1,
-						"startTime": "2024-08-16T11:06:00",
-						"endTime": "2025-06-01T00:00:00",
+						"startTime": "2025-08-15T00:00:00",
+						"endTime": "2026-06-01T00:00:00",
 						"timeZone": "Eastern Standard Time",
 						"schedule": {
 							"minutes": [
