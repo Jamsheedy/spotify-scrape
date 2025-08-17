@@ -24,11 +24,11 @@
 				"timeZone": "Eastern Standard Time",
 				"schedule": {
 					"minutes": [
-						30
+						20
 					],
 					"hours": [
-						14,
-						20
+						12,
+						17
 					]
 				}
 			}
