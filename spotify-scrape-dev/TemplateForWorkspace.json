@@ -8921,8 +8921,8 @@
 					"recurrence": {
 						"frequency": "Day",
 						"interval": 1,
-						"startTime": "2025-08-15T00:00:00",
-						"endTime": "2026-06-02T00:00:00",
+						"startTime": "2026-08-15T00:00:00",
+						"endTime": "2027-06-02T00:00:00",
 						"timeZone": "Eastern Standard Time",
 						"schedule": {
 							"minutes": [
