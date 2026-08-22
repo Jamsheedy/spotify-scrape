@@ -620,7 +620,7 @@
 		"parameters": {
 			"YEAR": {
 				"type": "string",
-				"defaultValue": "2025"
+				"defaultValue": "2026"
 			}
 		},
 		"variables": {
