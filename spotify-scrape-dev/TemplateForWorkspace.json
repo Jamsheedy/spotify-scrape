@@ -74,7 +74,7 @@
 		},
 		"tr_premtracker_master_properties_pl_premtracker_standings_master_parameters_YEAR": {
 			"type": "string",
-			"defaultValue": "2025"
+			"defaultValue": "2026"
 		}
 	},
 	"variables": {
@@ -681,11 +681,11 @@
 				"parameters": {
 					"YEAR": {
 						"type": "string",
-						"defaultValue": "2025"
+						"defaultValue": "2026"
 					},
 					"SHEET_ID": {
 						"type": "string",
-						"defaultValue": "1jxF36Yn58fIGiQaJmXza5t1IYXHzmr_spYNqi-GRfYc"
+						"defaultValue": "1cqu7zHsaaTPbskREu4uZCHvtybFNiG62qrCuR9mBiB8-GRfYc"
 					}
 				},
 				"folder": {
@@ -3667,48 +3667,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/pipelines/s2r_spotify_accounts')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/tr_premtracker_master')]",
-			"type": "Microsoft.Synapse/workspaces/triggers",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "pl_premtracker_standings_master",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"YEAR": "[parameters('tr_premtracker_master_properties_pl_premtracker_standings_master_parameters_YEAR')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2025-08-15T00:00:00",
-						"endTime": "2026-06-02T00:00:00",
-						"timeZone": "Eastern Standard Time",
-						"schedule": {
-							"minutes": [
-								20
-							],
-							"hours": [
-								12,
-								17
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/pipelines/pl_premtracker_standings_master')]"
 			]
 		},
 		{
@@ -8939,6 +8897,48 @@
 			},
 			"dependsOn": [],
 			"location": "southcentralus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/tr_premtracker_master')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pl_premtracker_standings_master",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"YEAR": "[parameters('tr_premtracker_master_properties_pl_premtracker_standings_master_parameters_YEAR')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2025-08-15T00:00:00",
+						"endTime": "2026-06-02T00:00:00",
+						"timeZone": "Eastern Standard Time",
+						"schedule": {
+							"minutes": [
+								20
+							],
+							"hours": [
+								12,
+								17
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_premtracker_standings_master')]"
+			]
 		}
 	]
 }
